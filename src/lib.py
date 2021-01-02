@@ -1,3 +1,4 @@
+# Non-parametric optimization.<br>
 # Find interesting bits. Combine them. Repeat.<br>
 # [home](http://menzies.us/bnbab2)         :: [lib](http://menzies.us/bnbad2/lib.html) ::
 # [cols](http://menzies.us/bnbad2/tab.html) :: [tbl](http://menzies.us/bnbad2/grow.html)<br>
@@ -18,41 +19,7 @@ import pprint
 import re
 import random
 import sys
-
-# --------------------
-# ## Pretty : classes that can pretty print themselves.
-
-class Pretty:
-  def __repr__(i):
-    return re.sub(r"'", ' ',
-                  pprint.pformat(dicts(i.__dict__), compact=True))
-
-# Converts `i` into a nested dictionary, then pretty-prints that.
-def dicts(i, seen=None):
-  if isinstance(i, (tuple, list)):
-    return [dicts(v, seen) for v in i]
-  elif isinstance(i, dict):
-    return {k: dicts(i[k], seen) for k in i if str(k)[0] != "_"}
-  elif isinstance(i, Pretty):
-    seen = seen or {}
-    if i in seen:
-      return "..."
-    seen[i] = i
-    d = dicts(i.__dict__, seen)
-    return d
-  else:
-    return i
-
-# ------------
-# ## o : simple structs
-
-# Fast way to initialize an instance that has no methods.
-class o(Pretty):
-  def __init__(i, **d): i.__dict__.update(**d)
-
-def ook():
-  x = o(a=1, c=o(b=2, c=3))
-  assert(x.c.b == x.c.b)
+from it import *
 
 # ------------
 # ## csv : read comma-separated file
@@ -61,8 +28,8 @@ def ook():
 # whitespace and comments, splitting on commas.
 def csv(file, sep=","):
   def prep(x):
-    return float if it.ch.less in x or \
-        it.ch.more in x or it.ch.num in x else str
+    return float if it.CH.less in x or \
+        it.CH.more in x or it.CH.num in x else str
   linesize = None
   with open(file) as fp:
     for n, line in enumerate(fp):
@@ -71,52 +38,25 @@ def csv(file, sep=","):
         line = line.split(sep)
         if linesize is None:
           linesize = len(line)
-          assert len(line) == linesize,\
-              "row size different to header size"
-          if n == 0:
-            cols = [prep(x) for x in line]
-          else:
-            line = [f(x) for f, x in zip(cols, line)]
-          yield line
+        assert len(line) == linesize,\
+            "row size different to header size"
+        if n == 0:
+          cols = [prep(x) for x in line]
+        else:
+          line = [(x if x == it.CH.skip else f(x))
+                  for f, x in zip(cols, line)]
+        yield line
 
-# -----------
-# ## items,items : a DSL for system options
+def csvok():
+  all = [row for row in csv("data/weather.csv")]
+  assert 15 == len(all)
+  assert float == type(all[2][2])
+  assert str == type(all[2][0])
+  assert 399 == len([row for row in csv("data/auto93.csv")])
 
-def item(txt, **d):
-  for key, default in d.items():
-    pass
-  return o(key=key, default=default, txt=txt)
-
-def items(x):
-  if isinstance(x, list):
-    return o(**{y.key: items(y.default) for y in x})
-  else:
-    return x
-
-def helptext(lst):
-  def pad(x, n=20, c=" "): return x.ljust(n, c)
-  for group in lst:
-    print(pad("\n-" + group.key + " ", c=".") + " " + group.txt)
-    for x in group.default:
-      if x.default == False:
-        pre = "+" + x.key
-      else:
-        pre = "-" + x.key + " " + str(x.default)
-      print("   " + pad(pre, n=17) + x.txt)
-
-# ---------
-# ## ok : simple unit test engine
-
-def ok(*l):
-  for fun in l:
-    try:
-      fun()
-      print("\t", fun.__name__, "PASS")
-    except Exception:
-      print("\t", fun.__name__, "FAIL")
 
 # ---
 # main
 if __name__ == "__main__":
   if "--test" in sys.argv:
-    ok(ook)
+    ok(csvok)

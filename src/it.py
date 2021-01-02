@@ -1,3 +1,4 @@
+# Non-parametric optimization.<br>
 # Find interesting bits. Combine them. Repeat.<br>
 # [home](http://menzies.us/bnbab2)         :: [lib](http://menzies.us/bnbad2/lib.html) ::
 # [cols](http://menzies.us/bnbad2/tab.html) :: [tbl](http://menzies.us/bnbad2/grow.html)<br>
@@ -11,7 +12,7 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-from lib import o, item, items
+from boot import *
 
 it = items([
     item("magic characters defining column types",

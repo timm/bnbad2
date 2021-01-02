@@ -17,7 +17,8 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-0'>#</a>
       </div>
-      <p>Find and combine interesting bits. Repeat.<br>
+      <p>Non-parametric optimization.<br>
+Find interesting bits. Combine them. Repeat.<br>
 <a href="http://menzies.us/bnbab2">home</a>         :: <a href="http://menzies.us/bnbad2/lib.html">lib</a> ::
 <a href="http://menzies.us/bnbad2/tab.html">cols</a> :: <a href="http://menzies.us/bnbad2/grow.html">tbl</a><br>
 <hr>
@@ -31,86 +32,7 @@
 <hr />
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lib</span> <span class="kn">import</span> <span class="n">o</span>
-
-<span class="n">it</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span>
-    <span class="n">ch</span><span class="o">=</span><span class="n">o</span><span class="p">(</span>
-        <span class="n">less</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span>
-        <span class="n">more</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span>
-        <span class="n">skip</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
-        <span class="n">klass</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">,</span>
-        <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">),</span>
-    <span class="n">some</span><span class="o">=</span><span class="n">o</span><span class="p">(</span>
-        <span class="n">epsilon</span><span class="o">=.</span><span class="mi">35</span><span class="p">,</span>
-        <span class="nb">min</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
-        <span class="n">want</span><span class="o">=</span><span class="mi">128</span><span class="p">),</span>
-    <span class="n">table</span><span class="o">=</span><span class="n">o</span><span class="p">(</span>
-        <span class="n">samples</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
-<span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-1'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-1'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">item</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span>
-  <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">pass</span>
-  <span class="k">return</span> <span class="n">o</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">txt</span><span class="o">=</span><span class="n">txt</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-2'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-2'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">o</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">y</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="n">items</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">})</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">x</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-3'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-3'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">helptext</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-4'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-4'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">pad</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
-  <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">pad</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">-&quot;</span> <span class="o">+</span> <span class="n">group</span><span class="o">.</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">group</span><span class="o">.</span><span class="n">txt</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">default</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="n">pre</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">key</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">pre</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   &quot;</span> <span class="o">+</span> <span class="n">pad</span><span class="p">(</span><span class="n">pre</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">txt</span><span class="p">)</span>
-
+      <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lib</span> <span class="kn">import</span> <span class="n">o</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">items</span>
 
 <span class="n">it</span> <span class="o">=</span> <span class="n">items</span><span class="p">([</span>
     <span class="n">item</span><span class="p">(</span><span class="s2">&quot;magic characters defining column types&quot;</span><span class="p">,</span>
@@ -119,7 +41,8 @@
              <span class="n">item</span><span class="p">(</span><span class="s2">&quot;goals to be maximized&quot;</span><span class="p">,</span> <span class="n">more</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">),</span>
              <span class="n">item</span><span class="p">(</span><span class="s2">&quot;items to be skipped&quot;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">),</span>
              <span class="n">item</span><span class="p">(</span><span class="s2">&quot;define class columns&quot;</span><span class="p">,</span> <span class="n">klass</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">),</span>
-             <span class="n">item</span><span class="p">(</span><span class="s2">&quot;define numerics&quot;</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+             <span class="n">item</span><span class="p">(</span><span class="s2">&quot;define symbolic column&quot;</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
+             <span class="n">item</span><span class="p">(</span><span class="s2">&quot;define numeric column&quot;</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
              <span class="p">]),</span>
 
     <span class="n">item</span><span class="p">(</span><span class="s2">&quot;numeric column control&quot;</span><span class="p">,</span>
@@ -132,7 +55,8 @@
     <span class="n">item</span><span class="p">(</span><span class="s2">&quot;table control&quot;</span><span class="p">,</span>
 
          <span class="n">TABLE</span><span class="o">=</span><span class="p">[</span><span class="n">item</span><span class="p">(</span><span class="s2">&quot;number of stuff&quot;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
-                <span class="p">])])</span>
+                <span class="p">])</span>
+<span class="p">])</span>
 
 </pre></div>
     </div>
