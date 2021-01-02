@@ -37,9 +37,11 @@ class Col(Pretty):
   # Normalize `x` to a fixed range
   def norm(i,x):  return x if x == it.ch.skip else i.norm1(i,x)
 
-  # Default actions: no nothing
+  # Default add: no nothing
   def add1(i,x):  pass
+  # Default bin: just return `x`
   def bin1(i,x):  return x 
+  # Default normalization: just return `x`
   def norm1(i,x): return x 
 
 #-------
