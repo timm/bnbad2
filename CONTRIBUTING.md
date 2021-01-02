@@ -11,7 +11,7 @@ Please note we have:
 ## Conventions
 
 <img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.png"
-     align=right width=400>
+     align=right width=500>
 
 
 - Keep lines under 70 characters.
