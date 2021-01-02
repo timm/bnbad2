@@ -24,18 +24,23 @@ class Col(Pretty):
   def __init__(i, pos=0,txt=""):
     i.pos, i.txt, i.n = pos,txt,0
     i.w  = -1 if it.ch.less in txt else 1
-  # add items, increment `n` (if not skipping `x`).
+  # Add items, increment `n` (if not skipping `x`).
   def add(i,x): 
     if x != it.ch.skip:
       i.n += 1
       i.add1(x)
     return x
+  # Return the number of bins
+  def card(i):    return 0
+  # Convert `x` to one of a small number of bins.
   def bin(i,x):   return x if x == it.ch.skip else i.bin1(i,x)
+  # Normalize `x` to a fixed range
   def norm(i,x):  return x if x == it.ch.skip else i.norm1(i,x)
+
+  # Default actions: no nothing
   def add1(i,x):  pass
   def bin1(i,x):  return x 
   def norm1(i,x): return x 
-  def card(i):    return 0
 
 #-------
 # For columns of symbols
