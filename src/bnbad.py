@@ -36,7 +36,6 @@ class Col(Pretty):
   def bin(i,x):   return x if x == it.ch.skip else i.bin1(i,x)
   # Normalize `x` to a fixed range
   def norm(i,x):  return x if x == it.ch.skip else i.norm1(i,x)
-
   # Default add: no nothing
   def add1(i,x):  pass
   # Default bin: just return `x`
@@ -47,12 +46,13 @@ class Col(Pretty):
 #-------
 # For columns of symbols
 class Sym(Pretty):
-  def __init__(i,*l):
-    super().__init__(*l) 
+  def __init__(i,**d):
+    super().__init__(**d) 
     i.seen = {}
     i.most, i.mode = 0,None
   def card(i):   return len(i.bins())
   def bins(i):   return i.seen.keys()
+  # Track how many `x` we have seen.
   def add1(i,x):
     new = i.seen(x,0) + 1
     if new > i.most:
@@ -61,30 +61,50 @@ class Sym(Pretty):
 #-------
 # For columns of numbers
 class Some(Pretty):
-  def __init__(i,*l):
-    super().__init__(*l) 
+  def __init__(i,s**d):
+    super().__init__(**d) 
     i.ok=False 
     i.want=it.some.want
-    i._all, i._bins = [],[]
+    i._cache, i._bins = [],[]
+  # Cache up to `i.want` items, selected at random
   def add1(i,x) :
-    r=random.random
+    r = random.random
     if i.n < i.want:
-      i._all += [x]
       i.ok= False
+      i._cache += [x]
+      i._bins=[]
     elif r() < i.want/i.n:
-      i._all[ int(r()*len(i._all)) ] = x
       i.ok= False
+      i._cache[ int(r()*len(i._cache)) ] = x
+      i._bins=[]
+  # Return the cache, sorted.
   def all(i):
-    i._all = i._all if i.ok else sorted(i._all)
+    i._cache = i._cache if i.ok else sorted(i._cache)
     i.ok = True
-    return i._all
-      
-
+    return i._cache
+  # Return the `p`-th percentile in the cache, bounded 
+  # from `lo` to `hi`
+  def per(i,p=.5, lo=0,hi=None):
+    hi = hi or len(i._cache) 
+    return i.all()[ int(lo + p*(hi-lo)) ]
+  # Return the 50-th percentile in the cache, bounded 
+  # from `lo` to `hi`
+  def mid(i,**d): return i.per(p=.5, **d)
+  # Return the standard deviation of cache values from lo to hi
+  def sd(i,**d):  return (i.per(p=.9,**d) - i.per(p=.1,**d))/2.54
+  # Normalize `x` to the range 0..1
+  def norm1(i,x): return x 
+    lst = i.all()
+    lo,hi = lst[0], lst[-1]
+    return (x - lo) / (hi - lo  + 1E-32)
+  # Return the number of bins
   def card(i): return len(i.bins()) + 1    
+  # Convert `x` to one of a small number of bins.
   def bin(i,x): 
     for n,y in enumerate(i.bins):
       if x<=y: return n
     return 1 + len(i.bins)
+  # Return the bins.
   def bins(i):
     i._bins = i._bins or i.bins1(i)
     return i._bins
