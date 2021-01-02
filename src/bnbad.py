@@ -24,6 +24,7 @@ class Col(Pretty):
   def __init__(i, pos=0,txt=""):
     i.pos, i.txt, i.n = pos,txt,0
     i.w  = -1 if it.ch.less in txt else 1
+  # add items, increment `n` (if not skipping `x`).
   def add(i,x): 
     if x != it.ch.skip:
       i.n += 1
