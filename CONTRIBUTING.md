@@ -11,6 +11,10 @@ Please note we have:
 
 ## Idioms
 
+<img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.png"
+     align=right width=400>
+
+
 - Keep lines under 70 characters.
   - Why? Readability.
 - Keep defs short.
@@ -41,6 +45,9 @@ if __name__ == "__main__":
 ```
 
 ## Standards
+
+<img src="https://github.com/timm/bnbad2/raw/main/etc/img/standards.png"
+     align=right width=400>
 
 - Defaults are stored in it.py
 - If an instance uses `it` then it creates its own copy of the relevant values in
