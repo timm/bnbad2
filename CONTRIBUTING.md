@@ -109,6 +109,10 @@ further defined and clarified by project maintainers.
 
 ### Enforcement
 
+
+<img src="https://github.com/timm/bnbad2/raw/main/etc/img/soilder.png"
+     align=right width=400>
+
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported by contacting the project team at timm@ieee.org. All
 complaints will be reviewed and investigated and will result in a response that
