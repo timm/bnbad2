@@ -11,13 +11,17 @@ Please note we have:
 
 ## Idioms
 
+- Keep lines under 70 characters.
+  - Why? See first point.
+- Keep defs short.
+  - Why? See first point.
+- Indent with 2 spaces.
+  - Why? See first point.
+- Use `i`, not `self` 
+  - Why? See first point.
 - All code in `/src`
 - All test data in `/src/tests`
 - Any shell tricks in `/etc/ish`
-- Indent with 2 spaces.
-- Keep lines under 70 characters.
-- Use `i`, not `self` 
-  - Why? Helps keep lines under 70 characters)
 - Document code using `pycco`.
 - No doc strings 
   - Why? Pycco does not treat them well.
