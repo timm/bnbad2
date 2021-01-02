@@ -12,7 +12,7 @@ Please note we have:
 ## Idioms
 
 - Keep lines under 70 characters.
-  - Why? See first point.
+  - Why? Readability.
 - Keep defs short.
   - Why? See first point.
 - Indent with 2 spaces.
