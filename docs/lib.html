@@ -17,7 +17,7 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-0'>#</a>
       </div>
-      <p>Find and combine interesting bits. Repeat.
+      <p>Find and combine interesting bits. Repeat. <br />
 <a href="http://menzies.us/bnbab2">home</a>         :: <a href="http://menzies.us/bnbad2/lib.html">lib</a> ::
 <a href="http://menzies.us/bnbad2/tab.html">cols</a> :: <a href="http://menzies.us/bnbad2/grow.html">tbl</a> 
 <hr>
@@ -31,15 +31,7 @@
 <hr />
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">what</span>    <span class="o">=</span> <span class="s2">&quot;Misc python routines&quot;</span><span class="p">,</span>
-          <span class="n">who</span>     <span class="o">=</span> <span class="s2">&quot;Tim Menzies&quot;</span><span class="p">,</span>
-          <span class="n">when</span>    <span class="o">=</span> <span class="s2">&quot;2021&quot;</span><span class="p">,</span>
-          <span class="n">license</span> <span class="o">=</span> <span class="s2">&quot;MIT License&quot;</span><span class="p">)</span>
-
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">sys</span></pre></div>
+      <div class="highlight"><pre><span></span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -48,10 +40,14 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-1'>#</a>
       </div>
-      <p>Classes that can pretty print themselves.</p>
+      <p>Misc python routines.
+(C) 2021 Tim Menzies timm@ieee.org MIT License</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Thing</span><span class="p">:</span></pre></div>
+      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -59,6 +55,18 @@
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>Classes that can pretty print themselves.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Pretty</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
       </div>
       
     </div>
@@ -69,10 +77,10 @@
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-3'>
+  <div class='section' id='section-4'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-3'>#</a>
+        <a class='octothorpe' href='#section-4'>#</a>
       </div>
       <p>Converts <code>i</code> into a nested dictionary, then pretty-prints that.</p>
     </div>
@@ -93,27 +101,15 @@
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-4'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-4'>#</a>
-      </div>
-      <p>Fast way to initialize an instance that has no methods.</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">o</span><span class="p">(</span><span class="n">Thing</span><span class="p">):</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
   <div class='section' id='section-5'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-5'>#</a>
       </div>
-      
+      <p>Fast way to initialize an instance that has no methods.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span> <span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span></pre></div>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">o</span><span class="p">(</span><span class="n">Pretty</span><span class="p">):</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -125,9 +121,7 @@
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">test_o</span><span class="p">():</span>
-  <span class="n">x</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">o</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-  <span class="k">assert</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span> <span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -135,6 +129,20 @@
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">test_o</span><span class="p">():</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">o</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+  <span class="k">assert</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
       </div>
       <hr />
 <p>Simple unit test engine</p>
@@ -149,8 +157,7 @@
       <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-  <span class="k">if</span> <span class="s2">&quot;--test&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
-    <span class="n">ok</span><span class="p">(</span><span class="n">test_o</span><span class="p">)</span>
+  <span class="k">if</span> <span class="s2">&quot;--test&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span> <span class="n">ok</span><span class="p">(</span><span class="n">test_o</span><span class="p">)</span>
 
 </pre></div>
     </div>

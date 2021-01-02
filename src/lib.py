@@ -1,4 +1,4 @@
-# Find and combine interesting bits. Repeat.
+# Find and combine interesting bits. Repeat.   
 # [home](http://menzies.us/bnbab2)         :: [lib](http://menzies.us/bnbad2/lib.html) ::
 # [cols](http://menzies.us/bnbad2/tab.html) :: [tbl](http://menzies.us/bnbad2/grow.html) 
 # <hr>
@@ -11,10 +11,8 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-it = dict(what    = "Misc python routines",
-          who     = "Tim Menzies",
-          when    = "2021",
-          license = "MIT License")
+# Misc python routines.
+# (C) 2021 Tim Menzies timm@ieee.org MIT License
 
 import pprint
 import re
@@ -22,7 +20,7 @@ import random
 import sys
 
 # Classes that can pretty print themselves.
-class Thing:
+class Pretty:
   def __repr__(i):
     return re.sub(r"'", ' ',
         pprint.pformat(dicts(i.__dict__), compact=True))
@@ -43,7 +41,7 @@ def dicts(i, seen=None):
     return i
 
 # Fast way to initialize an instance that has no methods.
-class o(Thing):
+class o(Pretty):
   def __init__(i, **d): i.__dict__.update(**d)
 
 def test_o():
@@ -61,5 +59,4 @@ def ok(*l):
       print("\t", fun.__name__, "FAIL")
 
 if __name__ == "__main__":
-  if "--test" in sys.argv:
-    ok(test_o)
+  if "--test" in sys.argv: ok(test_o)
