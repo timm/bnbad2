@@ -17,10 +17,28 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-0'>#</a>
       </div>
-      <p>vim: ts=2 sw=2 sts=2  et :</p>
+      <p><img width=75 src="https://github.com/timm/keys/raw/main/etc/img/lib.png">   <br />
+ &ldquo;Keys = cluster, discretize, elites, contrast&rdquo; <br />
+<a href="http://menzies.us/keys">home</a>         :: <a href="http://menzies.us/keys/lib.html">lib</a> ::
+ <a href="http://menzies.us/keys/cols.html">cols</a> :: <a href="http://menzies.us/keys/tbl.html">tbl</a> ::
+ <a href="http://menzies.us/keys/learn.html">learn</a>
+ <hr>
+ <a href="http://github.com/timm/keys"><img src="https://github.blog/wp-content/uploads/2008/12/forkme_left_red_aa0000.png?resize=149%2C149" align=left></a>
+ <a href="https://zenodo.org/badge/latestdoi/318809834"><img alt="DOI" src="https://zenodo.org/badge/318809834.svg" /></a><br />
+<img alt="" src="https://img.shields.io/badge/platform-osx%20,%20linux-orange" />  <br />
+<img alt="" src="https://img.shields.io/badge/language-lua,bash-blue" /><br />
+<img alt="" src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet" /><br />
+<a href="https://travis-ci.com/timm/keys"><img alt="Build Status" src="https://travis-ci.com/timm/keys.svg?branch=main" /></a> <br />
+<img alt="" src="https://img.shields.io/badge/license-mit-lightgrey" /></p>
+<hr />
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pprint</span>
+      <div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">what</span>    <span class="o">=</span> <span class="s2">&quot;Misc python routines&quot;</span><span class="p">,</span>
+          <span class="n">who</span>     <span class="o">=</span> <span class="s2">&quot;Tim Menzies&quot;</span><span class="p">,</span>
+          <span class="n">when</span>    <span class="o">=</span> <span class="s2">&quot;2021&quot;</span><span class="p">,</span>
+          <span class="n">license</span> <span class="o">=</span> <span class="s2">&quot;MIT License&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pprint</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span></pre></div>
@@ -49,7 +67,7 @@
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
-                  <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">),</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></pre></div>
+        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">),</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -61,7 +79,19 @@
       <p>Converts <code>i</code> into a nested dictionary, then pretty-prints that.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre></pre></div>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">dicts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">seen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">dicts</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">}</span>
+  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Thing</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="n">seen</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span> <span class="k">return</span> <span class="s2">&quot;...&quot;</span>
+    <span class="n">seen</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+  <span class="k">else</span><span class="p">:</span> 
+    <span class="k">return</span> <span class="n">i</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -70,25 +100,10 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-4'>#</a>
       </div>
-      
+      <p>Fast way to initialize an instance that has no methods.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">dicts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">seen</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">dicts</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
-  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">seen</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">}</span>
-  <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Thing</span><span class="p">):</span>
-    <span class="n">seen</span> <span class="o">=</span> <span class="n">seen</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">j</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">%</span> <span class="mi">128021</span>  <span class="c1"># ids are LONG; show them shorter.</span>
-    <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
-      <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;#:</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">seen</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">dicts</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
-    <span class="n">d</span><span class="p">[</span><span class="s2">&quot;#&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
-    <span class="k">return</span> <span class="n">d</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">i</span></pre></div>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">o</span><span class="p">(</span><span class="n">Thing</span><span class="p">):</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -97,10 +112,10 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-5'>#</a>
       </div>
-      <p>Fast way to initialize an instance that has no methods.</p>
+      
     </div>
     <div class='code'>
-      <div class="highlight"><pre></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span> <span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -112,7 +127,9 @@
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">o</span><span class="p">(</span><span class="n">Thing</span><span class="p">):</span></pre></div>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">test_o</span><span class="p">():</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">o</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+  <span class="k">assert</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -121,46 +138,8 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-7'>#</a>
       </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span> <span class="n">i</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-8'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-8'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">test_o</span><span class="p">():</span>
-  <span class="n">x</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">o</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
-  <span class="k">assert</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">b</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-9'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-9'>#</a>
-      </div>
       <hr />
 <p>Simple unit test engine</p>
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-10'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-10'>#</a>
-      </div>
-      
     </div>
     <div class='code'>
       <div class="highlight"><pre><span class="k">def</span> <span class="nf">ok</span><span class="p">(</span><span class="o">*</span><span class="n">l</span><span class="p">):</span>
@@ -169,24 +148,11 @@
       <span class="n">fun</span><span class="p">()</span>
       <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;PASS&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-11'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-11'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">eg</span><span class="p">():</span>  <span class="n">ok</span><span class="p">(</span><span class="n">test_o</span><span class="p">)</span>
-
+      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
   <span class="k">if</span> <span class="s2">&quot;--test&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
-    <span class="n">tests</span><span class="p">()</span>
+    <span class="n">ok</span><span class="p">(</span><span class="n">test_o</span><span class="p">)</span>
 
 </pre></div>
     </div>

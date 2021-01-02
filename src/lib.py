@@ -1,4 +1,22 @@
-# vim: ts=2 sw=2 sts=2  et :
+#  <img width=75 src="https://github.com/timm/keys/raw/main/etc/img/lib.png">     
+#  "Keys = cluster, discretize, elites, contrast"   
+#  [home](http://menzies.us/keys)         :: [lib](http://menzies.us/keys/lib.html) ::
+#  [cols](http://menzies.us/keys/cols.html) :: [tbl](http://menzies.us/keys/tbl.html) ::
+#  [learn](http://menzies.us/keys/learn.html)
+#  <hr>
+#  <a href="http://github.com/timm/keys"><img src="https://github.blog/wp-content/uploads/2008/12/forkme_left_red_aa0000.png?resize=149%2C149" align=left></a>
+#  [![DOI](https://zenodo.org/badge/318809834.svg)](https://zenodo.org/badge/latestdoi/318809834)  
+#  ![](https://img.shields.io/badge/platform-osx%20,%20linux-orange)    
+#  ![](https://img.shields.io/badge/language-lua,bash-blue)  
+#  ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet)  
+#  [![Build Status](https://travis-ci.com/timm/keys.svg?branch=main)](https://travis-ci.com/timm/keys)   
+#  ![](https://img.shields.io/badge/license-mit-lightgrey)
+#--------
+
+it = dict(what    = "Misc python routines",
+          who     = "Tim Menzies",
+          when    = "2021",
+          license = "MIT License")
 
 import pprint
 import re
@@ -9,7 +27,7 @@ import sys
 class Thing:
   def __repr__(i):
     return re.sub(r"'", ' ',
-                  pprint.pformat(dicts(i.__dict__), compact=True))
+        pprint.pformat(dicts(i.__dict__), compact=True))
 
 # Converts `i` into a nested dictionary, then pretty-prints that.
 def dicts(i, seen=None):
@@ -19,14 +37,11 @@ def dicts(i, seen=None):
     return {k: dicts(i[k], seen) for k in i if str(k)[0] != "_"}
   elif isinstance(i, Thing):
     seen = seen or {}
-    j = id(i) % 128021  # ids are LONG; show them shorter.
-    if i in seen:
-      return f"#:{j}"
+    if i in seen: return "..."
     seen[i] = i
     d = dicts(i.__dict__, seen)
-    d["#"] = j
     return d
-  else:
+  else: 
     return i
 
 # Fast way to initialize an instance that has no methods.

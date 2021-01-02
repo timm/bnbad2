@@ -21,6 +21,18 @@ here() { cd $1; basename `pwd`; }
 
 PROMPT_COMMAND='echo -ne "🎢 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'
 
+header() {
+  gawk 'BEGIN {FS="\n"; RS=""} 
+        {gsub(/\n/,"\n# "); print "# "$0; exit}' $Ish/README.md
+  gawk 'BEGIN {FS="\n"; RS=""} 
+        NR != 1 {print "\n"$0}' $1
+}
+headers() {
+  cd $Ish/src
+  for i in *.py; do
+    header $i > tmp$$
+    mv tmp$$ $i; done
+}
 docs() {
   (cd $Ish/src; pycco -d $Ish/docs *.py)
   markdown $Ish/README.md > $Ish/docs/index.html
