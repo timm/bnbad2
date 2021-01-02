@@ -12,7 +12,7 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-# Misc python routines. <br>
+# Stuff to load first, before anything else. <br>
 # (C) 2021 Tim Menzies timm@ieee.org MIT License
 
 import pprint
