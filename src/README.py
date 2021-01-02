@@ -1,4 +1,4 @@
-# Find and combine interesting bits. Repeat.<br>
+# Find interesting bits. Combine them. Repeat.<br>
 # [home](http://menzies.us/bnbab2)         :: [lib](http://menzies.us/bnbad2/lib.html) ::
 # [cols](http://menzies.us/bnbad2/tab.html) :: [tbl](http://menzies.us/bnbad2/grow.html)<br>
 # <hr>

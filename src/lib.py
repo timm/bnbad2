@@ -1,4 +1,4 @@
-# Find and combine interesting bits. Repeat.<br>
+# Find interesting bits. Combine them. Repeat.<br>
 # [home](http://menzies.us/bnbab2)         :: [lib](http://menzies.us/bnbad2/lib.html) ::
 # [cols](http://menzies.us/bnbad2/tab.html) :: [tbl](http://menzies.us/bnbad2/grow.html)<br>
 # <hr>
@@ -11,17 +11,17 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-# Misc python routines.
+# Misc python routines. <br>
 # (C) 2021 Tim Menzies timm@ieee.org MIT License
 
 import pprint
 import re
 import random
 import sys
-import README as x
-print(x.__docstring__)
 
-# Classes that can pretty print themselves.
+# --------------------
+# ## Pretty : classes that can pretty print themselves.
+
 class Pretty:
   def __repr__(i):
     return re.sub(r"'", ' ',
@@ -33,7 +33,7 @@ def dicts(i, seen=None):
     return [dicts(v, seen) for v in i]
   elif isinstance(i, dict):
     return {k: dicts(i[k], seen) for k in i if str(k)[0] != "_"}
-  elif isinstance(i, Thing):
+  elif isinstance(i, Pretty):
     seen = seen or {}
     if i in seen:
       return "..."
@@ -43,6 +43,9 @@ def dicts(i, seen=None):
   else:
     return i
 
+# ------------
+# ## o : simple structs
+
 # Fast way to initialize an instance that has no methods.
 class o(Pretty):
   def __init__(i, **d): i.__dict__.update(**d)
@@ -50,6 +53,9 @@ class o(Pretty):
 def ook():
   x = o(a=1, c=o(b=2, c=3))
   assert(x.c.b == x.c.b)
+
+# ------------
+# ## csv : read comma-separated file
 
 # Iterate over each none empty line, killing
 # whitespace and comments, splitting on commas.
@@ -73,25 +79,34 @@ def csv(file, sep=","):
             line = [f(x) for f, x in zip(cols, line)]
           yield line
 
-'''
-## OPTIONS
+# -----------
+# ## items,items : a DSL for system options
 
---asds
-  -k 3: low frequency control for payes
-  +n: enable fun stuff
---adas
-  -m num
-  +fred
-
-'''
-def help(txt, **d):
-  for k, v in d.items():
+def item(txt, **d):
+  for key, default in d.items():
     pass
-  helps[k] = txt
-  vs[v] = v
+  return o(key=key, default=default, txt=txt)
+
+def items(x):
+  if isinstance(x, list):
+    return o(**{y.key: items(y.default) for y in x})
+  else:
+    return x
+
+def helptext(lst):
+  def pad(x, n=20, c=" "): return x.ljust(n, c)
+  for group in lst:
+    print(pad("\n-" + group.key + " ", c=".") + " " + group.txt)
+    for x in group.default:
+      if x.default == False:
+        pre = "+" + x.key
+      else:
+        pre = "-" + x.key + " " + str(x.default)
+      print("   " + pad(pre, n=17) + x.txt)
 
 # ---------
-# Simple unit test engine
+# ## ok : simple unit test engine
+
 def ok(*l):
   for fun in l:
     try:
@@ -100,6 +115,8 @@ def ok(*l):
     except Exception:
       print("\t", fun.__name__, "FAIL")
 
+# ---
+# main
 if __name__ == "__main__":
   if "--test" in sys.argv:
     ok(ook)
