@@ -11,19 +11,9 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-from lib import o
+# sasas 
 
-it = o(
-    ch=o(
-        less="<",
-        more="<",
-        skip="?",
-        klass="!",
-        num=":"),
-    some=o(
-        epsilon=.35,
-        min=.5,
-        want=128),
-    table=o(
-        samples=64)
-)
+- sada
+- adas`
+
+"""
