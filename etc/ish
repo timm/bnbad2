@@ -189,6 +189,7 @@ if [ "$1" == "-t" ]; then
   for f in *.py; do
     echo "------------- $f"
     test1 $f
+    echo ""
   done | redgreen
   exit $?
 fi

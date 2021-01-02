@@ -17,10 +17,10 @@
 # Define column type and name in row1.<br>
 # (C) 2021 Tim Menzies (timm@ieee.org) MIT License
 
-from lib import Pretty
-from it import it
+import sys
 import math
 import random
+from it import *
 
 # ---------
 # ## Columns
@@ -29,11 +29,11 @@ import random
 class Col(Pretty):
   def __init__(i, pos=0, txt=""):
     i.pos, i.txt, i.n = pos, txt, 0
-    i.w = -1 if it.ch.less in txt else 1
+    i.w = -1 if it.CH.less in txt else 1
 
   # Add items, increment `n` (if not skipping `x`).
   def add(i, x):
-    if x != it.ch.skip:
+    if x != it.CH.skip:
       i.n += 1
       i.add1(x)
     return x
@@ -42,10 +42,10 @@ class Col(Pretty):
   def card(i): return 0
 
   # Convert `x` to one of a small number of bins.
-  def bin(i, x): return x if x == it.ch.skip else i.bin1(i, x)
+  def bin(i, x): return x if x == it.CH.skip else i.bin1(i, x)
 
   # Normalize `x` to a fixed range
-  def norm(i, x): return x if x == it.ch.skip else i.norm1(i, x)
+  def norm(i, x): return x if x == it.CH.skip else i.norm1(i, x)
 
   # Default add: no nothing
   def add1(i, x): pass
@@ -57,9 +57,9 @@ class Col(Pretty):
   def norm1(i, x): return x
 
 # ### Sym: for columns of symbols
-class Sym(Pretty):
-  def __init__(i, **d):
-    super().__init__(**d)
+class Sym(Col):
+  def __init__(i, *l, **d):
+    super().__init__(*l, **d)
     i.seen = {}
     i.most, i.mode = 0, None
 
@@ -68,9 +68,17 @@ class Sym(Pretty):
 
   # Track how many `x` we have seen.
   def add1(i, x):
-    new = i.seen(x, 0) + 1
+    new = i.seen[x] = i.seen.get(x, 0) + 1
     if new > i.most:
       i.most, i.mode = new, x
+
+def symok():
+  s = Sym(23, txt="<fred")
+  [s.add(x) for x in 'aaaabbc']
+  assert s.mode == "a"
+  assert s.most == 4
+  assert s.n == 7
+  assert s.w == -1
 
 # ### Some: for columns of numbers
 class Some(Pretty):
@@ -195,11 +203,11 @@ class Table(Pretty):
   # builds a new column, stores it anywhere it needs to be
   def make(i, pos, txt):
     this, btw = Sym, i.xs # default
-    if it.ch.less in txt or it.ch.more in txt or it.ch.num in txt:
+    if it.CH.less in txt or it.CH.more in txt or it.CH.num in txt:
       this, btw = Some, i.ys
-    if it.ch.klass in txt:
+    if it.CH.klass in txt:
       this.btw = Sym, i.ys
-    if it.ch.skip in txt:
+    if it.CH.skip in txt:
       this, btw = Col, []
     y = this(pos, txt)
     btw += [y]
@@ -228,3 +236,10 @@ class Table(Pretty):
   # read table from file
   def read(i, file):
     [i.add(row) for row in csv(file)]
+
+
+# ---
+# main
+if __name__ == "__main__":
+  if "--test" in sys.argv:
+    ok(symok)

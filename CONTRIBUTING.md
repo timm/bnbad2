@@ -26,6 +26,7 @@ Please note we have:
 - All test data in `/src/tests`
 - Any shell tricks in `/etc/ish`
 - Document code using `pycco`.
+  - Why? Well, less is more.
 - No doc strings 
   - Why? Pycco does not treat them well.
 - Most classes, defs, get a one line comment before each.
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 ## Conduct
 
 <img src="https://github.com/timm/bnbad2/raw/main/etc/img/conduct.png"
-     align=right width=400>
+     align=right width=300>
 
 ### Our Pledge
 
