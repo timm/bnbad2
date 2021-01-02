@@ -111,7 +111,7 @@ further defined and clarified by project maintainers.
 
 
 <img src="https://github.com/timm/bnbad2/raw/main/etc/img/soilder.png"
-     align=right width=400>
+     align=right width=300>
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported by contacting the project team at timm@ieee.org. All
@@ -123,6 +123,8 @@ Further details of specific enforcement policies may be posted separately.
 Project maintainers who do not follow or enforce the Code of Conduct in good
 faith may face temporary or permanent repercussions as determined by other
 members of the project's leadership.
+
+<br clear=all>
 
 ### Attribution
 
