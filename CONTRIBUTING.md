@@ -6,11 +6,11 @@ email, or any other method with the owners of this repository before making a ch
 Please note we have:
 
 - a code of [conduct](#conduct), please follow it in all your interactions with the project.
-- a set of local [idioms](#idioms), used when we write Python
+- a set of coding [conventions](#conventions), used when we write Python
 
-## Idioms
+## Conventions
 
-<img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.png"
+<img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.jpg"
      align=right width=400>
 
 
