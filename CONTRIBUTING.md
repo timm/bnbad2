@@ -10,7 +10,7 @@ Please note we have:
 
 ## Conventions
 
-<img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.jpg"
+<img src="https://github.com/timm/bnbad2/raw/main/etc/img/idiom.png"
      align=right width=400>
 
 
