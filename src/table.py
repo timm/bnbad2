@@ -42,10 +42,10 @@ class Col(Pretty):
   def card(i): return 0
 
   # Convert `x` to one of a small number of bins.
-  def bin(i, x): return x if x == it.CH.skip else i.bin1(i, x)
+  def bin(i, x): return x if x == it.CH.skip else i.bin1(x)
 
   # Normalize `x` to a fixed range
-  def norm(i, x): return x if x == it.CH.skip else i.norm1(i, x)
+  def norm(i, x): return x if x == it.CH.skip else i.norm1(x)
 
   # Default add: no nothing
   def add1(i, x): pass
@@ -81,19 +81,19 @@ def symok():
   assert s.w == -1
 
 # ### Some: for columns of numbers
-class Some(Pretty):
-  def __init__(i, **d):
-    super().__init__(**d)
+class Some(Col):
+  def __init__(i, *l, **d):
+    super().__init__(*l, **d)
     i.ok = False
-    i.it = o(want=it.some.want,
-             min=it.some.min,
-             epsilon=it.some.epsilon)
+    i.it = o(want=it.SOME.want,
+             min=it.SOME.min,
+             epsilon=it.SOME.epsilon)
     i._cache, i._bins = [], []
 
   # Cache up to `i.want` items, selected at random
   def add1(i, x):
     r = random.random
-    if i.n < i.it.want: # room for one more
+    if i.n <= i.it.want: # room for one more
       i.ok = False
       i._cache += [x]
       i._bins = []
@@ -112,14 +112,18 @@ class Some(Pretty):
   # from `lo` to `hi`
   def per(i, p=.5, lo=0, hi=None):
     hi = hi or len(i._cache)
+    lo = lo or 0
     return i.all()[int(lo + p * (hi - lo))]
 
   # Return the 50-th percentile in the cache, bounded
   # from `lo` to `hi`
-  def mid(i, **d): return i.per(p=.5, **d)
+  def mid(i, lo=None, hi=None):
+    return i.per(p=.5, lo=lo, hi=hi)
 
   # Return the standard deviation of cache values from lo to hi
-  def sd(i, **d): return (i.per(p=.9, **d) - i.per(p=.1, **d)) / 2.54
+  def sd(i, lo=None, hi=None):
+    return (i.per(p=.9, lo=lo, hi=hi) -
+            i.per(p=.1, lo=lo, hi=hi)) / 2.54
 
   # Normalize `x` to the range 0..1
   def norm1(i, x):
@@ -139,27 +143,47 @@ class Some(Pretty):
 
   # Return the bins.
   def bins(i):
-    i._bins = i._bins or i.bins1(i)
+    i._bins = i._bins or i.bins1()
     return i._bins
 
   # Find the bins.
-  def bins1(i, x):
+  def bins1(i):
     lst = i.all()
     eps = i.sd() * i.it.epsilon
     max = len(lst)
     n = max**i.it.min
     while n < 4 and n < max / 2:
-      n = int(n * 1.2)
+      n = n * 1.2
+    n = int(n)
     hi, lo, b4 = n, 1, 0
+    print(eps, n)
     while hi < max - n:
       hi += 1
       if hi - lo > n:
         if lst[hi] - lst[lo] >= eps:
           if b4 == 0 or ((i.mid(lo, hi) - b4) > eps):
-            i.bins += lst[hi]
+            i._bins += [lst[hi]]
             b4 = i.mid(lo, hi)
             lo = hi
             hi += n
+    return i._bins
+
+def someok():
+  s = Some()
+  s.it.want = 64
+  [s.add(int(100 * random.random())) for _ in range(1000)]
+  assert 64 == len(s.all())
+  assert 51 == s.mid()
+  assert 23 == s.mid(hi=32)
+  assert 31.10 < s.sd() < 31.11
+  print(.221 < s.norm(23) < .222)
+  print(s.bins())
+  t = Some()
+  t.it.want = 128
+  [t.add(int(100 * random.random()**2)) for _ in range(1000)]
+  print(t.bins())
+  print(t.all())
+
 
 # ---------
 # ## Row : storage for one example
@@ -243,3 +267,4 @@ class Table(Pretty):
 if __name__ == "__main__":
   if "--test" in sys.argv:
     ok(symok)
+    someok()

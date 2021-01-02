@@ -87,6 +87,7 @@ def helptext(lst):
 def ok(*l):
   for fun in l:
     try:
+      random.seed(1)
       fun()
       print("\t", fun.__name__, "PASS")
     except Exception:
