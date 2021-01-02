@@ -7,7 +7,6 @@ Please note we have:
 
 - a code of [conduct](#conduct), please follow it in all your interactions with the project.
 - a set of local [idioms](#idioms), used when we write Python
-- a set of [standards](#standards) that enable more experimentation with this systems.
 
 ## Idioms
 
@@ -34,6 +33,12 @@ Please note we have:
 - Code using autopep8, disabling errors E261 and E302 
   - Why? these two errors add silly blank lines to pycco output.
 - Most files start with `from it import *` (exceptions: `boot.py` and `it.py``)
+- Defaults are stored in it.py
+- If an instance uses `it` then it creates its own copy of the relevant values in
+  `i.it`.
+- Instances pause after `__init__` so programmers (or hyperparameter
+  optimizers) can adjust `i.it` before the real work starts.
+
 - Test by adding the following code  to the end of the file:
 
 ```python
@@ -44,16 +49,6 @@ if __name__ == "__main__":
     ok(csvok,splitok) #<==== names of test functions, containg asserts
 ```
 
-## Standards
-
-<img src="https://github.com/timm/bnbad2/raw/main/etc/img/standards.png"
-     align=right width=400>
-
-- Defaults are stored in it.py
-- If an instance uses `it` then it creates its own copy of the relevant values in
-  `i.it`.
-- Instances pause after `__init__` so programmers (or hyperparameter
-  optimizers) can adjust `i.it` before the real work starts.
 
 ## Conduct
 
