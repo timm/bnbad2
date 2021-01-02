@@ -11,6 +11,9 @@ Please note we have:
 
 ## Idioms
 
+- All code in `/src`
+- All test data in `/src/tests`
+- Any shell tricks in `/etc/ish`
 - Indent with 2 spaces.
 - Keep lines under 70 characters.
 - Use `i`, not `self` 
