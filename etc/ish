@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 # misc convenient shortcuts
-test1() { (cd $Ish/src; python3 $1 --test ) ; }
+test1() { 
+  local f=${1%.*}
+  (cd $Ish/src; python3 $f.py --test ) ; }
 
 
 Ish=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/..
