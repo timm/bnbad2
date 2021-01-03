@@ -1,2 +1,2 @@
-python >= 3.9
+#python >= 3.9
 rerun >= 1.0

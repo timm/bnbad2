@@ -12,28 +12,20 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-from boot import *
+from .boot import arg, o
 
-it = items([
-    item("magic characters defining column types",
+def help(): return [
+    arg("char for less", less="<"),
+    arg("char for more", more=">"),
+    arg("char for skip", skip="?"),
+    arg("char for klass", klass="!"),
+    arg("char for symbols", sym="_"),
+    arg("char for numerics", num=":"),
+    arg("some epsilon", eps=.35),
+    arg("some min", min=.5),
+    arg("some want", want=128),
+    arg("table samples", samples=64)
+]
 
-         CH=[item("goals to be minimized", less="<"),
-             item("goals to be maximized", more=">"),
-             item("items to be skipped", skip="?"),
-             item("define class columns", klass="!"),
-             item("define symbolic column", sym="_"),
-             item("define numeric column", num=":")
-             ]),
 
-    item("numeric column control",
-
-         SOME=[item("epsilon", epsilon=.35),
-               item("min", min=.5),
-               item("want", want=128)
-               ]),
-
-    item("table control",
-
-         TABLE=[item("number of stuff", samples=64)
-                ])
-])
+it = o(**{k: d for k, d, _ in help()})

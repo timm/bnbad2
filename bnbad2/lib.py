@@ -19,7 +19,7 @@ import pprint
 import re
 import random
 import sys
-from it import *
+from .it import *
 
 # ------------
 # ## csv : read comma-separated file

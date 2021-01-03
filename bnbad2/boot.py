@@ -15,10 +15,11 @@
 # Stuff to load first, before anything else. <br>
 # (C) 2021 Tim Menzies timm@ieee.org MIT License
 
-import pprint
-import re
+import argparse
 import random
+import pprint
 import sys
+import re
 
 # --------------------
 # ## Pretty : classes that can pretty print themselves.
@@ -58,28 +59,32 @@ def ook():
 # -----------
 # ## items,items : a DSL for system options
 
-# For an example  of this DSL, see [it](it.html).
-
-def item(txt, **d):
-  for key, default in d.items():
-    return o(key=key, default=default, txt=txt)
-
-def items(x):
-  if isinstance(x, list):
-    return o(**{y.key: items(y.default) for y in x})
+def arg(txt, **d):
+  for key, val in d.items():
+    break
+  x = val[0] if isinstance(val, list) else val
+  if val is False:
+    return key, x, dict(help=txt, action='store_true')
   else:
-    return x
+    m, t = "S", str
+    if isinstance(x, int):
+      m, t = "I", int
+    if isinstance(x, float):
+      m, t = "F", float
+    if isinstance(val, list):
+      return key, x, dict(help=txt, choices=val, x=x, metavar=m, type=t)
+    else:
+      eg = "; e.g. -%s %s" % (key, val) if val != "" else ""
+      return key, x, dict(help=txt + eg, x=x, metavar=m, type=t)
 
-def helptext(lst):
-  def pad(x, n=20, c=" "): return x.ljust(n, c)
-  for group in lst:
-    print(pad("\n-" + group.key + " ", c=".") + " " + group.txt)
-    for x in group.default:
-      if x.default == False:
-        pre = "+" + x.key
-      else:
-        pre = "-" + x.key + " " + str(x.default)
-      print("   " + pad(pre, n=17) + x.txt)
+# Link to Python's ArgParse
+def args(f, hello=""):
+  p = argparse
+  lst, b4 = f(), re.sub(r"\n  ", "\n", hello)
+  parser = p.ArgumentParser(
+      description=b4, formatter_class=p.RawDescriptionHelpFormatter)
+  [parser.add_argument("-" + key, **args) for key, _, args in lst]
+  return parser.parse_args()
 
 # ---------
 # ## ok : simple unit test engine

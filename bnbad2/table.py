@@ -20,8 +20,8 @@
 import sys
 import math
 import random
-from it import *
-from lib import csv
+from .it import *
+from .lib import csv
 
 # ---------
 # ## Columns

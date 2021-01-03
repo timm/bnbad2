@@ -3,12 +3,12 @@
 # misc convenient shortcuts
 test1() { 
   local f=${1%.*}
-  (cd $Ish/src; python3 $f.py --test ) ; }
+  (cd $Ish/bnbad2; python3 $f.py --test ) ; }
 
 
 Ish=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/..
 chmod +x $Ish/etc/ish
-mkdir -p $Ish/src $Ish/docs
+mkdir -p $Ish/bnbad2 $Ish/docs
 
 alias ls="ls -G"
 alias gp="git add *; git commit -am saving; git push; git status"
@@ -30,13 +30,13 @@ header() {
         NR != 1 {print "\n"$0}' $1
 }
 headers() {
-  cd $Ish/src
+  cd $Ish/bnbad2
   for i in *.py; do
     header $i > tmp$$
     mv tmp$$ $i; done
 }
 docs() {
-  (cd $Ish/src; pycco -d $Ish/docs *.py)
+  (cd $Ish/bnbad2; pycco -d $Ish/docs *.py)
   markdown $Ish/README.md > $Ish/docs/index.html
   cp $Ish/etc/pycco.css $Ish/docs
 }
@@ -186,7 +186,7 @@ if [ "$1" == "-t" ]; then
    END   {for(i in N) { print N[i]; break}}'
   echo -e "\033[0m" 
   #date +"%H %M %S" |figlet -f big
-  cd $Ish/src
+  cd $Ish/bnbad2
   for f in *.py; do
     echo "------------- $f"
     test1 $f
