@@ -89,6 +89,6 @@ def ok(*l):
     try:
       random.seed(1)
       fun()
-      print("\t", fun.__name__, "PASS")
+      print(fun.__name__, "PASS")
     except Exception:
-      print("\t", fun.__name__, "FAIL")
+      print(fun.__name__, "FAIL")

@@ -21,7 +21,7 @@ it = items([
              item("goals to be maximized", more=">"),
              item("items to be skipped", skip="?"),
              item("define class columns", klass="!"),
-             item("define symbolic column", num="_"),
+             item("define symbolic column", sym="_"),
              item("define numeric column", num=":")
              ]),
 

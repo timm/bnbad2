@@ -21,6 +21,7 @@ import sys
 import math
 import random
 from it import *
+from lib import csv
 
 # ---------
 # ## Columns
@@ -136,10 +137,10 @@ class Some(Col):
 
   # Convert `x` to one of a small number of bins.
   def bin(i, x):
-    for n, y in enumerate(i.bins):
+    for n, y in enumerate(i.bins()):
       if x <= y:
         return n
-    return 1 + len(i.bins)
+    return 1 + len(i.bins())
 
   # Return the bins.
   def bins(i):
@@ -156,7 +157,6 @@ class Some(Col):
       n = n * 1.2
     n = int(n)
     hi, lo, b4 = n, 1, 0
-    print(eps, n)
     while hi < max - n:
       hi += 1
       if hi - lo > n:
@@ -176,13 +176,13 @@ def someok():
   assert 51 == s.mid()
   assert 23 == s.mid(hi=32)
   assert 31.10 < s.sd() < 31.11
-  print(.221 < s.norm(23) < .222)
-  print(s.bins())
+  assert .221 < s.norm(23) < .222
+  assert 5 == len(s.bins())
   t = Some()
   t.it.want = 128
   [t.add(int(100 * random.random()**2)) for _ in range(1000)]
-  print(t.bins())
-  print(t.all())
+  assert 5 == len(t.bins())
+  assert 128 == len(t.all())
 
 
 # ---------
@@ -203,10 +203,10 @@ class Row(Pretty):
     s1 = s2 = 0
     for col in t.ys:
       w = col.w
-      x, y = i.x(col.pos), i.y(col.pos)
-      x, y = col.norm(x), col.norm(y)
-      s1 -= math.e**(w * (x - y) / n)
-      s2 -= math.e**(w * (y - x) / n)
+      a, b = i.x(col.pos), j.x(col.pos)
+      a, b = col.norm(a), col.norm(b)
+      s1 -= math.e**(w * (a - b) / n)
+      s2 -= math.e**(w * (b - a) / n)
     return s1 / n < s2 / n
 
   # pretty print goals
@@ -221,16 +221,22 @@ class Row(Pretty):
 # ## Table: stores rows, summarized in columns
 class Table(Pretty):
   def __init__(i):
-    i.it = o(samples=it.table.samples)
+    i.it = o(samples=it.TABLE.samples)
     i.xs, i.ys, i.rows, i.cols = [], [], [], []
 
   # builds a new column, stores it anywhere it needs to be
   def make(i, pos, txt):
     this, btw = Sym, i.xs # default
-    if it.CH.less in txt or it.CH.more in txt or it.CH.num in txt:
+    if it.CH.less in txt or it.CH.more in txt:
       this, btw = Some, i.ys
+    if it.CH.num in txt:
+      this, btw = Some, i.xs
     if it.CH.klass in txt:
       this.btw = Sym, i.ys
+    if it.CH.sym in txt:
+      this, btw = Sym, i.xs
+    if it.CH.klass in txt:
+      this, btw = Sym, i.ys
     if it.CH.skip in txt:
       this, btw = Col, []
     y = this(pos, txt)
@@ -252,19 +258,31 @@ class Table(Pretty):
     for one in i.rows:
       for _ in range(i.it.samples):
         two = random.choice(i.rows)
-        one.dom += one.doms(two)
+        one.dom += one.doms(two, i)
       some.add(one.dom)
     for one in i.rows:
-      one.y = some.bin(some.dom)
+      one.y = some.bin(one.dom)
 
   # read table from file
   def read(i, file):
     [i.add(row) for row in csv(file)]
+    return i
+
+
+def tableok():
+  t = Table().read("data/auto93.csv")
+  t.doms()
+  all = sorted(t.rows, key=lambda z: z.dom)
+  for row in all[:10]:
+    print(row.show(t))
+  print("")
+  for row in all[-10:]:
+    print(row.show(t))
 
 
 # ---
 # main
 if __name__ == "__main__":
   if "--test" in sys.argv:
-    ok(symok)
-    someok()
+    ok(symok, someok)
+    tableok()

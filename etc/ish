@@ -185,11 +185,11 @@ if [ "$1" == "-t" ]; then
          {N[rand()] = $0}
    END   {for(i in N) { print N[i]; break}}'
   echo -e "\033[0m" 
+  #date +"%H %M %S" |figlet -f big
   cd $Ish/src
   for f in *.py; do
     echo "------------- $f"
     test1 $f
-    echo ""
   done | redgreen
   exit $?
 fi
