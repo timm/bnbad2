@@ -11,30 +11,8 @@
 # <br><a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
 # <br><img src="https://img.shields.io/badge/license-mit-lightgrey"></p><hr>
 
-"""
-Optimizer, written as a data miner.  Break the data up into regions
-of 'bad' and 'better'. "Interesting' things occur at very different
-frequencies in 'bad' and 'better'. Find interesting bits. Combine
-them. Repeat. Nearly all this processing takes loglinear time.
+from .it import *
+from .lib import csv, eg
 
-  :-------:              
-  | Ba    | Bad <----.       planning        = max(better - bad)
-  |    56 |          |       monitor         = max(bad - better)
-  :-------:------:   |       tabu            = min(bad + better)
-          | B    |   v       active learning = find better == bad
-          |    5 | Better
-          :------:
-"""
-
-import lib
-import sys
-import pkg_resources
-from .__init__ import *
-
-cli = args(help, __doc__)
-if cli.T:
-  Eg.runall()
-elif cli.t:
-  Eg.run(cli.t)
-elif cli.V:
-  version()
+class Count(Pretty):
+    pass

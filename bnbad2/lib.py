@@ -21,11 +21,38 @@ import sys
 import re
 from .it import *
 
-def asData(f):
-  return pkg_resources.resource_string(__name__, "data/" + f)
+# -------
+# ## Eg : Unit test engine
+class Eg:
+  egs = {}
 
-def asString(z):
-  return z if type(z) is str else z.decode("utf-8")
+  @staticmethod
+  def eg(f):
+    Eg.egs[f.__name__] = f
+    return f
+
+  @staticmethod
+  def run(x):
+    assert x in Eg.egs, "unknown test function"
+    fun = Eg.egs[x]
+    try:
+      random.seed(1)
+      fun()
+      print(fun.__name__, "PASS")
+    except Exception:
+      print(fun.__name__, "FAIL")
+
+  @staticmethod
+  def runall(): [Eg.run(x) for x in Eg.egs]
+
+
+eg = Eg.eg
+
+@eg
+def version(): print("Bnbad v2.01")
+
+# ---------
+# ## Data in packages
 
 # ------------
 # ## csv : read comma-separated file
@@ -37,58 +64,59 @@ def csv(file, sep=","):
     return float if it.less in x or \
         it.more in x or it.num in x else str
   linesize = None
-  for n, line in enumerate(src(file)):
-    line = re.sub(r'([\n\t\r ]|#.*)', '', line)
-    if line:
-      line = line.split(sep)
-      if linesize is None:
-        linesize = len(line)
-      assert len(line) == linesize,\
-          "row size different to header size"
-      if n == 0:
-        cols = [prep(x) for x in line]
-      else:
-        line = [(x if x == it.skip else f(x))
-                for f, x in zip(cols, line)]
-      yield line
+  with open(file) as fp:
+    for n, line in enumerate(fp):
+      line = re.sub(r'([\n\t\r ]|#.*)', '', line.strip())
+      if line:
+        line = line.split(sep)
+        if linesize is None:
+          linesize = len(line)
+        assert len(line) == linesize,\
+            "row size different to header size"
+        if n == 0:
+          cols = [prep(x) for x in line]
+        else:
+          line = [(x if x == it.skip else f(x))
+                  for f, x in zip(cols, line)]
+        yield line
 
 def src(x=None):
   def prep(z):
     z = z if type(z) is str else z.decode("utf-8")
     return z.strip()
 
-  def strings(z):
-    for y in z.splitlines():
+  def bytedata():
+    for y in x.decode("utf-8").splitlines():
       yield prep(y)
 
-  def csv(z):
-    with open(z) as fp:
+  def strings():
+    for y in x.splitlines():
+      yield prep(y)
+
+  def csv():
+    with open(x) as fp:
       for y in fp:
         yield prep(y)
 
-  def stdin(z):
+  def stdin():
     for y in sys.stdin:
       yield prep(y)
-  ########################
-  if not x:
+  f = strings
+  print("xx", x)
+  if x is None:
     f = stdio
-  elif x[-3:] == 'csv':
+  elif type(x) is bytes:
+    f = bytedata
+  elif x[-4:] == ".csv":
     f = csv
-  else:
-    f = strings
-  for y in f(x):
+  for y in f():
     yield y
 
-def csvok():
-  all = [row for row in csv("data/weather.csv")]
+
+@eg
+def _csv():
+  all = [row for row in csv(it.data + "/weather.csv")]
   assert 15 == len(all)
   assert float == type(all[2][2])
   assert str == type(all[2][0])
-  assert 399 == len([row for row in csv("data/auto93.csv")])
-
-
-# ---
-# main
-if __name__ == "__main__":
-  if "--test" in sys.argv:
-    ok(csvok)
+  assert 399 == len([row for row in csv(it.data + "/auto93.csv")])

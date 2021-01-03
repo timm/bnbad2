@@ -2,8 +2,6 @@
 # then run:
 #             sh INSTALL.md
 
-sudo pip3 install --upgrade setuptools
-sudo pip3 install --upgrade distribute 
 sudo pip3 install -r requirements.txt
 sudo pip3 install -e .
 

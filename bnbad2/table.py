@@ -20,7 +20,7 @@ import sys
 import math
 import random
 from .it import *
-from .lib import csv
+from .lib import csv, eg
 
 # ---------
 # ## Columns
@@ -29,11 +29,11 @@ from .lib import csv
 class Col(Pretty):
   def __init__(i, pos=0, txt=""):
     i.pos, i.txt, i.n = pos, txt, 0
-    i.w = -1 if it.CH.less in txt else 1
+    i.w = -1 if it.less in txt else 1
 
   # Add items, increment `n` (if not skipping `x`).
   def add(i, x):
-    if x != it.CH.skip:
+    if x != it.skip:
       i.n += 1
       i.add1(x)
     return x
@@ -42,10 +42,10 @@ class Col(Pretty):
   def card(i): return 0
 
   # Convert `x` to one of a small number of bins.
-  def bin(i, x): return x if x == it.CH.skip else i.bin1(x)
+  def bin(i, x): return x if x == it.skip else i.bin1(x)
 
   # Normalize `x` to a fixed range
-  def norm(i, x): return x if x == it.CH.skip else i.norm1(x)
+  def norm(i, x): return x if x == it.skip else i.norm1(x)
 
   # Default add: no nothing
   def add1(i, x): pass
@@ -85,9 +85,9 @@ class Some(Col):
   def __init__(i, *l, **d):
     super().__init__(*l, **d)
     i.ok = False
-    i.it = o(want=it.SOME.want,
-             min=it.SOME.min,
-             epsilon=it.SOME.epsilon)
+    i.it = o(want=it.want,
+             min=it.min,
+             epsilon=it.eps)
     i._cache, i._bins = [], []
 
   # Cache up to `i.want` items, selected at random
@@ -219,23 +219,23 @@ class Row(Pretty):
 # ## Table: stores rows, summarized in columns
 class Table(Pretty):
   def __init__(i):
-    i.it = o(samples=it.TABLE.samples)
+    i.it = o(samples=it.samples)
     i.xs, i.ys, i.rows, i.cols = [], [], [], []
 
   # builds a new column, stores it anywhere it needs to be
   def make(i, pos, txt):
     this, btw = Sym, i.xs # default
-    if it.CH.less in txt or it.CH.more in txt:
+    if it.less in txt or it.more in txt:
       this, btw = Some, i.ys
-    if it.CH.num in txt:
+    if it.num in txt:
       this, btw = Some, i.xs
-    if it.CH.klass in txt:
+    if it.klass in txt:
       this.btw = Sym, i.ys
-    if it.CH.sym in txt:
+    if it.sym in txt:
       this, btw = Sym, i.xs
-    if it.CH.klass in txt:
+    if it.klass in txt:
       this, btw = Sym, i.ys
-    if it.CH.skip in txt:
+    if it.skip in txt:
       this, btw = Col, []
     y = this(pos, txt)
     btw += [y]
@@ -266,8 +266,9 @@ class Table(Pretty):
     [i.add(row) for row in csv(file)]
     return i
 
-def tableok():
-  t = Table().read("data/auto93.csv")
+@eg
+def _ok():
+  t = Table().read(it.data + "/auto93.csv")
   t.doms()
   all = sorted(t.rows, key=lambda z: z.dom)
   for row in all[:10]:
@@ -275,10 +276,3 @@ def tableok():
   print("")
   for row in all[-10:]:
     print(row.show(t))
-
-# ---
-# main
-if __name__ == "__main__":
-  if "--test" in sys.argv:
-    ok(symok, someok)
-    tableok()

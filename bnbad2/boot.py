@@ -20,6 +20,7 @@ import pprint
 import sys
 import re
 
+
 # --------------------
 # ## Pretty : classes that can pretty print themselves.
 
@@ -89,12 +90,3 @@ def args(f, hello=""):
 
 # ---------
 # ## ok : simple unit test engine
-
-def ok(*l):
-  for fun in l:
-    try:
-      random.seed(1)
-      fun()
-      print(fun.__name__, "PASS")
-    except Exception:
-      print(fun.__name__, "FAIL")

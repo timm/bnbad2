@@ -31,7 +31,6 @@ setup(
     author_email='timm@ieee.org',
     license='MIT',
     packages=['bnbad2'],
-    include_package_data=True,
     zip_safe=False,
     keywords='data mining, optimization',
     classifiers=[

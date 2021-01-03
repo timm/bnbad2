@@ -14,7 +14,10 @@
 from .boot import *
 
 def help(): h = arg; return [
-    h("char for less", less="<"),
+    h("show version", V=False),
+    h("run one test", t=""),
+    h("run all tests", T=False),
+    h("char for more", less="<"),
     h("char for more", more=">"),
     h("char for skip", skip="?"),
     h("char for klass", klass="!"),
@@ -24,7 +27,9 @@ def help(): h = arg; return [
     h("some min", min=.5),
     h("some want", want=128),
     h("table samples", samples=64),
+    h("data dir", data="/Users/timm/gits/timm/bnbad2/data"),
     h("run demos", demos=False)
 ]
+
 
 it = o(**{k: d for k, d, _ in help()})
