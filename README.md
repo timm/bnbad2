@@ -8,7 +8,7 @@ Find interesting bits. Combine them. Repeat.<br>
 ![](https://img.shields.io/badge/platform-osx%20,%20linux-orange)<br>
 ![](https://img.shields.io/badge/language-python3,bash-blue)<br>
 ![](https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet)<br>
- [![Build Status](https://travis-ci.com/timm/bnbad2.svg?branch=main)](https://travis-ci.com/timm/bnbad2)<br>
+[![Build Status](https://travis-ci.com/timm/bnbad2.svg?branch=main)](https://travis-ci.com/timm/bnbad2)<br>
 ![](https://img.shields.io/badge/license-mit-lightgrey)
 --------
 
