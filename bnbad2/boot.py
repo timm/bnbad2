@@ -75,13 +75,15 @@ def arg(txt, **d):
       return key, x, dict(help=txt, choices=val, x=x, metavar=m, type=t)
     else:
       eg = "; e.g. -%s %s" % (key, val) if val != "" else ""
-      return key, x, dict(help=txt + eg, x=x, metavar=m, type=t)
+      return key, x, dict(help=txt + eg, default=x, metavar=m, type=t)
 
 # Link to Python's ArgParse
 def args(f, hello=""):
   p = argparse
+  from argparse_color_formatter import ColorHelpFormatter
   lst, b4 = f(), re.sub(r"\n  ", "\n", hello)
   parser = p.ArgumentParser(
+      prog="bnbad2",
       description=b4, formatter_class=p.RawDescriptionHelpFormatter)
   [parser.add_argument("-" + key, **args) for key, _, args in lst]
   return parser.parse_args()

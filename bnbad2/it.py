@@ -12,7 +12,7 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-from .boot import arg, o
+from .boot import *
 
 def help(): return [
     arg("char for less", less="<"),
@@ -24,7 +24,8 @@ def help(): return [
     arg("some epsilon", eps=.35),
     arg("some min", min=.5),
     arg("some want", want=128),
-    arg("table samples", samples=64)
+    arg("table samples", samples=64),
+    arg("run demos", demos=False)
 ]
 
 
