@@ -12,12 +12,31 @@
 # ![](https://img.shields.io/badge/license-mit-lightgrey)
 # --------
 
-setup(name='bnbad2',
-      version='0.3',
-      description='Non-parametric optimization',
-      url='http://menzies.us/bnbad2',
-      author='Tim Menzies',
-      author_email='timm@ieee.org',
-      license='MIT',
-      packages=['bnbad2'],
-      zip_safe=False)
+from distutils.core import setup
+
+def readme():
+  with open('README.md') as f:
+    s = f.read()
+    n = s.find("\n\n") + 2
+    return s[n:]
+
+
+setup(
+    name='bnbad2',
+    version='0.3',
+    description='Non-parametric optimization',
+    long_description=readme(),
+    url='http://menzies.us/bnbad2',
+    author='Tim Menzies',
+    author_email='timm@ieee.org',
+    license='MIT',
+    packages=['bnbad2'],
+    include_package_data=True,
+    zip_safe=False,
+    keywords='data mining, optimization',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    ])

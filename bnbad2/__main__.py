@@ -26,9 +26,13 @@ them. Repeat. Nearly all this processing takes loglinear time.
           :------:
 """
 
+import sys
+import pkg_resources
 from .__init__ import *
 
-import sys
+
 cli = args(help, __doc__)
 if cli.demos:
-  print(cli)
+  print(data("weather.csv"))
+  # for y in src(data("weather.csv")): for z in y.split(","): print(z.strip())
+  # print(cli)
