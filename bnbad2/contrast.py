@@ -27,7 +27,8 @@ class Rule(Pretty):
     i.best, i.rest = best, rest
     i.score(nb)
 
-  # Report how much more likely row belongs to best than rest.
+  # Return likelihood that `has` belongs to `best`
+  # much more that `rest`..
   def score(nb):
     all = nb.h[i.best] + nb.h[i.rest]
     b = nb.like(i.has, i.best, all, 2)
@@ -106,15 +107,16 @@ class Nb(Pretty):
         for col in t.xs:
           tmp = [Rule(rest, i.best, c, x, i) for x in col.range()]
           if type(col) == Some:
-            tmp = i.condense(sorted(tmp, key=lambda z: z.x0))
+            tmp = i.merge(sorted(tmp, key=lambda z: z.x0))
           lst += i.prune(tmp)
         all[rest] = i.learn(lst, i.it.gen)
     return all
 
-  # Iteratively, try to condense adjacent rules.
-  # if anything condenses, then recurse to try some more.
-  def condense(i, lst):
-    j, tmp, max, shorter = 0, [], len(lst), False
+  # Try to merge adjacent rules.
+  # If  anything merges, then repeat.
+  def merge(i, lst):
+    shorter = False
+    j, tmp, max = 0, [], len(lst)
     while j < max:
       a = lst[j]
       if j < max - 1:
@@ -125,7 +127,7 @@ class Nb(Pretty):
           j += 1
       tmp += [a]
       j += 1
-    return i.condense(tmp) if shorter else lst
+    return i.merge(tmp) if shorter else lst
 
   # Sort descending by value, remove lesser valuable items,
   # Remove duplicates (which, after sorting, will be adjacent).
