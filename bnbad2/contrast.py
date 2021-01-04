@@ -94,17 +94,19 @@ class Nb(Pretty):
       like += math.log(inc)
     return math.e**like
 
+  # Return rules listing ranges that are low frequency
+  # in `rest` and high frequency in `i.best`
   def rules(i, t):
     all = {}
-    for h in i.h:
-      if h != i.best:
+    for rest in i.h:
+      if rest != i.best:
         lst = []
         for col in t.xs:
-          tmp = [Rule(i.rest, i.best, c, x, i) for x in col.range()]
+          tmp = [Rule(rest, i.best, c, x, i) for x in col.range()]
           if type(col) == Some:
             tmp = i.condense(sorted(tmp, key=lambda z: z.x0))
           lst += i.prune(tmp)
-        all[h] = i.learn(lst, i.it.gen)
+        all[rest] = i.learn(lst, i.it.gen)
     return all
 
   # Iteratively, try to condense adjacent rules.
@@ -142,7 +144,7 @@ class Nb(Pretty):
     if gen < 2 or len(rules) < 2:
       return rules
     rules = i.prune(rules)
-    total = sum([rule.n for rule in rules])
+    total = sum(rule.n for rule in rules)
     more = []
     for _ in range(i.it.samples):
       one = i.one(rules, total)
