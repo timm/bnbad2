@@ -58,7 +58,9 @@ class Rule(Pretty):
       s = s + ") "
     return "[" + str(init(100 * i.n)) + "] " + s
 
+# -----------------
 # ### Nb : Reason about frequency counts
+
 class Nb(Pretty):
   def __init__(i):
     i.it = o(m=it.m, k=it.k, pop=it.pop,

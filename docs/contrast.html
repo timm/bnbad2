@@ -143,10 +143,11 @@ Find interesting bits. Combine them. Repeat.<br>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-7'>#</a>
       </div>
-      <h3>Nb : Reason about frequency counts</h3>
+      <hr />
+<h3>Nb : Reason about frequency counts</h3>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Nb</span><span class="p">(</span><span class="n">Pretty</span><span class="p">):</span></pre></div>
+      <div class="highlight"><pre></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -154,6 +155,18 @@ Find interesting bits. Combine them. Repeat.<br>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">class</span> <span class="nc">Nb</span><span class="p">(</span><span class="n">Pretty</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
       </div>
       
     </div>
@@ -169,10 +182,10 @@ Find interesting bits. Combine them. Repeat.<br>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-9'>
+  <div class='section' id='section-10'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-9'>#</a>
+        <a class='octothorpe' href='#section-10'>#</a>
       </div>
       <p>For everything in <code>cols</code>,
 update frequency counts (from <code>row</code>)</p>
@@ -193,10 +206,10 @@ update frequency counts (from <code>row</code>)</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-10'>
+  <div class='section' id='section-11'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-10'>#</a>
+        <a class='octothorpe' href='#section-11'>#</a>
       </div>
       <p>Return likelihood that <code>thing</code> belongs to <code>h</code>.</p>
     </div>
@@ -212,33 +225,34 @@ update frequency counts (from <code>row</code>)</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-11'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-11'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
-    <span class="nb">all</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">h</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">h</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">best</span><span class="p">:</span>
-        <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">xs</span><span class="p">:</span>
-          <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="n">Rule</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">rest</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">best</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">range</span><span class="p">()]</span>
-          <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="n">Some</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">condense</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span>
-          <span class="n">lst</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
-        <span class="nb">all</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">it</span><span class="o">.</span><span class="n">gen</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">all</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
   <div class='section' id='section-12'>
     <div class='docs'>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>Return rules listing ranges that are low frequency
+in <code>rest</code> and high frequency in <code>i.best</code></p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="nb">all</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">rest</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">h</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">rest</span> <span class="o">!=</span> <span class="n">i</span><span class="o">.</span><span class="n">best</span><span class="p">:</span>
+        <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">xs</span><span class="p">:</span>
+          <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="n">Rule</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">best</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">range</span><span class="p">()]</span>
+          <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="n">Some</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">condense</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span>
+          <span class="n">lst</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="nb">all</span><span class="p">[</span><span class="n">rest</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">it</span><span class="o">.</span><span class="n">gen</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">all</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
       </div>
       <p>Iteratively, try to condense adjacent rules.
 if anything condenses, then recurse to try some more.</p>
@@ -260,10 +274,10 @@ if anything condenses, then recurse to try some more.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-13'>
+  <div class='section' id='section-14'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-13'>#</a>
+        <a class='octothorpe' href='#section-14'>#</a>
       </div>
       <p>Sort descending by value, remove lesser valuable items,
 Remove duplicates (which, after sorting, will be adjacent).</p>
@@ -281,10 +295,10 @@ Remove duplicates (which, after sorting, will be adjacent).</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-14'>
+  <div class='section' id='section-15'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-14'>#</a>
+        <a class='octothorpe' href='#section-15'>#</a>
       </div>
       <p>A couple of times, combine two rules. If
 that produces anything better than before,
@@ -295,7 +309,7 @@ recurse to try it all again.</p>
     <span class="k">if</span> <span class="n">gen</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">rules</span>
     <span class="n">rules</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">rule</span><span class="o">.</span><span class="n">n</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">])</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">n</span> <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">rules</span><span class="p">)</span>
     <span class="n">more</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">it</span><span class="o">.</span><span class="n">samples</span><span class="p">):</span>
       <span class="n">one</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">one</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
@@ -308,10 +322,10 @@ recurse to try it all again.</p>
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-15'>
+  <div class='section' id='section-16'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-15'>#</a>
+        <a class='octothorpe' href='#section-16'>#</a>
       </div>
       <p>Pick a rule, favoring things with higher value.</p>
     </div>
