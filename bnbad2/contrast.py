@@ -119,7 +119,7 @@ class Nb(Pretty):
       a = lst[j]
       if j < max - 1:
         b = lst[j + 1]
-        if c := a.better(c):
+        if c := a.better(b):
           shorter = True
           a = c
           j += 1
