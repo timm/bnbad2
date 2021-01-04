@@ -41,6 +41,10 @@ class Col(Pretty):
   # Return the number of bins
   def card(i): return 0
 
+  # return list of legal range for this column
+  def range(i):
+    return []
+
   # Convert `x` to one of a small number of bins.
   def bin(i, x): return x if x == it.skip else i.bin1(x)
 
@@ -71,6 +75,10 @@ class Sym(Col):
     new = i.seen[x] = i.seen.get(x, 0) + 1
     if new > i.most:
       i.most, i.mode = new, x
+
+  # return list of legal range for this column
+  def range(i):
+    return i.seen.keys()
 
 @eg
 def _sym():
@@ -109,8 +117,13 @@ class Some(Col):
     i.ok = True
     return i._cache
 
+  # return list of legal range for this column
+  def range(i):
+    return [x for x in range(1 + len(i.bins()))]
+
   # Return the `p`-th percentile in the cache, bounded
   # from `lo` to `hi`
+
   def per(i, p=.5, lo=0, hi=None):
     hi = hi or len(i._cache)
     lo = lo or 0
@@ -121,7 +134,7 @@ class Some(Col):
   def mid(i, lo=None, hi=None):
     return i.per(p=.5, lo=lo, hi=hi)
 
-  # Return the standard deviation of cache values from lo to hi
+  # Return the standard deviation of cache range from lo to hi
   def sd(i, lo=None, hi=None):
     return (i.per(p=.9, lo=lo, hi=hi) -
             i.per(p=.1, lo=lo, hi=hi)) / 2.54

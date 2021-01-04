@@ -43,19 +43,94 @@ Find interesting bits. Combine them. Repeat.<br>
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">help</span><span class="p">():</span> <span class="n">h</span> <span class="o">=</span> <span class="n">arg</span><span class="p">;</span> <span class="k">return</span> <span class="p">[</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for less&quot;</span><span class="p">,</span> <span class="n">less</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for more&quot;</span><span class="p">,</span> <span class="n">more</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for skip&quot;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for klass&quot;</span><span class="p">,</span> <span class="n">klass</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for symbols&quot;</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;char for numerics&quot;</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;some epsilon&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=.</span><span class="mi">35</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;some min&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=.</span><span class="mi">5</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;some want&quot;</span><span class="p">,</span> <span class="n">want</span><span class="o">=</span><span class="mi">128</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;table samples&quot;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">64</span><span class="p">),</span>
-    <span class="n">h</span><span class="p">(</span><span class="s2">&quot;run demos&quot;</span><span class="p">,</span> <span class="n">demos</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">help</span><span class="p">():</span> <span class="k">return</span> <span class="p">[</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;show version&quot;</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;data dir&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;/Users/timm/gits/timm/bnbad2/data&quot;</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;run one test&quot;</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;run all tests&quot;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for &#39;less&#39;&quot;</span><span class="p">,</span> <span class="n">less</span><span class="o">=</span><span class="s2">&quot;&lt;&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for &#39;more&#39;&quot;</span><span class="p">,</span> <span class="n">more</span><span class="o">=</span><span class="s2">&quot;&gt;&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for &#39;skip&#39;&quot;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for &#39;klass&#39;&quot;</span><span class="p">,</span> <span class="n">klass</span><span class="o">=</span><span class="s2">&quot;!&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for symbols&quot;</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;char for numerics&quot;</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;nb kludge for rare attributes&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;nb kludge for rare classes&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;contrast population&quot;</span><span class="p">,</span> <span class="n">pop</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;contrast generations&quot;</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;contrast trials&quot;</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;some epsilon&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=.</span><span class="mi">35</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;some min&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=.</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;some want&quot;</span><span class="p">,</span> <span class="n">want</span><span class="o">=</span><span class="mi">128</span><span class="p">),</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <hr />
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">flag</span><span class="p">(</span><span class="s2">&quot;table samples&quot;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">64</span><span class="p">),</span>
 <span class="p">]</span>
+
 
 <span class="n">it</span> <span class="o">=</span> <span class="n">o</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">d</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">help</span><span class="p">()})</span>
 

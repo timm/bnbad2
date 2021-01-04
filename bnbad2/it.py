@@ -20,15 +20,15 @@ def help(): return [
     flag("run one test", t=""),
     flag("run all tests", T=False),
     # -------------------------------------
-    flag("char for more", less="<"),
-    flag("char for more", more=">"),
-    flag("char for skip", skip="?"),
-    flag("char for klass", klass="!"),
+    flag("char for 'less'", less="<"),
+    flag("char for 'more'", more=">"),
+    flag("char for 'skip'", skip="?"),
+    flag("char for 'klass'", klass="!"),
     flag("char for symbols", sym="_"),
     flag("char for numerics", num=":"),
     # -------------------------------------
-    flag("nb rare attributes kludge", k=1),
-    flag("nb rare class kludge", m=2),
+    flag("nb kludge for rare attributes", k=1),
+    flag("nb kludge for rare classes", m=2),
     # -------------------------------------
     flag("contrast population", pop=20),
     flag("contrast generations", gen=20),

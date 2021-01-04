@@ -185,10 +185,10 @@ Find interesting bits. Combine them. Repeat.<br>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-11'>#</a>
       </div>
-      
+      <p>Define a command line flag</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">arg</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">flag</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">):</span>
   <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="k">break</span>
   <span class="n">x</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">val</span>
@@ -216,7 +216,7 @@ Find interesting bits. Combine them. Repeat.<br>
       <p>Link to Python&rsquo;s ArgParse</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">hello</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">flags</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">hello</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
   <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span>
   <span class="kn">from</span> <span class="nn">argparse_color_formatter</span> <span class="kn">import</span> <span class="n">ColorHelpFormatter</span>
   <span class="n">lst</span><span class="p">,</span> <span class="n">b4</span> <span class="o">=</span> <span class="n">f</span><span class="p">(),</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\n  &quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hello</span><span class="p">)</span>
@@ -238,27 +238,6 @@ Find interesting bits. Combine them. Repeat.<br>
     </div>
     <div class='code'>
       <div class="highlight"><pre></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-14'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-14'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">ok</span><span class="p">(</span><span class="o">*</span><span class="n">l</span><span class="p">):</span>
-  <span class="k">for</span> <span class="n">fun</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-      <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-      <span class="n">fun</span><span class="p">()</span>
-      <span class="nb">print</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;PASS&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-      <span class="nb">print</span><span class="p">(</span><span class="n">fun</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">)</span>
-
-</pre></div>
     </div>
   </div>
   <div class='clearall'></div>
