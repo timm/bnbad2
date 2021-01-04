@@ -13,22 +13,32 @@
 
 from .boot import *
 
-def help(): h = arg; return [
-    h("show version", V=False),
-    h("run one test", t=""),
-    h("run all tests", T=False),
-    h("char for more", less="<"),
-    h("char for more", more=">"),
-    h("char for skip", skip="?"),
-    h("char for klass", klass="!"),
-    h("char for symbols", sym="_"),
-    h("char for numerics", num=":"),
-    h("some epsilon", eps=.35),
-    h("some min", min=.5),
-    h("some want", want=128),
-    h("table samples", samples=64),
-    h("data dir", data="/Users/timm/gits/timm/bnbad2/data"),
-    h("run demos", demos=False)
+def help(): return [
+    flag("show version", V=False),
+    flag("data dir", data="/Users/timm/gits/timm/bnbad2/data"),
+    # -------------------------------------
+    flag("run one test", t=""),
+    flag("run all tests", T=False),
+    # -------------------------------------
+    flag("char for more", less="<"),
+    flag("char for more", more=">"),
+    flag("char for skip", skip="?"),
+    flag("char for klass", klass="!"),
+    flag("char for symbols", sym="_"),
+    flag("char for numerics", num=":"),
+    # -------------------------------------
+    flag("nb rare attributes kludge", k=1),
+    flag("nb rare class kludge", m=2),
+    # -------------------------------------
+    flag("contrast population", pop=20),
+    flag("contrast generations", gen=20),
+    flag("contrast trials", trials=50),
+    # -------------------------------------
+    flag("some epsilon", eps=.35),
+    flag("some min", min=.5),
+    flag("some want", want=128),
+    # -------------------------------------
+    flag("table samples", samples=64),
 ]
 
 

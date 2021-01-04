@@ -72,7 +72,8 @@ class Sym(Col):
     if new > i.most:
       i.most, i.mode = new, x
 
-def symok():
+@eg
+def _sym():
   s = Sym(23, txt="<fred")
   [s.add(x) for x in 'aaaabbc']
   assert s.mode == "a"
@@ -167,7 +168,8 @@ class Some(Col):
             hi += n
     return i._bins
 
-def someok():
+@eg
+def _some():
   s = Some()
   s.it.want = 64
   [s.add(int(100 * random.random())) for _ in range(1000)]
@@ -271,8 +273,7 @@ def _ok():
   t = Table().read(it.data + "/auto93.csv")
   t.doms()
   all = sorted(t.rows, key=lambda z: z.dom)
-  for row in all[:10]:
-    print(row.show(t))
-  print("")
-  for row in all[-10:]:
-    print(row.show(t))
+  worsts = [row for row in all[:10]]
+  for best in all[-10:]:
+    for worst in worsts:
+      assert best.doms(worst, t)

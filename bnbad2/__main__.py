@@ -15,7 +15,7 @@
 Optimizer, written as a data miner.  Break the data up into regions
 of 'bad' and 'better'. "Interesting' things occur at very different
 frequencies in 'bad' and 'better'. Find interesting bits. Combine
-them. Repeat. Nearly all this processing takes loglinear time.
+them. Repeat. Nearly all this processing takes log linear time.
 
   :-------:              
   | Ba    | Bad <----.       planning        = max(better - bad)
@@ -31,10 +31,10 @@ import sys
 import pkg_resources
 from .__init__ import *
 
-cli = args(help, __doc__)
-if cli.T:
+f = flags(help, __doc__)
+if f.T:
   Eg.runall()
-elif cli.t:
+elif f.t:
   Eg.run(cli.t)
-elif cli.V:
+elif f.V:
   version()

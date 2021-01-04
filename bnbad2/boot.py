@@ -59,7 +59,8 @@ def ook():
 # -----------
 # ## items,items : a DSL for system options
 
-def arg(txt, **d):
+# Define a command line flag
+def flag(txt, **d):
   for key, val in d.items():
     break
   x = val[0] if isinstance(val, list) else val
@@ -78,7 +79,7 @@ def arg(txt, **d):
       return key, x, dict(help=txt + eg, default=x, metavar=m, type=t)
 
 # Link to Python's ArgParse
-def args(f, hello=""):
+def flags(f, hello=""):
   p = argparse
   from argparse_color_formatter import ColorHelpFormatter
   lst, b4 = f(), re.sub(r"\n  ", "\n", hello)
