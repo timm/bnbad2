@@ -2,7 +2,7 @@
 
 # misc convenient shortcuts
 test1() { 
-  python3 -m bnbad3 -t $i
+  python3 -m bnbad2 -t $i
 }
 
 

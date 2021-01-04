@@ -26,9 +26,8 @@ them. Repeat. Nearly all this processing takes log linear time.
           :------:
 """
 
-import lib
-import sys
-import pkg_resources
+import .lib
+import .sys
 from .__init__ import *
 
 f = flags(help, __doc__)
