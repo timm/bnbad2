@@ -26,12 +26,12 @@ setup(
     version='0.3',
     description='Non-parametric optimization',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     url='http://menzies.us/bnbad2',
     author='Tim Menzies',
     author_email='timm@ieee.org',
     license='MIT',
     packages=['bnbad2'],
-    zip_safe=False,
     keywords='data mining, optimization',
     classifiers=[
         'Development Status :: 3 - Alpha',

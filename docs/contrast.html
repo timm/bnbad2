@@ -24,6 +24,7 @@ Find interesting bits. Combine them. Repeat.<br>
 <hr>
 <a href="http://github.com/timm/bnbad2"><img src="https://github.com/timm/bnbad2/raw/main/etc/img/banner.png" align=left></a>
 <p><a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg"></a>
+<br><a href="https://badge.fury.io/py/bnbad2"><img src="https://badge.fury.io/py/bnbad2.svg" alt="PyPI version" height="18"></a>
 <br><img src="https://img.shields.io/badge/platform-osx%20,%20linux-orange">
 <br><img src="https://img.shields.io/badge/language-python3,bash-blue">
 <br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
@@ -75,7 +76,8 @@ Find interesting bits. Combine them. Repeat.<br>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-3'>#</a>
       </div>
-      <p>Report how much more likely row belongs to best than rest.</p>
+      <p>Return likelihood that <code>has</code> belongs to <code>best</code>
+much more that <code>rest</code>..</p>
     </div>
     <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="n">nb</span><span class="p">):</span>
@@ -242,7 +244,7 @@ in <code>rest</code> and high frequency in <code>i.best</code></p>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">xs</span><span class="p">:</span>
           <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="n">Rule</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">best</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">range</span><span class="p">()]</span>
           <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">==</span> <span class="n">Some</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">condense</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">x0</span><span class="p">))</span>
           <span class="n">lst</span> <span class="o">+=</span> <span class="n">i</span><span class="o">.</span><span class="n">prune</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
         <span class="nb">all</span><span class="p">[</span><span class="n">rest</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">it</span><span class="o">.</span><span class="n">gen</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">all</span></pre></div>
@@ -254,23 +256,24 @@ in <code>rest</code> and high frequency in <code>i.best</code></p>
       <div class='octowrap'>
         <a class='octothorpe' href='#section-13'>#</a>
       </div>
-      <p>Iteratively, try to condense adjacent rules.
-if anything condenses, then recurse to try some more.</p>
+      <p>Try to merge adjacent rules.
+If  anything merges, then repeat.</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">condense</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
-    <span class="n">j</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">shorter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">),</span> <span class="kc">False</span>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
+    <span class="n">shorter</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">j</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="nb">max</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
     <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">max</span><span class="p">:</span>
       <span class="n">a</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
       <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">max</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">lst</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">c</span> <span class="o">:=</span> <span class="n">a</span><span class="o">.</span><span class="n">better</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="o">:=</span> <span class="n">a</span><span class="o">.</span><span class="n">better</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
           <span class="n">shorter</span> <span class="o">=</span> <span class="kc">True</span>
           <span class="n">a</span> <span class="o">=</span> <span class="n">c</span>
           <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
       <span class="n">tmp</span> <span class="o">+=</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span>
       <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">i</span><span class="o">.</span><span class="n">condense</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="k">if</span> <span class="n">shorter</span> <span class="k">else</span> <span class="n">lst</span></pre></div>
+    <span class="k">return</span> <span class="n">i</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="k">if</span> <span class="n">shorter</span> <span class="k">else</span> <span class="n">lst</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>

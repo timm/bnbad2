@@ -17,7 +17,19 @@
       <div class='octowrap'>
         <a class='octothorpe' href='#section-0'>#</a>
       </div>
-      
+      <p>Non-parametric optimization.<br>
+Find interesting bits. Combine them. Repeat.<br>
+<a href="http://menzies.us/bnbab2">home</a>         :: <a href="http://menzies.us/bnbad2/lib.html">lib</a> ::
+<a href="http://menzies.us/bnbad2/tab.html">cols</a> :: <a href="http://menzies.us/bnbad2/grow.html">tbl</a><br>
+<hr>
+<a href="http://github.com/timm/bnbad2"><img src="https://github.com/timm/bnbad2/raw/main/etc/img/banner.png" align=left></a>
+<p><a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg"></a>
+<br><a href="https://badge.fury.io/py/bnbad2"><img src="https://badge.fury.io/py/bnbad2.svg" alt="PyPI version" height="18"></a>
+<br><img src="https://img.shields.io/badge/platform-osx%20,%20linux-orange">
+<br><img src="https://img.shields.io/badge/language-python3,bash-blue">
+<br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
+<br><a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
+<br><img src="https://img.shields.io/badge/license-mit-lightgrey"></p><hr></p>
     </div>
     <div class='code'>
       <div class="highlight"><pre><span></span></pre></div>
@@ -32,7 +44,9 @@
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="k">def</span> <span class="nf">src</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">bytedata</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+      <span class="k">yield</span> <span class="n">prep</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -44,9 +58,9 @@
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">prep</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">z</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="k">else</span> <span class="n">z</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></pre></div>
+      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">strings</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+      <span class="k">yield</span> <span class="n">prep</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></pre></div>
     </div>
   </div>
   <div class='clearall'></div>
@@ -58,34 +72,6 @@
       
     </div>
     <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">bytedata</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-      <span class="k">yield</span> <span class="n">prep</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-4'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-4'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
-      <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">strings</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-      <span class="k">yield</span> <span class="n">prep</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></pre></div>
-    </div>
-  </div>
-  <div class='clearall'></div>
-  <div class='section' id='section-5'>
-    <div class='docs'>
-      <div class='octowrap'>
-        <a class='octothorpe' href='#section-5'>#</a>
-      </div>
-      
-    </div>
-    <div class='code'>
       <div class="highlight"><pre>  <span class="k">def</span> <span class="nf">csv</span><span class="p">():</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
       <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">fp</span><span class="p">:</span>
@@ -93,10 +79,10 @@
     </div>
   </div>
   <div class='clearall'></div>
-  <div class='section' id='section-6'>
+  <div class='section' id='section-4'>
     <div class='docs'>
       <div class='octowrap'>
-        <a class='octothorpe' href='#section-6'>#</a>
+        <a class='octothorpe' href='#section-4'>#</a>
       </div>
       
     </div>

@@ -5,6 +5,7 @@ Find interesting bits. Combine them. Repeat.<br>
 <hr>
 <a href="http://github.com/timm/bnbad2"><img src="https://github.com/timm/bnbad2/raw/main/etc/img/banner.png" align=left></a>
 <p><a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg"></a>
+<br><a href="https://badge.fury.io/py/bnbad2"><img src="https://badge.fury.io/py/bnbad2.svg" alt="PyPI version" height="18"></a>
 <br><img src="https://img.shields.io/badge/platform-osx%20,%20linux-orange">
 <br><img src="https://img.shields.io/badge/language-python3,bash-blue">
 <br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">

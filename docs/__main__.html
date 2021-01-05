@@ -24,6 +24,7 @@ Find interesting bits. Combine them. Repeat.<br>
 <hr>
 <a href="http://github.com/timm/bnbad2"><img src="https://github.com/timm/bnbad2/raw/main/etc/img/banner.png" align=left></a>
 <p><a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg"></a>
+<br><a href="https://badge.fury.io/py/bnbad2"><img src="https://badge.fury.io/py/bnbad2.svg" alt="PyPI version" height="18"></a>
 <br><img src="https://img.shields.io/badge/platform-osx%20,%20linux-orange">
 <br><img src="https://img.shields.io/badge/language-python3,bash-blue">
 <br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
@@ -41,7 +42,7 @@ Find interesting bits. Combine them. Repeat.<br>
         <a class='octothorpe' href='#section-1'>#</a>
       </div>
       <p>Optimizer, written as a data miner.  Break the data up into regions
-of &lsquo;bad&rsquo; and &lsquo;better&rsquo;. &ldquo;Interesting&rsquo; things occur at very different
+of &lsquo;bad&rsquo; and &lsquo;better&rsquo;. &lsquo;Interesting&rsquo; things occur at very different
 frequencies in &lsquo;bad&rsquo; and &lsquo;better&rsquo;. Find interesting bits. Combine
 them. Repeat. Nearly all this processing takes log linear time.</p>
 <p>:-------:            <br />
@@ -53,9 +54,7 @@ them. Repeat. Nearly all this processing takes log linear time.</p>
           :------:</p>
     </div>
     <div class='code'>
-      <div class="highlight"><pre><span class="kn">import</span> <span class="nn">lib</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
+      <div class="highlight"><pre><span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.__init__</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">f</span> <span class="o">=</span> <span class="n">flags</span><span class="p">(</span><span class="n">help</span><span class="p">,</span> <span class="vm">__doc__</span><span class="p">)</span>

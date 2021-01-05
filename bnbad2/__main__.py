@@ -5,6 +5,7 @@
 # <hr>
 # <a href="http://github.com/timm/bnbad2"><img src="https://github.com/timm/bnbad2/raw/main/etc/img/banner.png" align=left></a>
 # <p><a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg"></a>
+# <br><a href="https://badge.fury.io/py/bnbad2"><img src="https://badge.fury.io/py/bnbad2.svg" alt="PyPI version" height="18"></a>
 # <br><img src="https://img.shields.io/badge/platform-osx%20,%20linux-orange">
 # <br><img src="https://img.shields.io/badge/language-python3,bash-blue">
 # <br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
@@ -13,7 +14,7 @@
 
 """
 Optimizer, written as a data miner.  Break the data up into regions
-of 'bad' and 'better'. "Interesting' things occur at very different
+of 'bad' and 'better'. 'Interesting' things occur at very different
 frequencies in 'bad' and 'better'. Find interesting bits. Combine
 them. Repeat. Nearly all this processing takes log linear time.
 
@@ -26,8 +27,7 @@ them. Repeat. Nearly all this processing takes log linear time.
           :------:
 """
 
-import .lib
-import .sys
+from .lib import *
 from .__init__ import *
 
 f = flags(help, __doc__)
