@@ -13,17 +13,6 @@ Find interesting bits. Combine them. Repeat.<br>
 
 # BnBad2
 
-<a href="http://menzies.us/bnbad2"><pre>
-                     _         _                  _                  
-                    | |   _   | |                | |                 
-  ____ ____ ____  _ | |  | |_ | | _   ____     _ | | ___   ____  ___ 
- / ___) _  ) _  |/ || |  |  _)| || \ / _  )   / || |/ _ \ / ___)/___)
-| |  ( (/ ( ( | ( (_| |  | |__| | | ( (/ /   ( (_| | |_| ( (___|___ |
-|_|   \____)_||_|\____|   \___)_| |_|\____)   \____|\___/ \____|___/ 
-</pre></a>
-                                                                     
-
-
 ```
 usage: bnbad2 [-h] [-V] [-data S] [-t S] [-T] [-less S] [-more S] [-skip S]
               [-klass S] [-sym S] [-num S] [-k I] [-m I] [-pop I] [-gen I]
