@@ -16,6 +16,7 @@ from .it import *
 from .lib import csv, eg
 from copy import deepcopy as copy
 
+# ## Rule : thing that stores ranges
 class Rule(Pretty):
   def __init__(i, rest, best, c, x, nb):
     i.has = sets(dict)
@@ -59,6 +60,14 @@ class Rule(Pretty):
       s = s + ") "
     return "[" + str(init(100 * i.n)) + "] " + s
 
+@eg
+def _rule():
+  from .table import Table
+  t = Table().read(it.data + "/auto93.csv")
+  p = Nb()
+  [p.add(row, t.xs) for row in t.rows]
+
+
 # -----------------
 # ### Nb : Reason about frequency counts
 
@@ -77,7 +86,7 @@ class Nb(Pretty):
   def add(i, row, cols):
     i.n += 1
     h = row.y
-    i.h[h] = i.h[h].get(h, 0) + 1
+    i.h[h] = i.h.get(h, 0) + 1
     i.worst = h if h < i.worst else i.worst
     i.best = h if h > i.best else i.best
     for c in cols:
@@ -86,6 +95,7 @@ class Nb(Pretty):
         x = c.bin(x)
         v = (h, c, x)
         i.f[v] = i.f.get(v, 0) + 1
+    return i
 
   # Return likelihood that `thing` belongs to `h`.
   def like(i, thing, h, all, hs):

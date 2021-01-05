@@ -33,6 +33,9 @@ f = flags(help, __doc__)
 if f.T:
   Eg.runall()
 elif f.t:
-  Eg.run(cli.t)
+  Eg.run(f.t)
 elif f.V:
   version()
+
+
+Eg.egs["_rule"]()
