@@ -240,7 +240,7 @@ class Row(Pretty):
 # ## Table: stores rows, summarized in columns
 class Table(Pretty):
   def __init__(i):
-    i.it = o(samples=it.samples)
+    i.it = o(samples=it.samples, best=it.best)
     i.xs, i.ys, i.rows, i.cols = [], [], [], []
 
   # show
@@ -284,7 +284,10 @@ class Table(Pretty):
         one.dom += one.doms(two, i)
       some.add(one.dom)
     for one in i.rows:
-      one.y = some.bin(one.dom)
+      tmp = some.bin(one.dom)
+      if i.it.best > 0:
+        tmp = 1 if tmp >= some.card() * i.it.best else 0
+      one.y = tmp
 
   # read table from file
   def read(i, file):

@@ -29,12 +29,11 @@ them. Repeat. Nearly all this processing takes log linear time.
 from .lib import *
 from .__init__ import *
 
-f = flags(help, __doc__)
-if f.w:
-  Eg.walk(f.w)
-if f.T:
+if it.w:
+  Eg.walk(it.w)
+if it.T:
   Eg.runall()
-elif f.t:
-  Eg.run(f.t)
-elif f.V:
+elif it.t:
+  Eg.run(it.t)
+elif it.V:
   version()

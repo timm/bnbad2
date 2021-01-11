@@ -11,6 +11,21 @@
 # <br><a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
 # <br><img src="https://img.shields.io/badge/license-mit-lightgrey"></p><hr>
 
+"""
+Optimizer, written as a data miner.  Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+  :-------:              
+  | Ba    | Bad <----.       planning        = max(better - bad)
+  |    56 |          |       monitor         = max(bad - better)
+  :-------:------:   |       tabu            = min(bad + better)
+          | B    |   v       active learning = find better == bad
+          |    5 | Better
+          :------:
+"""
+
 from .boot import *
 
 def help(): return [
@@ -31,9 +46,10 @@ def help(): return [
     flag("nb kludge for rare attributes", k=1),
     flag("nb kludge for rare classes", m=2),
     # -------------------------------------
+    flag("contrast only above best ", best=0.0),
+    flag("contrast lives", lives=9),
     flag("contrast population", pop=20),
-    flag("contrast generations", gen=20),
-    flag("contrast trials", trials=50),
+    flag("contrast attempts per life", attempts=20),
     # -------------------------------------
     flag("some epsilon", eps=.35),
     flag("some min", min=.5),
@@ -44,3 +60,4 @@ def help(): return [
 
 
 it = o(**{k: d for k, d, _ in help()})
+it = flags(help, __doc__)

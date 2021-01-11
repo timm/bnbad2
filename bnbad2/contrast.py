@@ -42,7 +42,10 @@ class Rule(Pretty):
   # Return a better rule, or None.
   def better(i, j, nb):
     k = copy(i)
-    [k.has[c].add(x) for c in j.has]
+    for c in j.has:
+      k.has[c] = k.has.get(c, set())
+      for x in j.has[c]:
+        k.has[c].add(x)
     k.score(nb)
     if k.n > i.n and k.n > j.n:
       return k
@@ -52,16 +55,21 @@ class Rule(Pretty):
 
   # Pretty print for a row.
   def show(i, t):
+    s = pre = ""
     for c in i.has:
-      s = s + t.cols[c].txt + " = ("
+      s = s + pre + t.cols[c].txt + " = ("
+      pre = " and "
       sep = ""
       for x in i.has[c]:
         s = s + sep + str(x)
         sep = " or "
-      s = s + ") "
-    return "[" + str(init(100 * i.n)) + "] " + s
+      s = s + ")"
+      if type(t.cols[c]) == Some:
+        s = s + "/" + str(t.cols[c].card())
+      s = s + " "
+    return "[" + str(int(100 * i.n)) + "] " + s
 
-@eg
+@ eg
 def _rule():
   from .table import Table
   t = Table().read(it.data + "/auto93.csv")
@@ -72,19 +80,20 @@ def _rule():
   p = Nb()
   [p.add(row, t.xs, t.ys) for row in t.rows]
   p.show()
-  for one, rules in p.rules(t).items():
+  for cluster, rules in p.rules(t).items():
     print("\n")
     for rule in rules:
-      print(one, rule)
-
-  #for x in p.f: print(x, p.f[x])
+      if rule.n > 0:
+        print(cluster, rule.show(t))
+  #
+  # for x in p.f: print(x, p.f[x])
   # -----------------
 # ### Nb : Reason about frequency counts
 
 class Nb(Pretty):
   def __init__(i):
-    i.it = o(m=it.m, k=it.k, pop=it.pop,
-             gen=it.gen, trials=it.trials)
+    i.it = o(m=it.m, k=it.k, pop=it.pop, lives=it.lives,
+             attempts=it.attempts)
     i.n = 0
     i.best = -1
     i.worst = 1E32
@@ -118,7 +127,7 @@ class Nb(Pretty):
       one.add(row.x(one.pos))
 
   def show(i):
-    for h in i.log:
+    for h in sorted(h for h in i.log):
       print(h, ', '.join([one.show() for one in i.log[h]]))
 
 # Return likelihood that `thing` belongs to `h`.
@@ -139,36 +148,34 @@ class Nb(Pretty):
       if rest != i.best:
         lst = []
         for col in t.xs:
-          lst += [Rule(rest, i.best, col.pos, x, i)
-                  for x in col.range()]
-          # if type(col) == Some:
-          # tmp = i.merge(sorted(tmp, key=lambda z: z.x0))
-          #lst += i.prune(tmp)
-          all[rest] = lst
-        #all[rest] = i.learn(lst, i.it.gen)
+          tmp = [Rule(rest, i.best, col.pos, x, i)
+                 for x in col.range()]
+          if type(col) == Some:
+            tmp = i.merge(sorted(tmp, key=lambda z: z.x0))
+          lst += tmp
+        all[rest] = i.learn(lst, i.it.lives)
     return all
 
   # Try to merge adjacent rules.
   # If  anything merges, then repeat.
-  def merge(i, lst):
-    shorter = False
-    j, tmp, max = 0, [], len(lst)
+  def merge(i, b4):
+    j, now, max = 0, [], len(b4)
     while j < max:
-      a = lst[j]
+      a = b4[j]
       if j < max - 1:
-        b = lst[j + 1]
-        if c := a.better(b):
-          shorter = True
-          a = c
-          j += 1
-      tmp += [a]
+        b = b4[j + 1]
+        if c := a.better(b, i):
+          now += [c]
+          j += 2
+          continue
+      now += [a]
       j += 1
-    return i.merge(tmp) if shorter else lst
+    return i.merge(now) if len(now) < len(b4) else b4
 
-  # Sort descending by value, remove lesser valuable items,
+  # Sort descending by valuLe, remove lesser valuable items,
   # Remove duplicates (which, after sorting, will be adjacent).
   def prune(i, rules):
-    tmp = sorted(rules, key=lambda z: -1 * z.n)[:i.it.pos]
+    tmp = sorted(rules, key=lambda z: -1 * z.n)[:i.it.pop]
     b4 = tmp[0]
     out = [b4]
     for now in tmp[1:]:
@@ -180,23 +187,27 @@ class Nb(Pretty):
   # A couple of times, combine two rules. If
   # that produces anything better than before,
   # recurse to try it all again.
-  def learn(i, rules, gen):
-    if gen < 2 or len(rules) < 2:
-      return rules
+  def learn(i, rules, lives):
     rules = i.prune(rules)
-    total = sum(rule.n for rule in rules)
+    print(".", end="")
+    if lives < 0 or len(rules) < 2:
+      return rules
+    total = 1E-32 + sum(rule.n for rule in rules)
     more = []
-    for _ in range(i.it.samples):
+    for _ in range(i.it.attempts):
       one = i.one(rules, total)
       two = i.one(rules, total)
       if new := one.better(two, i):
         more += [new]
     if more:
       rules += more
-      return i.learn(rules, gen - 1)
+      return i.learn(rules, lives - 1)
+    else:
+      print("!")
+      return rules
 
   # Pick a rule, favoring things with higher value.
-  def one(rules, total):
+  def one(i, rules, total):
     r = random.random()
     for rule in rules:
       r -= rule.n / total
