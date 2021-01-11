@@ -32,6 +32,14 @@ class Eg:
     return f
 
   @staticmethod
+  def walk(x):
+    assert x in Eg.egs, "unknown test function"
+    fun = Eg.egs[x]
+    random.seed(1)
+    fun()
+    print(fun.__name__, "PASS")
+
+  @staticmethod
   def run(x):
     assert x in Eg.egs, "unknown test function"
     fun = Eg.egs[x]
@@ -44,6 +52,7 @@ class Eg:
 
   @staticmethod
   def runall(): [Eg.run(x) for x in Eg.egs]
+
 
 eg = Eg.eg
 

@@ -60,6 +60,9 @@ class Col(Pretty):
   # Default normalization: just return `x`
   def norm1(i, x): return x
 
+  def show(i):
+    return i.txt + "=" + str(i.mid())
+
 # ### Sym: for columns of symbols
 class Sym(Col):
   def __init__(i, *l, **d):
@@ -80,7 +83,10 @@ class Sym(Col):
   def range(i):
     return i.seen.keys()
 
-@eg
+  def mid(i): return ""
+
+
+@ eg
 def _sym():
   s = Sym(23, txt="<fred")
   [s.add(x) for x in 'aaaabbc']
@@ -181,7 +187,7 @@ class Some(Col):
             hi += n
     return i._bins
 
-@eg
+@ eg
 def _some():
   s = Some()
   s.it.want = 64
@@ -237,6 +243,10 @@ class Table(Pretty):
     i.it = o(samples=it.samples)
     i.xs, i.ys, i.rows, i.cols = [], [], [], []
 
+  # show
+  def show(i):
+    return ', '.join([c.show() for c in i.ys])
+
   # builds a new column, stores it anywhere it needs to be
   def make(i, pos, txt):
     this, btw = Sym, i.xs # default
@@ -281,7 +291,7 @@ class Table(Pretty):
     [i.add(row) for row in csv(file)]
     return i
 
-@eg
+@ eg
 def _ok():
   t = Table().read(it.data + "/auto93.csv")
   t.doms()

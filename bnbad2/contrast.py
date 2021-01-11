@@ -15,14 +15,15 @@ import math
 from .it import *
 from .lib import csv, eg
 from copy import deepcopy as copy
+from .table import Some
 
 # ## Rule : thing that stores ranges
 class Rule(Pretty):
   def __init__(i, rest, best, c, x, nb):
-    i.has = sets(dict)
-    s = set()
     i.x0 = x
+    s = set()
     s.add(x)
+    i.has = {}
     i.has[c] = s
     i.n = 0
     i.best, i.rest = best, rest
@@ -30,7 +31,7 @@ class Rule(Pretty):
 
   # Return likelihood that `has` belongs to `best`
   # much more that `rest`..
-  def score(nb):
+  def score(i, nb):
     all = nb.h[i.best] + nb.h[i.rest]
     b = nb.like(i.has, i.best, all, 2)
     r = nb.like(i.has, i.rest, all, 2)
@@ -64,11 +65,20 @@ class Rule(Pretty):
 def _rule():
   from .table import Table
   t = Table().read(it.data + "/auto93.csv")
+  t.doms()
+  for c in t.xs:
+    if type(c) == Some:
+      print("bins", c.txt, c.bins())
   p = Nb()
-  [p.add(row, t.xs) for row in t.rows]
+  [p.add(row, t.xs, t.ys) for row in t.rows]
+  p.show()
+  for one, rules in p.rules(t).items():
+    print("\n")
+    for rule in rules:
+      print(one, rule)
 
-
-# -----------------
+  #for x in p.f: print(x, p.f[x])
+  # -----------------
 # ### Nb : Reason about frequency counts
 
 class Nb(Pretty):
@@ -80,26 +90,40 @@ class Nb(Pretty):
     i.worst = 1E32
     i.f = {} # count the (hypothesis,column,value)
     i.h = {}
+    i.log = {}
 
   # For everything in `cols`,
   # update frequency counts (from `row`)
-  def add(i, row, cols):
+  def add(i, row, cols, goals):
     i.n += 1
-    h = row.y
-    i.h[h] = i.h.get(h, 0) + 1
-    i.worst = h if h < i.worst else i.worst
-    i.best = h if h > i.best else i.best
+    i.addx(row, row.y, cols, goals)
+    i.addy(row, row.y, cols, goals)
+    return i
+
+  def addx(i, row, h, cols, goals):
     for c in cols:
       x = row.x(c.pos)
       if x != it.skip:
         x = c.bin(x)
-        v = (h, c, x)
+        v = (h, c.pos, x)
         i.f[v] = i.f.get(v, 0) + 1
-    return i
 
-  # Return likelihood that `thing` belongs to `h`.
+  def addy(i, row, h, cols, goals):
+    i.h[h] = i.h.get(h, 0) + 1
+    i.worst = h if h < i.worst else i.worst
+    i.best = h if h > i.best else i.best
+    if h not in i.log:
+      i.log[h] = [Some(txt=c.txt, pos=c.pos) for c in goals]
+    for one in i.log[h]:
+      one.add(row.x(one.pos))
+
+  def show(i):
+    for h in i.log:
+      print(h, ', '.join([one.show() for one in i.log[h]]))
+
+# Return likelihood that `thing` belongs to `h`.
   def like(i, thing, h, all, hs):
-    like = prior = (i.h[h] + i.it.k) / (all + i.k * hs)
+    like = prior = (i.h[h] + i.it.k) / (all + i.it.k * hs)
     like = math.log(like)
     for c in thing:
       f = sum(i.f.get((h, c, v), 0) for v in thing[c])
@@ -115,11 +139,13 @@ class Nb(Pretty):
       if rest != i.best:
         lst = []
         for col in t.xs:
-          tmp = [Rule(rest, i.best, c, x, i) for x in col.range()]
-          if type(col) == Some:
-            tmp = i.merge(sorted(tmp, key=lambda z: z.x0))
-          lst += i.prune(tmp)
-        all[rest] = i.learn(lst, i.it.gen)
+          lst += [Rule(rest, i.best, col.pos, x, i)
+                  for x in col.range()]
+          # if type(col) == Some:
+          # tmp = i.merge(sorted(tmp, key=lambda z: z.x0))
+          #lst += i.prune(tmp)
+          all[rest] = lst
+        #all[rest] = i.learn(lst, i.it.gen)
     return all
 
   # Try to merge adjacent rules.

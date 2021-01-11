@@ -30,12 +30,11 @@ from .lib import *
 from .__init__ import *
 
 f = flags(help, __doc__)
+if f.w:
+  Eg.walk(f.w)
 if f.T:
   Eg.runall()
 elif f.t:
   Eg.run(f.t)
 elif f.V:
   version()
-
-
-Eg.egs["_rule"]()

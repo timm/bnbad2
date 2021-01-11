@@ -17,7 +17,8 @@ def help(): return [
     flag("show version", V=False),
     flag("data dir", data="/Users/timm/gits/timm/bnbad2/data"),
     # -------------------------------------
-    flag("run one test", t=""),
+    flag("walk one test (stop if it crashes)", w=""),
+    flag("run one test (continuing of crashes)", t=""),
     flag("run all tests", T=False),
     # -------------------------------------
     flag("char for 'less'", less="<"),
@@ -40,5 +41,6 @@ def help(): return [
     # -------------------------------------
     flag("table samples", samples=64),
 ]
+
 
 it = o(**{k: d for k, d, _ in help()})
