@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+# vim: filetype=python ts=2 sw=2 sts=2 et:
+
+"""Optimizer, written as a data miner.  Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+  :-------:              
+  | Ba    | Bad <----.       planning        = max(better - bad)
+  |    56 |          |       monitor         = max(bad - better)
+  :-------:------:   |       tabu            = min(bad + better)
+          | B    |   v       active learning = find better == bad
+          |    5 | Better
+          :------:
+
+(c) Tim Menzies, 2021
+MIT License, https://opensource.org/licenses/MIT
+"""
+
+from tricks import arg, args, neg, eg, ok,o
+from tricks import re, sys, random
+
+IT=args("duo",__doc__, 
+    arg("show version", V=False),
+    arg("data dir", data="../data/"),
+    # -------------------------------------
+    arg("walk one test (stop if it crashes)", w=""),
+    arg("run one test (continuing of crashes)", t=""),
+    arg("run all tests", T=False),
+    # -------------------------------------
+    arg("misc seed", seed=1),
+    # -------------------------------------
+    arg("nb kludge for rare attributes", k=1),
+    arg("nb kludge for rare classes", m=2),
+    # -------------------------------------
+    arg("explore buffer size", buffer=512),
+    arg("explore era size", wait=20),
+    # -------------------------------------
+    arg("contrast only above best ", best=0.0),
+    arg("contrast lives", lives=9),
+    arg("contrast population", pop=20),
+    arg("contrast attempts per life", attempts=20),
+    # -------------------------------------
+    arg("some epsilon", cohen=.35),
+    arg("some cohen", split=.5),
+    arg("some want", want=128),
+    # -------------------------------------
+    arg("table samples", samples=64))
+
+SYM="_"
+NUM=":"
+MORE=">"
+LESS="<"
+SKIP="?"
+KLASS="!"
+
+def r()     : return random.random()
+def r0()    : random.seed(IT.seed)
+def col(z)  : return None if skip(z) else ([] if num(z) else {})
+def num(z)  : return LESS in z or MORE in z or NUM in z
+def prep(z) : return float if num(z) else str
+def skip(z) : return SKIP in z
+def listp(z): return isinstance(z,list)
+def dictp(z): return isinstance(z,dict)
+
+def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
+  fs=[]
+  with open(file) as fp:
+    for a in fp:
+      a = re.sub(ignore,'',a).split(sep)
+      if fs: a  = [(x if x==SKIP else f(x)) 
+                   for f, x in zip(fs,a)]
+      else:  fs = [prep(x) for x in a]
+      yield a
+
+def data(src):
+  names, cols, rows,w = [],[],[],[]
+  for a in src:
+    if cols:
+      for c,x in zip(cols,a): got(x,c)
+      rows += [o(cells=a,dom=0,y=None)]
+    else:
+      cols  = [col(x) for x in a]
+      w     = [(-1 if LESS in x else 1) for x in a]
+      names = a
+  return o(names=names, cols=cols, rows=rows, w=w)
+
+def got(x,c):
+  if c is None or x==SKIP: return 
+  if dictp(c): c[x] = c.get(x,0)+1
+  if listp(c): 
+    if len(c) <= IT.want: c += [x]
+    elif r() < IT.want / len(c): c[int(r()*len(c))] = x
+
+def sd(a)   : 
+  lo,hi = .1*len(a), .9*len(a)
+  return (a[int(hi)] - a[int(lo)]) /2.56
+
+def bin(bins, x):
+  for n, y in enumerate(bins):
+    if x <= y:
+      return n
+  return 1 + len(bins)
+
+def bins(c):
+  if c is None: return 
+  if dictp(c): return c.keys() 
+  if listp(c): 
+    c    = sorted(c)
+    tiny = sd(c)*IT.cohen
+    n    = len(c)**IT.split
+    while n < 4 and n<len(c)/c: n*=1.2
+    n = int(n)
+    hi,lo,out = n,0,[]
+    while hi < len(c) - n :
+      hi += 1
+      if hi - lo > n and c[hi] != c[hi+1]:
+        if c[hi] - c[lo] > tiny:
+          out += [hi]
+          lo=hi
+          hi += n
+    return out
+
+def merge(pos,bins,data):
+  all={}
+  for row in data.rows:
+    x= row.cells[pos]
+    y= row.y
+    if x != SKIP:
+      x      = bin(bins,x)
+      one    = all[x] = all.get(x,{})  
+      one[y] = one.get(y,0) + 1
+  merge1(sorted(all.items()))
+
+def merge1(pairs):
+  j,tmp = 0,[]
+  while j <= len(pairs):
+    a, d1 = pairs[j]
+    if j < len(pairs):
+      b,d2 = pairs[j+1]
+      if d12 := better(d1,d2):
+        a,d1 = b,d12
+        j += 1
+    tmp += [(a,d1)]
+    j += 1
+  return merge1(tmp) if len(tmp) < len(pairs) else pairs
+
+def better(d1,d2):
+ d3={}
+ for k,v in d1.items(): d3[k] = v
+ for k,v in d2.items(): d3[k] = d3.get(k,0) + v
+ return d3
+
+@eg
+def aa(): 
+  r0()
+  d=data(csv(IT.data+"auto93.csv"))
+  for name,col in zip(d.names,d.cols):
+    print(name, bins(col))

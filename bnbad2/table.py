@@ -45,6 +45,9 @@ class Col(Pretty):
   def range(i):
     return []
 
+  # merge ranges that can be merged
+  def merge(i, t): return i
+
   # Convert `x` to one of a small number of bins.
   def bin(i, x): return x if x == it.skip else i.bin1(x)
 
@@ -186,6 +189,29 @@ class Some(Col):
             lo = hi
             hi += n
     return i._bins
+
+  # merge useless bins
+  def merge(i, t):
+    all = {}
+    for row in t.rows:
+      x = row.x(i.pos)
+      if x != it.skip:
+        x = i.bin(x)
+        if x not in all:
+          all[x] = Sym()
+        all[x].hi = x
+        all[x].add(row.y)
+
+  def better(i, j):
+    k = copy(i)
+    k.hi = max(i.hi, j.hi)
+    for key, val in j.seen.items():
+      k.seen[key] = k.seen.get(key, 0) + val
+    most, mode = -1, None
+    for key, val in k.seen.items():
+      if val > most:
+        most, mode = key, val
+
 
 @ eg
 def _some():

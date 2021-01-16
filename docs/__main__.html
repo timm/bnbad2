@@ -56,12 +56,13 @@ them. Repeat. Nearly all this processing takes log linear time.</p>
       <div class="highlight"><pre><span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">.__init__</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="n">f</span> <span class="o">=</span> <span class="n">flags</span><span class="p">(</span><span class="n">help</span><span class="p">,</span> <span class="vm">__doc__</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">w</span><span class="p">:</span>
+  <span class="n">Eg</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
   <span class="n">Eg</span><span class="o">.</span><span class="n">runall</span><span class="p">()</span>
-<span class="k">elif</span> <span class="n">f</span><span class="o">.</span><span class="n">t</span><span class="p">:</span>
-  <span class="n">Eg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-<span class="k">elif</span> <span class="n">f</span><span class="o">.</span><span class="n">V</span><span class="p">:</span>
+<span class="k">elif</span> <span class="n">it</span><span class="o">.</span><span class="n">t</span><span class="p">:</span>
+  <span class="n">Eg</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">it</span><span class="o">.</span><span class="n">V</span><span class="p">:</span>
   <span class="n">version</span><span class="p">()</span>
 
 </pre></div>

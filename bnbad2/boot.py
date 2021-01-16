@@ -83,7 +83,7 @@ def flags(f, hello=""):
   from argparse_color_formatter import ColorHelpFormatter
   lst, b4 = f(), re.sub(r"\n  ", "\n", hello)
   parser = p.ArgumentParser(
-      prog="bnbad2",
+      prog=what,
       description=b4, formatter_class=p.RawDescriptionHelpFormatter)
   [parser.add_argument("-" + key, **args) for key, _, args in lst]
   return parser.parse_args()

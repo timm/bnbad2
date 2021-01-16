@@ -46,6 +46,9 @@ def help(): return [
     flag("nb kludge for rare attributes", k=1),
     flag("nb kludge for rare classes", m=2),
     # -------------------------------------
+    flag("explore buffer size", buffer=512),
+    flag("explore era size", wait=20),
+    # -------------------------------------
     flag("contrast only above best ", best=0.0),
     flag("contrast lives", lives=9),
     flag("contrast population", pop=20),
