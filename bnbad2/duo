@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # vim: filetype=python ts=2 sw=2 sts=2 et:
 
-"""Optimizer, written as a data miner.  Break the data up into regions
+"""
+Optimizer, written as a data miner.  Break the data up into regions
 of 'bad' and 'better'. 'Interesting' things occur at very different
 frequencies in 'bad' and 'better'. Find interesting bits. Combine
 them. Repeat. Nearly all this processing takes log linear time.
@@ -40,7 +41,6 @@ IT=args("duo",__doc__,
     arg("explore buffer size", buffer=512),
     arg("explore era size", wait=20),
     # -------------------------------------
-    arg("contrast only above best ", best=0.0),
     arg("contrast lives", lives=9),
     arg("contrast population", pop=20),
     arg("contrast attempts per life", attempts=20),
@@ -48,8 +48,8 @@ IT=args("duo",__doc__,
     arg("some epsilon", cohen=.35),
     arg("some cohen", split=.5),
     arg("some want", want=128),
-    # -------------------------------------
-    arg("table samples", samples=64))
+    arg("some want", best=.75),
+    arg("dom samples", samples=128))
 
 SYM="_"
 NUM=":"
@@ -58,12 +58,12 @@ LESS="<"
 SKIP="?"
 KLASS="!"
 
-def r()     : return random.random()
-def r0()    : random.seed(IT.seed)
-def col(z)  : return None if skip(z) else ([] if num(z) else {})
-def num(z)  : return LESS in z or MORE in z or NUM in z
-def prep(z) : return float if num(z) else str
-def skip(z) : return SKIP in z
+def r()    : return random.random()
+def r0()   : random.seed(IT.seed)
+def col(z) : return None if skip(z) else ([] if num(z) else {})
+def num(z) : return LESS in z or MORE in z or NUM in z
+def prep(z): return float if num(z) else str
+def skip(z): return SKIP in z
 def nums(z): return isinstance(z,list)
 def syms(z): return isinstance(z,dict)
 
@@ -85,11 +85,13 @@ def data(src):
       rows += [o(cells=a,dom=0,y=None)]
     else:
       cols  = [col(x) for x in a]
-      w     = [(-1 if LESS in x else 1) for x in a]
+      w     = [(-1 if LESS in x else 
+                (1 if MORE in x else 0)) for x in a]
       names = a
-  return o(names=names, cols=cols, rows=rows, w=w)
+  return o(names=names, cols=cols, 
+           rows=rows, w=w, xs={},ys={}, bins={})
 
-def got(x,c):
+def got(x,c): 
   if x!=SKIP: 
     if syms(c): c[x] = c.get(x,0)+1
     if nums(c): 
@@ -102,8 +104,8 @@ def sd(a)   :
 
 def bin(bins, x):
   for n, y in enumerate(bins):
-    if x <= y: return n
-  return n+1
+    if x <= y: return n,y
+  return n+1,math.inf
 
 def bins(c):
   if nums(c): 
@@ -115,21 +117,36 @@ def bins(c):
     while hi < len(c) - n :
       hi += 1
       if hi-lo > n and c[hi] != c[hi+1] and c[hi]-c[lo] > d:
-        out += [hi]
+        out += [c[hi]]
         lo = hi
         hi += n
     return out
+
+def norm(c,x):
+  lo,hi = c[0],c[-1]
+  return max(0, min(1, (x-lo)/(hi-lo+1E-32)))
+
+# Return true if `i` is better than `j`.
+def dom(i, j, data):
+  val = lambda r,c: norm(data.cols[c],r.cells[c])
+  n = s1 = s2 = 0
+  n=len(data.ys)
+  for col,w in data.ys.items():
+    a,b  = val(i,col), val(j,col)
+    s1  -= math.e**(w * (a - b) / n)
+    s2  -= math.e**(w * (b - a) / n)
+  return s1/n < s2/n
 
 def merge(pos,bins,rows):
   all = {}
   for row in rows:
     x = row.cells[pos]
     if x != SKIP:
-      x      = bin(bins,x)
+      _,x    = bin(bins,x)
       y      = row.y
       one    = all[x] = all.get(x,{})  
       one[y] = one.get(y,0) + 1
-  return merge1(sorted(all.items()))
+  return [x[0] for x in merge1(sorted(all.items()))]
 
 def merge1(lst):
   j,tmp = 0,[]
@@ -137,31 +154,63 @@ def merge1(lst):
     a, d1 = lst[j]
     if j < len(lst)-1:
       b,d2 = lst[j+1]
-      if d := simpler(d1,d2):
-        a,d1 = b,d
-        j += 1
+      if d := simpler(a,b,d1,d2):
+        print("<")
+        tmp += [(b,d)]
+        j   += 2
+        continue
     tmp += [(a,d1)]
     j += 1
   return merge1(tmp) if len(tmp) < len(lst) else lst
 
-def simpler(d1,d2):
-  all= lambda z  : sum(z.values)
-  ent= lambda z,n: sum(- v/n*math.log2(v/n) for v in z.values)
-  #----------------------
+def simpler(a,b,d1,d2):
+  all= lambda z  : sum(z.values())
+  ent= lambda z,n: sum(- v/n*math.log2(v/n) for v in z.values())
   d = {}
   for k,v in d1.items(): d[k] = v
   for k,v in d2.items(): d[k] = d.get(k,0) + v
   n1, n2 = all(d1), all(d2)
   n = n1 + n2
+  # print("")
+  # print(a,b)
+  # print(1, n1, d1,  ent(d1,n1))
+  # print(2, n2, d2,  ent(d2,n2))
+  # print(12, n,  d,   ent(d,n))
+  # print(12, ent(d,n) <= (n1*ent(d1,n1) + n2*ent(d2,n2))/n)
   if ent(d,n) <= (n1*ent(d1,n1) + n2*ent(d2,n2))/n:
     return d
 
+def classify(d):
+  lst = []
+  for x in d.rows:
+    for _ in range(IT.samples):
+      y = random.choice(d.rows)
+      x.dom += dom(x,y,d)
+    got(x.dom, lst)
+  lst = sorted(lst)
+  best = lst[ int(IT.best*len(lst)) ]
+  for x in d.rows:
+    _,x.y = bin(lst,x.dom)
+ 
 def ready(d):
   d.cols = [(sorted(c) if nums(c) else c) for c in d.cols]
+  for pos,w in enumerate(d.w): (d.ys if w else d.xs)[pos] = w
+  classify(d) 
+  for pos,col in enumerate(d.cols):
+    if nums(col):
+      lst1 = bins(col)
+      lst2 =  merge(pos, lst1, d.rows)
+      d.bins[pos] = lst2
+      print("\n---", pos,"\n\t",lst1,"\n\t",lst2)
   return d
+
 @eg
 def aa():
   r0()
   d=ready(data(csv(IT.data+"auto93.csv")))
-  for name,col in zip(d.names,d.cols):
-    print(name, bins(col))
+  print("ys",d.ys)
+  d.rows = sorted(d.rows, 
+              key =lambda r:- r.dom)
+  #for i in range(10): print([d.rows[i].cells[x] for x in d.ys.keys()])
+  #print("")
+  #for i in range(10): print([d.rows[-i].cells[x] for x in d.ys.keys()])

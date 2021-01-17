@@ -27,8 +27,8 @@ def args(what, txt, *lst):
   p = argparse
   from argparse_color_formatter import ColorHelpFormatter
   parser = p.ArgumentParser(
-      prog=what,
-      description=txt, formatter_class=p.RawDescriptionHelpFormatter)
+      prog=what, description=txt,
+      formatter_class=p.RawDescriptionHelpFormatter)
   [parser.add_argument("-" + key, **args) for key, _, args in lst]
   return parser.parse_args()
 
