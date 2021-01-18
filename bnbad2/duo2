@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+# vim: filetype=python ts=2 sw=2 sts=2 et :
+
+"""
+Optimizer, written as a data miner.  Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+ :-------:                 active learning = explore at better==bad
+ | Ba    | Bad <----.      planning        = max(better - bad)
+ |    56 |          |      monitor         = max(bad - better)
+ :-------:------:   |      tabu            = min(bad + better)
+         | B    |   v       
+         |    5 | Better
+         :------:
+
+(c) Tim Menzies, 2021
+MIT License, https://opensource.org/licenses/MIT. The source code
+does not need to be public when a distribution of the software is
+made. Modifications to the software can be release under any
+license. Changes made to the source code may not be documented.
+"""
+
+from tricks import arg, args, neg, eg, run,ok,o
+from tricks import re, sys, math, random
+
+IT=args("duo",__doc__, 
+    arg("show version", V=False),
+    arg("data dir", data="../data/"),
+    # -------------------------------------
+    arg("walk one test (stop if it crashes)", w=""),
+    arg("run one test (continuing of crashes)", t=""),
+    arg("run all tests", T=False),
+    # -------------------------------------
+    arg("misc seed", seed=1),
+    # -------------------------------------
+    arg("nb kludge for rare attributes", k=1),
+    arg("nb kludge for rare classes", m=2),
+    # -------------------------------------
+    arg("explore buffer size", buffer=512),
+    arg("explore era size", wait=20),
+    # -------------------------------------
+    arg("contrast lives", lives=9),
+    arg("contrast population", pop=20),
+    arg("contrast attempts per life", attempts=20),
+    # -------------------------------------
+    arg("some epsilon x", smallx=.35),
+    arg("some epsilon y", smally=.5),
+    arg("some best", best=.80),
+    arg("some want", want=128),
+    arg("some want", chop=.5),
+    arg("dom samples", samples=64))
+
+#-------------------------------
+# Constants
+SYM="_"
+NUM=":"
+MORE=">"
+LESS="<"
+SKIP="?"
+KLASS="!"
+
+#-------------------------------
+# Structs
+def nump(z) :   return  LESS in z or MORE in z or NUM in z 
+def goalp(z):   return  LESS in z or MORE in z or KLASS in z
+def klassp(z):  return  KLASS in z
+
+def row(cells): return o(cells=cells, score=0, klass=None)
+def data():     return o(rows=[], names=[], cols=cols())
+def cols():     return o(all=things(), x=things(), y=things(), 
+                         klass=None, w={}, bins={},goals={},counts=tally())
+def things():   return o(all={},nums={},syms={})
+def tally():    return o(f={},h={})
+
+#-------------------------------
+#  misc 
+def r0()   : random.seed(IT.seed)
+
+#-------------------------------
+#routines for sorted lists
+def mu(a):   return sum(a)/ len(a)
+def sd(a):   return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
+def norm(x,a): return max(0, min(1, (x-a[0])/(a[-1]-a[0]+1E-32)))
+
+#-------------------------------
+# Reading data
+def ingest(src):
+  d=data()
+  for lst in src:
+    (body if d.names else head)(d,lst)
+  footer(d)
+  return d
+
+def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
+  fs=[]
+  with open(file) as fp:
+    for a in fp:
+      a = re.sub(ignore,'',a).split(sep)
+      if fs: a  = [(x if x==SKIP else f(x)) for f, x in zip(fs,a)]
+      else:  fs = [(float if nump(x) else str) for x in a]
+      yield a
+
+#-------------------------------
+# Creating data headers and cols
+def head(d,lst):
+  d.cols =  cols()
+  d.names = lst
+  [head1(d,i,x) for i,x in enumerate(lst) if SKIP not in x]
+
+def head1(d,pos,txt):
+  "add to  (nums or syms) into (all and (x or y))"
+  x = [] if nump(txt) else {}
+  if klassp(txt): d.cols.klass = x
+  for z in [d.cols.all, 
+            d.cols.y if goalp(txt) else d.cols.x]:
+    z.all[pos] = x
+    (z.nums if nump(txt) else z.syms)[pos] = x
+  if nump(txt) and goalp(txt):
+     d.cols.goals[pos] = x
+     d.cols.w[pos] = (-1 if LESS in txt else 
+                     ( 1 if MORE in txt else 0))
+
+#-------------------------------
+# ingesting data rows
+def body(d,lst):
+  for _,x,c in cells(lst,d.cols.all.syms): c[x] = c.get(x,0) + 1
+  for _,x,c in cells(lst,d.cols.all.nums): c += [x]
+  d.rows += [row(lst)]
+
+def cells(lst,cols):
+  lst = lst if isinstance(lst,list) else lst.cells
+  for pos,col in cols.items():
+    val = lst[pos]
+    if val!=SKIP: yield pos,val,col
+
+#-------------------------------
+# all the stuff to do after reading data
+def footer(d):
+  [col.sort() for col in d.cols.all.nums.values()]
+  classify(d)   # count who dominates who
+  discretize(d) # must be after classify, supervised splits
+  counts(d)     # generate frequency counts
+  print(d.cols.counts)
+
+def classify(d):
+  ys=[]
+  for row in d.rows:
+    for _ in range(IT.samples):
+      row.score += better(d, row, random.choice(d.rows))
+    ys += [row.score]
+  ys = sorted(ys)
+  best = ys[ int(IT.best*len(ys)) ]
+  for row in d.rows:
+    row.klass = row.score > best
+
+# Is row `i` better than row `j`?
+def better(d, i, j):
+  n = s1 = s2 = 0
+  n = len(d.cols.goals)
+  for pos,col in d.cols.goals.items():
+    w   = d.cols.w[pos]
+    a,b = i.cells[pos], j.cells[pos]
+    a,b = norm(a, col), norm(b,col)
+    s1 -= math.e**(w * (a - b) / n)
+    s2 -= math.e**(w * (b - a) / n)
+  return s1/n < s2/n
+
+# Split the numeric `x` columns
+# (uses `div` and `merge`, below.
+def discretize(d):
+  for pos,name in enumerate(d.names):
+    if nump(name) and not goalp(name):
+      b4=div(d.cols.x.nums[pos])
+      after= merge(pos,d.rows,b4)
+      print(pos,b4," ==> ",after)
+      d.cols.bins[pos] = after
+
+# Collect frequency counts of discretized x columns,
+# divided into the different klasses
+def counts(d):
+  t= d.cols.counts
+  for row in d.rows:
+    klass = row.klass
+    t.h[klass] = t.h.get(klass, 0) + 1
+    for pos,x,_ in cells(row, d.cols.x.syms):
+      v= (klass, pos, x)
+      t.f[v] = t.f.get(v,0) + 1
+    for pos,x,_ in cells(row, d.cols.x.nums):
+      x=  bin(d.cols.bins[pos],x)
+      v= (klass, pos, x)
+      t.f[v] = t.f.get(v,0) + 1
+
+#---------
+# Discretization
+
+# Given a list of numerics, report which group holds `x`
+def bin(bins, x):
+  for n, y in enumerate(bins):
+    if x <= y: return y
+  return math.inf
+
+# Split sorted list of numbers into bins
+def div(lst, smallx = IT.smallx):
+  ok = sd(lst)*smallx
+  n = len(lst)**IT.chop
+  while n < 4 and n<len(lst)/2: n*=1.2
+  n = int(n)
+  out, hi, lo = [], n, 0 
+  while hi < len(lst) - n :
+    hi += 1
+    if (hi-lo > n                    # enough left after this split
+        and lst[hi] != lst[hi+1]     # we can split here
+        and lst[hi] - lst[lo] > ok): # split is big enough
+       out += [lst[hi]]  # collect the split point
+       lo,hi = hi, hi+n  # jump to the next split
+  return out
+
+def merge(pos,rows,bins):
+  def shrink(lst):
+    j,tmp = 0,[]
+    while j < len(lst):
+      a, y1 = lst[j]
+      if j < len(lst)-1:
+        b,y2 = lst[j+1]
+        if abs(mu(y2) - mu(y1)) < ok: # too little different
+          tmp += [(b,y1+y2)] # extend slit to `b`
+          j   += 2           # jump to next pair
+          continue
+      tmp += [(a,y1)]
+      j += 1
+    return shrink(tmp) if len(tmp) < len(lst) else lst
+
+  def grow():
+    all, ys = {},[]
+    for row in rows:
+      x = row.cells[pos]
+      if x!=SKIP:
+        x    = bin(bins, x)
+        one  = all[x] = all.get(x,[])
+        one += [row.score]
+        ys  += [row.score]
+    return sorted(all.items()), sd(sorted(ys))*IT.smally
+  #-------------------------
+  all, ok = grow()
+  return [x[0] for x in shrink(all)]
+
+#-------------------------------------
+# tests
+@eg
+def _csv():
+  all=[row for row in csv(IT.data+"weather.csv")]
+  ok(len(all)==15,"csv reads?")
+  ok(len(all[-1])==5,"rows read?")
+  ok(type(all[-1][1])==float, "floats read?")
+  ok(type(all[-1][0])==str, "strings read?")
+
+@run
+def aa():
+  d=ingest(csv(IT.data+"auto93.csv"))
+  rows = sorted(d.rows,key=lambda z:z.score)
+  print(d.names)
+  for row in rows[:5]: print(row.score, row.cells)
+  print("")
+  for row in rows[-5:]: print(row.score, row.cells)
+  for c,b in d.cols.bins.items():
+   print(d.names[c],b)
+  #print(d.cols)
+  #d = datacsv(csv(IT.data+"auto93.csv"))
+  #rows = sorted(d.rows,key=lambda z:z.y)
+  #print([d.names[c] for c in d.also.y]+['y'])
+  #for r in rows[:10]: print([r.x[c] for c in d.also.y]+[r.y])
+  #print("#")
+  #for r in rows[-10:]: print([r.x[c] for c in d.also.y]+[r.y])
+  #for i in range(10): print([d.rows[i].cells[x] for x in d.ys.keys()])
+  #print("")
+  #for i in range(10): print([d.rows[-i].cells[x] for x in d.ys.keys()])
+

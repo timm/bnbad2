@@ -35,10 +35,6 @@ def args(what, txt, *lst):
   [parser.add_argument("-" + key, **args) for key, _, args in lst]
   return parser.parse_args()
 
-def neg(f): return f
-def eg(f): f(); return f
-def ok(x, txt=""): print(txt, ("PASS" if x else "FAIL"))
-
 class Pretty:
   def __repr__(i):
     return re.sub(r"'", ' ',
@@ -65,3 +61,42 @@ def dicts(i, seen=None):
 # Fast way to initialize an instance that has no methods.
 class o(Pretty):
   def __init__(i, **d): i.__dict__.update(**d)
+
+# ---
+# pretties
+class zing:
+  HEADER = '\033[95m'
+  OKBLUE = '\033[94m'
+  OKCYAN = '\033[96m'
+  OKGREEN = '\033[92m'
+  WARNING = '\033[93m'
+  FAIL = '\033[91m'
+  ENDC = '\033[0m'
+  BOLD = '\033[1m'
+  UNDERLINE = '\033[4m'
+
+  def header(x): print(zing.HEADER + x + zing.ENDC)
+  def okblue(x): print(zing.OKBLUE + x + zing.ENDC)
+  def okcyan(x): print(zing.OKCYAN + x + zing.ENDC)
+  def okgreen(x): print(zing.OKGREEN + x + zing.ENDC)
+  def warning(x): print(zing.WARNING + x + zing.ENDC)
+  def fail(x): print(zing.FAIL + zing.BOLD + x + zing.ENDC)
+
+
+def neg(f): return f
+
+def run(f): f(); return f
+
+def eg(f):
+  zing.header("# " + f.__name__)
+  try:
+    f()
+  except Exception:
+    ok(False, "function ran?")
+  return f
+
+def ok(x, txt=""):
+  if x:
+    print("\t" + txt + zing.OKGREEN + " PASS" + zing.ENDC)
+  else:
+    print("\t" + txt + zing.FAIL + " FAIL" + zing.ENDC)
