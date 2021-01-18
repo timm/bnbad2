@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# vim: filetype=python ts=2 sw=2 sts=2 et:
+# vim: filetype=python ts=2 sw=2 sts=2 et :
 
 """
 Optimizer, written as a data miner.  Break the data up into regions
@@ -45,12 +45,14 @@ IT=args("duo",__doc__,
     arg("contrast population", pop=20),
     arg("contrast attempts per life", attempts=20),
     # -------------------------------------
-    arg("some epsilon", cohen=.35),
-    arg("some cohen", split=.5),
+    arg("some epsilon x", smallx=.35),
+    arg("some epsilon y", smally=.2),
+    arg("some best", best=.75),
     arg("some want", want=128),
-    arg("some want", best=.75),
-    arg("dom samples", samples=128))
+    arg("some want", chop=.5),
+    arg("dom samples", samples=64))
 
+# Constatnts
 SYM="_"
 NUM=":"
 MORE=">"
@@ -58,14 +60,22 @@ LESS="<"
 SKIP="?"
 KLASS="!"
 
+#-------------------------------
+# Basic utils
 def r()    : return random.random()
 def r0()   : random.seed(IT.seed)
 def col(z) : return None if skip(z) else ([] if num(z) else {})
 def num(z) : return LESS in z or MORE in z or NUM in z
+def goal(z): return not skip(z) and \
+                    LESS in z or MORE in z or KLASS in z
 def prep(z): return float if num(z) else str
 def skip(z): return SKIP in z
 def nums(z): return isinstance(z,list)
 def syms(z): return isinstance(z,dict)
+
+mu=   lambda a: sum(a)/ len(a)
+sd=   lambda a: (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
+norm= lambda c,x: max(0, min(1, (x-c[0])/(c[-1]-c[0]+1E-32)))
 
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   fs=[]
@@ -77,140 +87,130 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       else:  fs = [prep(x) for x in a]
       yield a
 
+#--------------
+# Loading data
 def data(src):
-  names, cols, rows,w = [],[],[],[]
-  for a in src:
-    if cols:
-      for c,x in zip(cols,a): got(x,c)
-      rows += [o(cells=a,dom=0,y=None)]
+  d = o(names=[],rows=[],cols=[], 
+        counts={}, some=o(x={},y={},bins={}))
+  for zs in src:
+    if d.cols:
+      for z,c in zip(zs,d.cols): remember(z,c)
+      d.rows += [o(x=zs, dom=0, y=None)]
     else:
-      cols  = [col(x) for x in a]
-      w     = [(-1 if LESS in x else 
-                (1 if MORE in x else 0)) for x in a]
-      names = a
-  return o(names=names, cols=cols, 
-           rows=rows, w=w, xs={},ys={}, bins={})
+      d.names = zs
+      d.cols  = [col(z) for z in zs]
+      for n,z in enumerate(zs):
+        if not skip(z):
+          what = d.some.y if goal(z) else d.some.x
+          what[n] = (-1 if LESS in z else 
+                    ( 1 if MORE in z else 0))
+  return completeInitialization(d)
 
-def got(x,c): 
+def remember(x,c): 
   if x!=SKIP: 
     if syms(c): c[x] = c.get(x,0)+1
-    if nums(c): 
-      if len(c) <= IT.want: c += [x]
-      elif r() < IT.want / len(c): c[int(r()*len(c))] = x
-  
-def sd(a)   : 
-  lo,hi = .1*len(a), .9*len(a);
-  return (a[int(hi)] - a[int(lo)]) /2.56
+    if nums(c): c += [x]
 
-def bin(bins, x):
-  for n, y in enumerate(bins):
-    if x <= y: return n,y
-  return n+1,math.inf
-
-def bins(c):
-  if nums(c): 
-    d = sd(c)*IT.cohen
-    n = len(c)**IT.split
-    while n < 4 and n<len(c)/2: n*=1.2
-    n = int(n)
-    out, hi, lo = [], n, 0 
-    while hi < len(c) - n :
-      hi += 1
-      if hi-lo > n and c[hi] != c[hi+1] and c[hi]-c[lo] > d:
-        out += [c[hi]]
-        lo = hi
-        hi += n
-    return out
-
-def norm(c,x):
-  lo,hi = c[0],c[-1]
-  return max(0, min(1, (x-lo)/(hi-lo+1E-32)))
-
-# Return true if `i` is better than `j`.
-def dom(i, j, data):
-  val = lambda r,c: norm(data.cols[c],r.cells[c])
+def dom(d, i, j):
+  val = lambda k,c: norm(d.cols[c],k.x[c])
   n = s1 = s2 = 0
-  n=len(data.ys)
-  for col,w in data.ys.items():
-    a,b  = val(i,col), val(j,col)
-    s1  -= math.e**(w * (a - b) / n)
-    s2  -= math.e**(w * (b - a) / n)
+  n = len(d.some.y)
+  for col,w in d.some.y.items():
+    a,b = val(i, col), val(j, col)
+    s1 -= math.e**(w * (a - b) / n)
+    s2 -= math.e**(w * (b - a) / n)
   return s1/n < s2/n
 
-def merge(pos,bins,rows):
-  all = {}
-  for row in rows:
-    x = row.cells[pos]
-    if x != SKIP:
-      _,x    = bin(bins,x)
-      y      = row.y
-      one    = all[x] = all.get(x,{})  
-      one[y] = one.get(y,0) + 1
-  return [x[0] for x in merge1(sorted(all.items()))]
+#---------
+# Discretize
+def bin(bins, x):
+  for n, y in enumerate(bins):
+    if x <= y: return y
+  return math.inf
 
-def merge1(lst):
+def div(c, smallx = IT.smallx):
+  ok = sd(c)*smallx
+  n = len(c)**IT.chop
+  while n < 4 and n<len(c)/2: n*=1.2
+  n = int(n)
+  out, hi, lo = [], n, 0 
+  while hi < len(c) - n :
+    hi += 1
+    if hi-lo > n and c[hi] != c[hi+1] and c[hi] - c[lo] > ok:
+       out += [c[hi]]
+       lo,hi = hi, hi+n
+  return out
+
+def merge(col,bins,rows):
+  all, ys = {},[]
+  for row in rows:
+    x    = bin(bins, row.x[col])
+    one  = all[x] = all.get(x,[])
+    one += [row.y]
+    ys  += [row.y]
+  ok = sd(sorted(ys)) * IT.smally
+  all = merge1(ok,sorted(all.items()))
+  return [x[0] for x in all]
+
+def merge1(ok, lst):
   j,tmp = 0,[]
   while j < len(lst):
-    a, d1 = lst[j]
+    a, y1 = lst[j]
     if j < len(lst)-1:
-      b,d2 = lst[j+1]
-      if d := simpler(a,b,d1,d2):
-        print("<")
-        tmp += [(b,d)]
+      b,y2 = lst[j+1]
+      y3 = y1+y2
+      if abs(mu(y1) - mu(y2)) < ok:
+        tmp += [(b,y3)]
         j   += 2
         continue
-    tmp += [(a,d1)]
+    tmp += [(a,y1)]
     j += 1
-  return merge1(tmp) if len(tmp) < len(lst) else lst
+  return merge1(ok,tmp) if len(tmp) < len(lst) else lst
 
-def simpler(a,b,d1,d2):
-  all= lambda z  : sum(z.values())
-  ent= lambda z,n: sum(- v/n*math.log2(v/n) for v in z.values())
-  d = {}
-  for k,v in d1.items(): d[k] = v
-  for k,v in d2.items(): d[k] = d.get(k,0) + v
-  n1, n2 = all(d1), all(d2)
-  n = n1 + n2
-  # print("")
-  # print(a,b)
-  # print(1, n1, d1,  ent(d1,n1))
-  # print(2, n2, d2,  ent(d2,n2))
-  # print(12, n,  d,   ent(d,n))
-  # print(12, ent(d,n) <= (n1*ent(d1,n1) + n2*ent(d2,n2))/n)
-  if ent(d,n) <= (n1*ent(d1,n1) + n2*ent(d2,n2))/n:
-    return d
-
-def classify(d):
-  lst = []
-  for x in d.rows:
+def completeInitialization(d):
+  d.cols=[sorted(c) if nums(c) else c for c in d.cols]
+  ys=[]
+  k = 1/IT.samples
+  for row in d.rows:
     for _ in range(IT.samples):
-      y = random.choice(d.rows)
-      x.dom += dom(x,y,d)
-    got(x.dom, lst)
-  lst = sorted(lst)
-  best = lst[ int(IT.best*len(lst)) ]
-  for x in d.rows:
-    _,x.y = bin(lst,x.dom)
- 
-def ready(d):
-  d.cols = [(sorted(c) if nums(c) else c) for c in d.cols]
-  for pos,w in enumerate(d.w): (d.ys if w else d.xs)[pos] = w
-  classify(d) 
-  for pos,col in enumerate(d.cols):
+      row.dom += dom(d, row, random.choice(d.rows))
+    ys += [row.dom]
+  ys = sorted(ys)
+  best = ys[ int(IT.best*len(ys)) ]
+  for row in d.rows:
+    row.y = row.dom > best
+  for n,(name,col) in enumerate(zip(d.names,d.cols)):
     if nums(col):
-      lst1 = bins(col)
-      lst2 =  merge(pos, lst1, d.rows)
-      d.bins[pos] = lst2
-      print("\n---", pos,"\n\t",lst1,"\n\t",lst2)
+      d.some.bins[n] = merge(n, div(col), d.rows)
+  d.counts = counts(d)
+  f = d.counts.f
   return d
 
+def counts(d):
+  f,h = {}, {}
+  for row in d.rows:
+    y = row.y
+    h[y] = h.get(y, 0) + 1
+    for n,col in enumerate(d.cols):
+      if col:
+        x = row.x[n] 
+        if n in d.some.bins:
+          x = bin(d.some.bins[n],x)
+        v = (y, n,x)
+        f[v] = f.get(v,0) + 1
+  return o(f=f, h=h)
+  
 @eg
 def aa():
   r0()
-  d=ready(data(csv(IT.data+"auto93.csv")))
-  print("ys",d.ys)
-  d.rows = sorted(d.rows, 
-              key =lambda r:- r.dom)
+  d = data(csv(IT.data+"auto93.csv"))
+  #rows = sorted(d.rows,key=lambda z:z.y)
+  #print([d.names[c] for c in d.some.y]+['y'])
+  #for r in rows[:10]: print([r.x[c] for c in d.some.y]+[r.y])
+  #print("#")
+  #for r in rows[-10:]: print([r.x[c] for c in d.some.y]+[r.y])
+  
+
   #for i in range(10): print([d.rows[i].cells[x] for x in d.ys.keys()])
   #print("")
   #for i in range(10): print([d.rows[-i].cells[x] for x in d.ys.keys()])
