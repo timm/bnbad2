@@ -91,7 +91,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
 # Loading data
 def data(src):
   d = o(names=[],rows=[],cols=[], 
-        counts={}, some=o(x={},y={},bins={}))
+        counts={}, also=o(x={},y={},bins={}))
   for zs in src:
     if d.cols:
       for z,c in zip(zs,d.cols): remember(z,c)
@@ -101,21 +101,58 @@ def data(src):
       d.cols  = [col(z) for z in zs]
       for n,z in enumerate(zs):
         if not skip(z):
-          what = d.some.y if goal(z) else d.some.x
+          what = d.also.y if goal(z) else d.also.x
           what[n] = (-1 if LESS in z else 
                     ( 1 if MORE in z else 0))
-  return completeInitialization(d)
+  # sort before doing anything else
+  [col.sort() for col in d.cols if nums(col)]
+  classify(d)
+  # must be after classify
+  discretize(d)
+  d.counts = counts(d)
+  for x in d.counts.f: print(x, d.counts.f[x])
+  return d
+
+def classify(d):
+  ys=[]
+  for row in d.rows:
+    for _ in range(IT.samples):
+      row.dom += dom(d, row, random.choice(d.rows))
+    ys += [row.dom]
+  ys = sorted(ys)
+  best = ys[ int(IT.best*len(ys)) ]
+  for row in d.rows:
+    row.y = row.dom > best
+
+def discretize(d):
+  for n,col in enumerate(d.cols):
+    d.also.bins[n] = merge(n,div(col),d.rows) if nums(col) else col
+
+def counts(d):
+  f,h = {}, {}
+  for row in d.rows:
+    y = row.y
+    h[y] = h.get(y, 0) + 1
+    for n,bins in d.also.bins.items():
+      if bins:
+        x = row.x[n] 
+        if x != SKIP:
+          x1 = bin(bins,x)
+          v = (y, n,x1)
+          f[v] = f.get(v,0) + 1
+  return o(f=f, h=h)
 
 def remember(x,c): 
-  if x!=SKIP: 
+  if x != SKIP: 
     if syms(c): c[x] = c.get(x,0)+1
     if nums(c): c += [x]
+  return x
 
 def dom(d, i, j):
   val = lambda k,c: norm(d.cols[c],k.x[c])
   n = s1 = s2 = 0
-  n = len(d.some.y)
-  for col,w in d.some.y.items():
+  n = len(d.also.y)
+  for col,w in d.also.y.items():
     a,b = val(i, col), val(j, col)
     s1 -= math.e**(w * (a - b) / n)
     s2 -= math.e**(w * (b - a) / n)
@@ -124,30 +161,37 @@ def dom(d, i, j):
 #---------
 # Discretize
 def bin(bins, x):
-  for n, y in enumerate(bins):
-    if x <= y: return y
-  return math.inf
+  if x==SKIP: 
+    return x
+  elif nums(bins):
+    for n, y in enumerate(bins):
+      if x <= y: return y
+    return math.inf
+  else:
+    return x
 
-def div(c, smallx = IT.smallx):
-  ok = sd(c)*smallx
-  n = len(c)**IT.chop
-  while n < 4 and n<len(c)/2: n*=1.2
+def div(a, smallx = IT.smallx):
+  ok = sd(a)*smallx
+  n = len(a)**IT.chop
+  while n < 4 and n<len(a)/2: n*=1.2
   n = int(n)
   out, hi, lo = [], n, 0 
-  while hi < len(c) - n :
+  while hi < len(a) - n :
     hi += 1
-    if hi-lo > n and c[hi] != c[hi+1] and c[hi] - c[lo] > ok:
-       out += [c[hi]]
+    if hi-lo > n and a[hi] != a[hi+1] and a[hi] - a[lo] > ok:
+       out += [a[hi]]
        lo,hi = hi, hi+n
   return out
 
-def merge(col,bins,rows):
+def merge(n,bins,rows):
   all, ys = {},[]
   for row in rows:
-    x    = bin(bins, row.x[col])
-    one  = all[x] = all.get(x,[])
-    one += [row.y]
-    ys  += [row.y]
+    x = row.x[n]
+    if x!=SKIP:
+      x    = bin(bins, row.x[n])
+      one  = all[x] = all.get(x,[])
+      one += [row.dom]
+      ys  += [row.dom]
   ok = sd(sorted(ys)) * IT.smally
   all = merge1(ok,sorted(all.items()))
   return [x[0] for x in all]
@@ -167,48 +211,16 @@ def merge1(ok, lst):
     j += 1
   return merge1(ok,tmp) if len(tmp) < len(lst) else lst
 
-def completeInitialization(d):
-  d.cols=[sorted(c) if nums(c) else c for c in d.cols]
-  ys=[]
-  k = 1/IT.samples
-  for row in d.rows:
-    for _ in range(IT.samples):
-      row.dom += dom(d, row, random.choice(d.rows))
-    ys += [row.dom]
-  ys = sorted(ys)
-  best = ys[ int(IT.best*len(ys)) ]
-  for row in d.rows:
-    row.y = row.dom > best
-  for n,(name,col) in enumerate(zip(d.names,d.cols)):
-    if nums(col):
-      d.some.bins[n] = merge(n, div(col), d.rows)
-  d.counts = counts(d)
-  f = d.counts.f
-  return d
-
-def counts(d):
-  f,h = {}, {}
-  for row in d.rows:
-    y = row.y
-    h[y] = h.get(y, 0) + 1
-    for n,col in enumerate(d.cols):
-      if col:
-        x = row.x[n] 
-        if n in d.some.bins:
-          x = bin(d.some.bins[n],x)
-        v = (y, n,x)
-        f[v] = f.get(v,0) + 1
-  return o(f=f, h=h)
-  
+ 
 @eg
 def aa():
   r0()
   d = data(csv(IT.data+"auto93.csv"))
   #rows = sorted(d.rows,key=lambda z:z.y)
-  #print([d.names[c] for c in d.some.y]+['y'])
-  #for r in rows[:10]: print([r.x[c] for c in d.some.y]+[r.y])
+  #print([d.names[c] for c in d.also.y]+['y'])
+  #for r in rows[:10]: print([r.x[c] for c in d.also.y]+[r.y])
   #print("#")
-  #for r in rows[-10:]: print([r.x[c] for c in d.some.y]+[r.y])
+  #for r in rows[-10:]: print([r.x[c] for c in d.also.y]+[r.y])
   
 
   #for i in range(10): print([d.rows[i].cells[x] for x in d.ys.keys()])
