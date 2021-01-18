@@ -109,8 +109,10 @@ def data(src):
   classify(d)
   # must be after classify
   discretize(d)
+  for n,bins in d.also.bins.items():
+    if nums(bins) and not goal(d.names[n]):
+       print(d.names[n],bins)
   d.counts = counts(d)
-  for x in d.counts.f: print(x, d.counts.f[x])
   return d
 
 def classify(d):
