@@ -105,89 +105,89 @@ def ingest(src):
 
 #-------------------------------
 # Creating data headers and cols
-def head(d,lst):
+def head(DATA,LST):
   def head1(pos,txt):
     # 1. Add to  (nums or syms) into (all and (x or y))
     x = [] if nump(txt) else {}
-    if klassp(txt): d.cols.klass = x
-    for z in [d.cols.all, 
-              d.cols.y if goalp(txt) else d.cols.x]:
+    if klassp(txt): DATA.cols.klass = x
+    for z in [DATA.cols.all, 
+              DATA.cols.y if goalp(txt) else DATA.cols.x]:
       z.all[pos] = x
       (z.nums if nump(txt) else z.syms)[pos] = x
     # 2. Update goal and goal weights
     if nump(txt) and goalp(txt):
-       d.cols.goals[pos] = x
-       d.cols.w[pos] = (-1 if LESS in txt else 
-                       ( 1 if MORE in txt else 0))
+       DATA.cols.goals[pos] = x
+       DATA.cols.w[pos] = (-1 if IT.less in txt else 
+                          ( 1 if IT.more in txt else 0))
   #--------------------- 
-  d.cols =  cols()
-  d.names = lst
-  [head1(i,x) for i,x in enumerate(lst) if SKIP not in x]
+  DATA.cols =  cols()
+  DATA.names = LST
+  [head1(i,x) for i,x in enumerate(LST) if IT.skip not in x]
 
 #-------------------------------
 # ingesting data rows
-def body(d,lst):
-  for _,x,c in cells(lst,d.cols.all.syms): c[x] = c.get(x,0) + 1
-  for _,x,c in cells(lst,d.cols.all.nums): c += [x]
-  d.rows += [row(lst)]
+def body(data,lst):
+  for _,x,c in cells(lst, data.cols.all.syms): c[x] = c.get(x,0) + 1
+  for _,x,c in cells(lst, data.cols.all.nums): c += [x]
+  data.rows += [row(lst)]
 
 #-------------------------------
 # all the stuff to do after reading data
-def footer(d):
+def footer(DATA):
+  [col.sort() for col in DATA.cols.all.nums.values()]
+  classify()   # count who dominates who
+  discretize() # must be after classify, supervised splits
+  counts()     # generate frequency counts
+
   def classify():
     ys=[]
-    for row in d.rows:
+    for row in DATA.rows:
       for _ in range(IT.samples):
         row.score += better(row, random.choice(d.rows))
       ys += [row.score]
     ys = sorted(ys)
     best = ys[ int(IT.best*len(ys)) ]
-    for row in d.rows:
+    for row in DATA.rows:
       row.klass = row.score > best
   
   # Is row `i` better than row `j`?
   def better(i, j):
-    norm=lambda x,a:max(0, min(1, (x-a[0])/(a[-1]-a[0]+1E-32)))
     n = s1 = s2 = 0
-    n = len(d.cols.goals)
-    for pos,col in d.cols.goals.items():
-      w   = d.cols.w[pos]
+    n = len(DATA.cols.goals)
+    for pos,col in DATA.cols.goals.items():
+      w   = DATA.cols.w[pos]
       a,b = i.cells[pos], j.cells[pos]
       a,b = norm(a, col), norm(b,col)
       s1 -= math.e**(w * (a - b) / n)
       s2 -= math.e**(w * (b - a) / n)
     return s1/n < s2/n
   
+
   # Split the numeric `x` columns  (uses `div` and `merge`, below.
   def discretize():
-    for pos,name in enumerate(d.names):
+    for pos,name in enumerate(DATA.names):
       if nump(name) and not goalp(name):
-        b4=div(d.cols.x.nums[pos])
-        after= merge(pos,d.rows,b4)
+        b4=div(DATA.cols.x.nums[pos])
+        after= merge(pos,DATA.rows,b4)
         print(name, "\n\t",b4," ==> \n\t",after)
-        d.cols.bins[pos] = after
+        DATA.cols.bins[pos] = after
   
   # Collect frequency counts of discretized  columns in different classes
   def counts():
-    t= d.counts
-    for row in d.rows:
+    t= DATA.counts
+    for row in DATA.rows:
       t.n += 1
       klass = row.klass
       t.h[klass] = t.h.get(klass, 0) + 1
-      for pos,x,_ in cells(row, d.cols.x.syms):
+      for pos,x,_ in cells(row, DATA.cols.x.syms):
         v= (klass, pos, x)
         t.f[v] = t.f.get(v,0) + 1
-      for pos,x,_ in cells(row, d.cols.x.nums):
-        x=  bin(d.cols.bins[pos],x)
+      for pos,x,_ in cells(row, DATA.cols.x.nums):
+        x=  bin(DATA.cols.bins[pos],x)
         v= (klass, pos, x)
         t.f[v] = t.f.get(v,0) + 1
 
-  [col.sort() for col in d.cols.all.nums.values()]
-  classify()   # count who dominates who
-  discretize() # must be after classify, supervised splits
-  counts()     # generate frequency counts
-
-#---------
+  #---------
 # Discretization
 
 # Given a list of numerics, report which group holds `x`
@@ -197,10 +197,12 @@ def bin(bins, x):
   return math.inf
 
 # Split sorted list of numbers into bins
-def sd(a):   return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
+def sd(a):     return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
+def norm(a,x): return max(0, min(1, (x-a[0])/(a[-1]-a[0]+1E-32)))
+def mu(a):     return sum(a)/ len(a)
 
-def div(lst, smallx = IT.smallx):
-  ok = sd(lst)*smallx
+def div(lst):
+  ok = sd(lst)*IT.smallx
   n = len(lst)**IT.chop
   while n < 4 and n<len(lst)/2: n*=1.2
   n = int(n)
@@ -214,9 +216,10 @@ def div(lst, smallx = IT.smallx):
        lo,hi = hi, hi+n  # jump to the next split
   return out
 
-def merge(pos,rows,bins):
-  def shrink(lst):
-    mu =lambda a: sum(a)/ len(a)
+def merge(pos, rows, bins):
+  return [x[0] for x in shrink(*grow(pos,rows,bins))]
+
+  def shrink(all,ok):
     j,tmp = 0,[]
     while j < len(lst):
       a, y1 = lst[j]
@@ -230,26 +233,44 @@ def merge(pos,rows,bins):
       j += 1
     return shrink(tmp) if len(tmp) < len(lst) else lst
 
-  def grow():
+  def grow(pos,rows,bins):
     all, ys = {},[]
     for row in rows:
       x = row.cells[pos]
-      if x!=SKIP:
+      if x != IT.skip:
         x    = bin(bins, x)
         one  = all[x] = all.get(x,[])
         one += [row.score]
         ys  += [row.score]
     return sorted(all.items()), sd(sorted(ys))*IT.smally
-  #-------------------------
-  all, ok = grow()
-  return [x[0] for x in shrink(all)]
 
 #-------------------------------------
 # Contrast
-def contrast(tally,best=True):
+def contrast(rules0, COUNTS, HERE, THERE):
+  return loop([(value(r),r) for r in rules0], IT.lives)
+
+  def loop(rules,lives):
+    print(".",end="")
+    sum, rules = prune(rules)
+    if lives < 0 or len(rules) < 2: return rules
+    more=[]
+    for _ in range(IT.staggers):
+      if c := better(pick(rules,sum), pick(rules,sum)):
+        more += [c]
+    if more:
+      return loop(rules + more,lives-1)
+    else:
+      print("!")
+      return rules
+
+  def value(rule):
+    b = like(rule, HERE,  2)
+    r = like(rule, THERE, 2)
+    return b**2/(b+r) if b>r+0.01 else 0
+
   def like(rule,h,hs=None):
-    hs = hs if hs else len(tally.h)
-    like = prior = (t.h[h] + IT.k) / (tally.n + IT.k * hs)
+    hs = hs if hs else len(COUNTS.h)
+    like = prior = (t.h[h] + IT.k) / (COUNTS.n + IT.k * hs)
     like = math.log(like)
     for col,values in rule.items():
       f = sum(t.f.get((h, col, v), 0) for v in values)
@@ -257,64 +278,41 @@ def contrast(tally,best=True):
       like += math.log(inc)
     return math.e**like
 
-  def score(rule,best,rest):
-    b = like(rule,best,2)
-    r = like(rule,rest,2)
-    return b**2/(b+r) if b>r+0.01 else 0
+  def better(rule1, rule2):
+    val1, rule1 = rule1
+    val2, rule2 = rule2
+    rule3 = dict()
+    for k,v in rule1.items(): rule3[k]=v
+    for k,v in rule2.items(): rule3.get(k,set()) | v
+    val3 = value(rule3)
+    if val3 > val1 and val3 > val1: return (val3,rule3)
 
-  def better(r1,r2,best,rest):
-    r3=dict()
-    for k,v in r1[1].items(): r3[k]=v
-    for k,v in r2[1].items(): r3.get(k,set()) | v
-    s3= score(r3,best,rest)
-    if s3> r1[0] and s3 > r2[0]: return (s3,r3)
-
-  def prune(rules):
-    tmp = sorted(rules, key=lambda z: -1 * z[0])[:IT.pop]
+  def prune(old):
+    tmp = sorted(old, key=lambda z: -1 * z[0])[:IT.pop]
     b4 = tmp[0]
     out = [b4]
-    total = b4[0] + 1E-32
+    sum = b4[0] + 1E-32
     for now in tmp[1:]:
       if now != b4:
         out += [now]
-        total += now[0]
+        sum += now[0]
       b4 = now
-    return total,out
+    return sum,out
 
-  def one(rules, total):
+  def pick(rules, sum):
     r = random.random()
     for rule in rules:
-      r -= rule[0] / total
+      r -= rule[0] / sum
       if r <= 0: return rule
     return rule
-
-  def learn(rules,best,rest,lives):
-    print(".",end="")
-    total, rules = prune(rules)
-    if lives < 0 or len(rules) < 2: return rules
-    more=[]
-    for _ in range(IT.staggers):
-      if c := better(one(rules,total), one(rules,total),
-                     best,rest):
-        more += [c]
-    if more:
-      return learn(rules + more,best,rest,lives-1)
-    else:
-      print("!")
-      return rules
-  #-----------------
-  all={}
-  pairs = set([(pos,x) for _,pos,x in tally.h])
-  for rest in tally.h:
-    if rest != best:
-      rules = []
-      for pos,x in pairs:
-        rule= dict(pos=set(x))
-        s   = score(rule,best,rest)
-        rules += [(s,rule)]
-      all[rest] = learn(rules,best,rest,IT.lives)
-  return all
-
+ 
+def learn(counts, here=True):
+  out, all = {}, set([(c,x) for _,c,x in counts.h])
+  for there in counts.h:
+    if there != here:
+      out[there]= contrast([dict(c,set([x])) for c,x in all],
+                           here,there)
+  return out
 
 #-------------------------------------
 # tests
