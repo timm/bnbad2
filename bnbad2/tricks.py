@@ -8,6 +8,13 @@ import math
 import sys
 import re
 
+def printm(matrix):
+  s = [[str(e) for e in row] for row in matrix]
+  lens = [max(map(len, col)) for col in zip(*s)]
+  fmt = ' | '.join('{{:{}}}'.format(x) for x in lens)
+  for row in [fmt.format(*row) for row in s]:
+    print(row)
+
 def arg(txt, **d):
   for key, val in d.items():
     break
