@@ -247,20 +247,27 @@ def merge(pos,rows,bins):
 #-------------------------------------
 # Contrast
 def contrast(tally,best=True):
-  def like(dct,h,hs=None):
+  def like(rule,h,hs=None):
     hs = hs if hs else len(tally.h)
     like = prior = (t.h[h] + IT.k) / (tally.n + IT.k * hs)
     like = math.log(like)
-    for col,values in dct.items():
+    for col,values in rule.items():
       f = sum(t.f.get((h, col, v), 0) for v in values)
       inc = (f + IT.m * prior) / (i.h[h] + IT.m)
       like += math.log(inc)
     return math.e**like
 
   def score(rule,best,rest):
-    b = like(score,best,2)
-    r = like(score,rest,2)
+    b = like(rule,best,2)
+    r = like(rule,rest,2)
     return b**2/(b+r) if b>r+0.01 else 0
+
+  def better(r1,r2,best,rest):
+    r3=dict()
+    for k,v in r1[1].items(): r3[k]=v
+    for k,v in r2[1].items(): r3.get(k,set()) | v
+    s3= score(r3,best,rest)
+    if s3> r1[0] and s3 > r2[0]: return (s3,r3)
 
   def prune(rules):
     tmp = sorted(rules, key=lambda z: -1 * z[0])[:IT.pop]
@@ -273,6 +280,13 @@ def contrast(tally,best=True):
         total += now[0]
       b4 = now
     return total,out
+
+  def one(rules, total):
+    r = random.random()
+    for rule in rules:
+      r -= rule[0] / total
+      if r <= 0: return rule
+    return rule
 
   def learn(rules,best,rest,lives):
     print(".",end="")
@@ -288,20 +302,6 @@ def contrast(tally,best=True):
     else:
       print("!")
       return rules
-
-  def one(rules, total):
-    r = random.random()
-    for rule in rules:
-      r -= rule[0] / total
-      if r <= 0: return rule
-    return rule
-
-  def better(r1,r2,best,rest):
-    r3=dict()
-    for k,v in r1[1].items(): r3[k]=v
-    for k,v in r2[1].items(): r3.get(k,set()) | v
-    s3= score(r3,best,rest)
-    if s3> r1[0] and s3 > r2[0]: return (s3,r3)
   #-----------------
   all={}
   pairs = set([(pos,x) for _,pos,x in tally.h])
@@ -310,7 +310,7 @@ def contrast(tally,best=True):
       rules = []
       for pos,x in pairs:
         rule= dict(pos=set(x))
-        s   = score(rule,rest)
+        s   = score(rule,best,rest)
         rules += [(s,rule)]
       all[rest] = learn(rules,best,rest,IT.lives)
   return all
