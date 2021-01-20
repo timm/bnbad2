@@ -1,5 +1,8 @@
 # vim: filetype=python ts=2 sw=2 sts=2 et :
 
+from typing import Dict, Any
+import json
+import hashlib
 import time
 import argparse
 import random
@@ -7,6 +10,7 @@ import pprint
 import math
 import sys
 import re
+from itertools import combinations
 
 def printm(matrix):
   s = [[str(e) for e in row] for row in matrix]
@@ -44,6 +48,12 @@ def args(what, txt, *lst):
       formatter_class=p.RawDescriptionHelpFormatter)
   [parser.add_argument("-" + key, **args) for key, _, args in lst]
   return parser.parse_args()
+
+
+def subsets(s, max=None):
+  max = max if max else len(s)
+  for cardinality in range(max + 1):
+    yield from combinations(s, cardinality)
 
 class Pretty:
   def __repr__(i):

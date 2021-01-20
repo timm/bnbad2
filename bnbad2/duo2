@@ -37,9 +37,9 @@ options=["duo",__doc__,
     arg("char for klass", klass="!"),
     arg("nb kludge for rare attributes", k=1),
     arg("nb kludge for rare classes", m=2),
-    arg("contrast lives", lives=20),
-    arg("contrast population", pop=20),
-    arg("contrast attempts per life", staggers=20),
+    arg("contrast lives", lives=10),
+    arg("contrast population", beam=10),
+    arg("contrast attempts per life", staggers=32),
     arg("some epsilon x", smallx=.35),
     arg("some epsilon y", smally=.5),
     arg("some round", round=2),
@@ -263,20 +263,17 @@ def merge(POS, ROWS, BINS):
 
 def contrast(rules0, COUNTS, HERE, THERE):
   def loop(rules,lives):
+    lives = the.staggers
     while True:
+      lives -= 1
       sum, rules = prune(rules)
-      print(f"{lives}[{len(rules)}] ",end="")
       if lives < 1 or len(rules) < 2: 
          print("!")
          return rules
-      more=[]
-      for _ in range(the.staggers):
-        a = pick(rules,sum)
-        b = pick(rules,sum)
-        if c := better(a,b):
-          more += [c]
-      lives = lives - 1 if more else 0
-      rules = rules+more 
+      a = pick(rules,sum)
+      b = pick(rules,sum)
+      c = combine(a,b)
+      rules += [c]
 
   def value(rule):
     b = like(rule, HERE,  2)
@@ -295,7 +292,7 @@ def contrast(rules0, COUNTS, HERE, THERE):
       like += math.log(inc)
     return math.e**like
 
-  def better(rule1, rule2):
+  def combine(rule1, rule2):
     val1, rule1 = rule1
     val2, rule2 = rule2
     rule3 = dict()
@@ -303,21 +300,15 @@ def contrast(rules0, COUNTS, HERE, THERE):
       for k,vs in rule.items():
         rule3[k] = rule3.get(k,set()) | vs
     val3 = value(rule3)
-    if val3 > val1 and val3 > val1: return (val3,rule3)
+    return (val3,rule3)
 
   def prune(old):
-    tmp = [(s,r) for s,r in 
-           sorted(old, key=lambda z: -1 * z[0])[:the.pop]
-           if s > 0]
-    b4 = tmp[0]
-    out = [b4]
-    sum = b4[0] + 1E-32
-    for now in tmp[1:]:
-      if not( now[0] == b4[0] and  showRule(now) == showRule(b4)):
-        out += [now]
-        sum += now[0]
-      b4 = now
-    return sum,out
+    tmp = [(s,r) for s,r in sorted(old, key=lambda z: -1 * z[0])
+           if s > 0][:the.beam]
+    sum=0
+    all={}
+    for s,r in tmp: sum+= s; all[showRule((s,r))] = (s,r)
+    return sum,list(all.values())
 
   def pick(rules, sum):
     r = random.random()
@@ -338,10 +329,10 @@ def learn(counts, here=True):
 
 def showRule(r):
   def show1(k,v):
-    return k + " = (" + ' or '.join(list(map(str,v)))  + ")"
+    return k + " = (" + ' or '.join(sorted(list(map(str,v))))  + ")"
   s,rule=r
   out=""
-  return "{"+str(s) + '} '+' and '.join([show1(k,v) for k,v in rule.items()])
+  return "{"+str(s) + '} '+' and '.join([show1(k,v) for k,v in sorted(rule.items())])
 #-------------------------------------
 # tests
 #@eg
@@ -378,6 +369,8 @@ def _contrast():
 
 if __name__ == "__main__":
   the=args(*options)
+  print(the.seed)
+  r0()
   import pprint
   for k,rules in _contrast().items():
     print(k)
