@@ -313,7 +313,7 @@ def contrast(rules0, COUNTS, HERE, THERE):
     out = [b4]
     sum = b4[0] + 1E-32
     for now in tmp[1:]:
-      if now[1] != b4[1]:
+      if not( now[0] == b4[0] and  showRule(now) == showRule(b4)):
         out += [now]
         sum += now[0]
       b4 = now
