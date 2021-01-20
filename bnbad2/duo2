@@ -42,6 +42,7 @@ options=["duo",__doc__,
     arg("contrast attempts per life", staggers=20),
     arg("some epsilon x", smallx=.35),
     arg("some epsilon y", smally=.5),
+    arg("some round", round=2),
     arg("some best", best=.80),
     arg("some want", chop=.5),
     arg("dom samples", samples=64)]
@@ -75,6 +76,7 @@ def r0()   : random.seed(the.seed)
 def mu(a):     return sum(a)/ len(a)
 def sd(a):     return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
 def norm(x,a): return max(0, min(1, (x-a[0])/(a[-1]-a[0]+1E-32)))
+def dinc(d,k): x = d[k] = d.get(k,0) + 1; return x 
 
 # Given a list of numerics, report which group holds `x`
 def bin(bins, x):
@@ -89,16 +91,17 @@ def cells(lst,cols):
     val = lst[pos]
     if val!=the.skip: yield pos,val,col
 
-# Csv reader. Kill whitespace and comments. Using columns names in
-# row1, control what strings get converted into floats.
+# Csv reader. Kill whitespace and comments. Convert
+# strings to numbers, it needed.
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
-  fs=[]
+  def atom(x):
+    try: return int(x)
+    except Exception: 
+       try:   return float(x)
+       except Exception: return x
   with open(file) as fp:
     for a in fp:
-      a = re.sub(ignore,'',a).split(sep)
-      if fs: a  = [(x if x==the.skip else f(x)) for f, x in zip(fs,a)]
-      else:  fs = [(float if nump(x) else str) for x in a]
-      yield a
+      yield  [atom(x) for x in re.sub(ignore,'',a).split(sep)]
 
 #-------------------------------
 # ## Ingest
@@ -137,7 +140,7 @@ def head(DATA,LST):
 
 def body(data,lst):
   "Update symbolics"
-  for _,x,c in cells(lst, data.cols.all.syms): c[x] = c.get(x,0) + 1
+  for _,x,c in cells(lst, data.cols.all.syms): dinc(c,x)
   "Update numerics"
   for _,x,c in cells(lst, data.cols.all.nums): c += [x]
   "Make a new row"
@@ -186,14 +189,14 @@ def footer(DATA):
     for row in DATA.rows:
       t.n += 1
       klass = row.klass
-      t.h[klass] = t.h.get(klass, 0) + 1
+      dinc(t.h,klass)
       for pos,x,_ in cells(row, DATA.cols.x.syms):
-        v= (klass, pos, x)
-        t.f[v] = t.f.get(v,0) + 1
+        v= (klass, DATA.names[pos], x)
+        dinc(t.f,v)
       for pos,x,_ in cells(row, DATA.cols.x.nums):
         x=  bin(DATA.cols.bins[pos],x)
-        v= (klass, pos, x)
-        t.f[v] = t.f.get(v,0) + 1
+        v= (klass, DATA.names[pos], x)
+        dinc(t.f,v)
   # `footer` control
   [col.sort() for col in DATA.cols.all.nums.values()]
   classify()   # count who dominates who
@@ -225,7 +228,7 @@ def div(lst):
 
 # ### merge
 
-def merge(pos, rows, bins):
+def merge(POS, ROWS, BINS):
   def shrink(lst,ok):
     "Combine ranges that make little change to the score."
     j,tmp = 0,[]
@@ -241,19 +244,19 @@ def merge(pos, rows, bins):
       j += 1
     return shrink(tmp,ok) if len(tmp) < len(lst) else lst
 
-  def grow(pos,rows,bins):
+  def grow():
     "Collect the data needed for `shrink`"
     all, ys = {},[]
-    for row in rows:
-      x = row.cells[pos]
+    for row in ROWS:
+      x = row.cells[POS]
       if x != the.skip:
-        x    = bin(bins, x)
+        x    = bin(BINS, x)
         one  = all[x] = all.get(x,[])
         one += [row.score]
         ys  += [row.score]
     return sorted(all.items()), sd(sorted(ys))*the.smally
   # `merge` control
-  return [x[0] for x in shrink(*grow(pos,rows,bins))]
+  return [x[0] for x in shrink(*grow())]
 
 #------
 # ## Contrast set learning
@@ -278,7 +281,9 @@ def contrast(rules0, COUNTS, HERE, THERE):
   def value(rule):
     b = like(rule, HERE,  2)
     r = like(rule, THERE, 2)
-    return (b**2/(b+r)) if b>r+0.01 else 0
+    n = b**2/(b+r)
+    n,b,r = [round(x,the.round) for x in [n,b,r]]
+    return n if b>r else 0
 
   def like(rule,h,hs=None):
     hs = hs if hs else len(COUNTS.h)
@@ -294,12 +299,11 @@ def contrast(rules0, COUNTS, HERE, THERE):
     val1, rule1 = rule1
     val2, rule2 = rule2
     rule3 = dict()
-    for k,vs in rule1.items():
-      rule3[k] = rule3.get(k,set()) | vs
-    for k,vs in rule2.items():
-      rule3[k] = rule3.get(k,set()) | vs
+    for rule in [rule1,rule2]:
+      for k,vs in rule.items():
+        rule3[k] = rule3.get(k,set()) | vs
     val3 = value(rule3)
-    if val3 > val1+0.025 and val3 > val1*0.025: return (val3,rule3)
+    if val3 > val1 and val3 > val1: return (val3,rule3)
 
   def prune(old):
     tmp = [(s,r) for s,r in 
@@ -309,7 +313,7 @@ def contrast(rules0, COUNTS, HERE, THERE):
     out = [b4]
     sum = b4[0] + 1E-32
     for now in tmp[1:]:
-      if now != b4:
+      if now[1] != b4[1]:
         out += [now]
         sum += now[0]
       b4 = now
@@ -332,6 +336,12 @@ def learn(counts, here=True):
                            counts, here,there)
   return out
 
+def showRule(r):
+  def show1(k,v):
+    return k + " = (" + ' or '.join(list(map(str,v)))  + ")"
+  s,rule=r
+  out=""
+  return "{"+str(s) + '} '+' and '.join([show1(k,v) for k,v in rule.items()])
 #-------------------------------------
 # tests
 #@eg
@@ -368,6 +378,7 @@ def _contrast():
 
 if __name__ == "__main__":
   the=args(*options)
-  for k,vs in _contrast().items():
+  import pprint
+  for k,rules in _contrast().items():
     print(k)
-    for v in vs: print("\t",v) 
+    [print("  ",showRule(rule)) for rule in rules]
