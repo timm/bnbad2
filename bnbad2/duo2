@@ -22,10 +22,10 @@ made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.
 """
 
-from tricks import arg, args, neg, eg, run,ok,o,printm
+from tricks import about,arg, args, neg, eg, run,ok,o,printm
 from tricks import re, sys, math, random
 
-the=args("duo",__doc__, 
+options=["duo",__doc__, 
     arg("show version", V=False),
     arg("data dir", data="../data/"),
     arg("misc seed", seed=1),
@@ -44,7 +44,9 @@ the=args("duo",__doc__,
     arg("some epsilon y", smally=.5),
     arg("some best", best=.80),
     arg("some want", chop=.5),
-    arg("dom samples", samples=64))
+    arg("dom samples", samples=64)]
+
+the=about(*options)
 
 #-------------------------------
 # ## General stuff
@@ -105,7 +107,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
 def ingest(src):
   data_ =data()
   for lst in src:
-    (body if d.names else head)(data_ ,lst)
+    (body if data_.names else head)(data_ ,lst)
   return footer(data_)
 
 # ### ingest/ head
@@ -257,34 +259,33 @@ def merge(pos, rows, bins):
 # ## Contrast set learning
 
 def contrast(rules0, COUNTS, HERE, THERE):
-  return loop([(value(r),r) for r in rules0], the.lives)
-
   def loop(rules,lives):
     print(".",end="")
     sum, rules = prune(rules)
-    if lives < 0 or len(rules) < 2: return rules
+    if lives < 0 or len(rules) < 2: 
+       print("!")
+       return rules
     more=[]
     for _ in range(the.staggers):
-      if c := better(pick(rules,sum), pick(rules,sum)):
+      a = pick(rules,sum)
+      b = pick(rules,sum)
+      if c := better(a,b):
         more += [c]
-    if more:
-      return loop(rules + more,lives-1)
-    else:
-      print("!")
-      return rules
+    return loop(rules+more, 
+                lives - 1 if more else 0)
 
   def value(rule):
     b = like(rule, HERE,  2)
     r = like(rule, THERE, 2)
-    return b**2/(b+r) if b>r+0.01 else 0
+    return (b**2/(b+r)) if b>r+0.01 else 0
 
   def like(rule,h,hs=None):
     hs = hs if hs else len(COUNTS.h)
-    like = prior = (t.h[h] + the.k) / (COUNTS.n + the.k * hs)
+    like = prior = (COUNTS.h[h] + the.k) / (COUNTS.n + the.k * hs)
     like = math.log(like)
     for col,values in rule.items():
-      f = sum(t.f.get((h, col, v), 0) for v in values)
-      inc = (f + the.m * prior) / (i.h[h] + the.m)
+      f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
+      inc = (f + the.m * prior) / (COUNTS.h[h] + the.m)
       like += math.log(inc)
     return math.e**like
 
@@ -292,13 +293,17 @@ def contrast(rules0, COUNTS, HERE, THERE):
     val1, rule1 = rule1
     val2, rule2 = rule2
     rule3 = dict()
-    for k,v in rule1.items(): rule3[k]=v
-    for k,v in rule2.items(): rule3.get(k,set()) | v
+    for k,vs in rule1.items():
+      rule3[k] = rule3.get(k,set()) | vs
+    for k,vs in rule2.items():
+      rule3[k] = rule3.get(k,set()) | vs
     val3 = value(rule3)
-    if val3 > val1 and val3 > val1: return (val3,rule3)
+    if val3 > val1+0.025 and val3 > val1*0.025: return (val3,rule3)
 
   def prune(old):
-    tmp = sorted(old, key=lambda z: -1 * z[0])[:the.pop]
+    tmp = [(s,r) for s,r in 
+           sorted(old, key=lambda z: -1 * z[0])[:the.pop]
+           if s > 0]
     b4 = tmp[0]
     out = [b4]
     sum = b4[0] + 1E-32
@@ -315,18 +320,20 @@ def contrast(rules0, COUNTS, HERE, THERE):
       r -= rule[0] / sum
       if r <= 0: return rule
     return rule
+  # `contrast` control
+  return loop([(value(r),r) for r in rules0], the.lives)
  
 def learn(counts, here=True):
-  out, all = {}, set([(c,x) for _,c,x in counts.h])
+  out, all = {}, list(set([(c,x) for (_,c,x) in counts.f]))
   for there in counts.h:
     if there != here:
-      out[there]= contrast([dict(c,set([x])) for c,x in all],
-                           here,there)
+      out[there]= contrast([{c:set([x])} for c,x in all],
+                           counts, here,there)
   return out
 
 #-------------------------------------
 # tests
-@eg
+#@eg
 def _csv():
   all=[row for row in csv(the.data+"weather.csv")]
   ok(len(all)==15,"csv reads?")
@@ -334,7 +341,7 @@ def _csv():
   ok(type(all[-1][1])==float, "floats read?")
   ok(type(all[-1][0])==str, "strings read?")
 
-@run
+#@eg
 def aa():
   r0()
   d=ingest(csv(the.data+"auto93.csv"))
@@ -353,3 +360,13 @@ def aa():
   #print("")
   #for i in range(10): print([d.rows[-i].cells[x] for x in d.ys.keys()])
 
+def _contrast():
+  r0()
+  d=ingest(csv(the.data+"auto93.csv"))
+  return learn(d.counts)
+
+if __name__ == "__main__":
+  the=args(*options)
+  for k,vs in _contrast().items():
+    print(k)
+    for v in vs: print("\t",v) 

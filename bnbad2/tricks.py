@@ -33,6 +33,9 @@ def arg(txt, **d):
       eg = "; e.g. -%s %s" % (key, val) if val != "" else ""
       return key, x, dict(help=txt + eg, default=x, metavar=m, type=t)
 
+def about(what, txt, *lst):
+  return o(** {key: x for key, x, _ in lst})
+
 def args(what, txt, *lst):
   p = argparse
   from argparse_color_formatter import ColorHelpFormatter
