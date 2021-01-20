@@ -37,7 +37,7 @@ options=["duo",__doc__,
     arg("char for klass", klass="!"),
     arg("nb kludge for rare attributes", k=1),
     arg("nb kludge for rare classes", m=2),
-    arg("contrast lives", lives=9),
+    arg("contrast lives", lives=20),
     arg("contrast population", pop=20),
     arg("contrast attempts per life", staggers=20),
     arg("some epsilon x", smallx=.35),
@@ -260,19 +260,20 @@ def merge(pos, rows, bins):
 
 def contrast(rules0, COUNTS, HERE, THERE):
   def loop(rules,lives):
-    print(".",end="")
-    sum, rules = prune(rules)
-    if lives < 0 or len(rules) < 2: 
-       print("!")
-       return rules
-    more=[]
-    for _ in range(the.staggers):
-      a = pick(rules,sum)
-      b = pick(rules,sum)
-      if c := better(a,b):
-        more += [c]
-    return loop(rules+more, 
-                lives - 1 if more else 0)
+    while True:
+      sum, rules = prune(rules)
+      print(f"{lives}[{len(rules)}] ",end="")
+      if lives < 1 or len(rules) < 2: 
+         print("!")
+         return rules
+      more=[]
+      for _ in range(the.staggers):
+        a = pick(rules,sum)
+        b = pick(rules,sum)
+        if c := better(a,b):
+          more += [c]
+      lives = lives - 1 if more else 0
+      rules = rules+more 
 
   def value(rule):
     b = like(rule, HERE,  2)
