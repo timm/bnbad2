@@ -37,12 +37,10 @@ options=["duo",__doc__,
     arg("char for klass", klass="!"),
     arg("nb kludge for rare attributes", k=1),
     arg("nb kludge for rare classes", m=2),
-    arg("contrast lives", lives=10),
+    arg("contrast lives", lives=128),
     arg("contrast population", beam=10),
-    arg("contrast attempts per life", staggers=32),
     arg("some epsilon x", smallx=.35),
     arg("some epsilon y", smally=.5),
-    arg("some round", round=2),
     arg("some best", best=.80),
     arg("some want", chop=.5),
     arg("dom samples", samples=64)]
@@ -262,75 +260,81 @@ def merge(POS, ROWS, BINS):
 # ## Contrast set learning
 
 def contrast(rules0, COUNTS, HERE, THERE):
-  def loop(rules,lives):
-    lives = the.staggers
+  def loop(rules):
+    lives = the.lives
     while True:
       lives -= 1
-      rules = prune(rules)
+      total,rules = prune(rules)
       if lives < 1 or len(rules) < 2: 
-         print("!")
          return rules
-      rules += [combine(pick(rules), pick(rules))]
+      rules += [combine(pick(rules,total), pick(rules,total))]
 
   def value(rule):
     b = like(rule, HERE,  2)
     r = like(rule, THERE, 2)
-    n = b**2/(b+r)
-    n,b,r = [round(x,the.round) for x in [n,b,r]]
-    return n if b>r else 0
+    return b**2/(b+r) if b>r else 0
 
   def like(rule,h,hs=None):
     hs = hs if hs else len(COUNTS.h)
     like = prior = (COUNTS.h[h] + the.k) / (COUNTS.n + the.k * hs)
     like = math.log(like)
-    for col,values in rule.items():
+    for col,values in rule:
       f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
       inc = (f + the.m * prior) / (COUNTS.h[h] + the.m)
       like += math.log(inc)
     return math.e**like
 
   def combine(rule1, rule2):
-    val1, rule1 = rule1
-    val2, rule2 = rule2
-    rule3 = dict()
+    _, rule1 = rule1
+    _, rule2 = rule2
+    tmp = dict()
     for rule in [rule1,rule2]:
-      for k,vs in rule.items():
-        rule3[k] = rule3.get(k,set()) | vs
-    val3 = value(rule3)
-    return (val3,rule3)
+      for k,lst in rule:
+        tmp[k] = tmp.get(k,set()) 
+        for v in lst: tmp[k].add(v) 
+    rule3 = sorted([[k, sorted(list(vs))] for k,vs in tmp.items()])
+    return [value(rule3), rule3]
+
+  def same(rule1,rule2):
+    if rule1[0] != rule2[0]: return False
+    for x,y in zip(rule1[1], rule2[1]):
+      if x !=y: return False
+    return True
 
   def prune(old):
-    tmp = [(round(s,2),r) for s,r in sorted(old, key=lambda z: -1 * z[0])
-           if s > 0][:the.beam]
-    d={}
-    for s,r in tmp: d[showRule((s,r))] = (s,r)
-    tmp = list(d.values())
-    n   = sum(s for s,_ in tmp)
-    return [(round(s/n,2),r) for s,r in tmp]
+    ordered = [[s,r] for s,r in sorted(old, reverse=True)]
+    one= ordered[0]
+    unique = [one]
+    for two in ordered[1:]:
+       if not same(one,two): unique += [two]
+       one = two
+    pruned  = [[s,r] for s,r in unique if s > 0][:the.beam]
+    return sum(s for s,_ in pruned),pruned
 
-  def pick(rules):
+  def pick(rules,total):
     r = random.random()
     for rule in rules:
-      r -= rule[0] 
+      r -= rule[0]/total 
       if r <= 0: return rule
     return rule
   # `contrast` control
-  return loop([(value(r),r) for r in rules0], the.lives)
+  return loop([[value(r),r] for r in rules0])
  
-def learn(counts, here=True):
+def learn(counts):
   out, all = {}, list(set([(c,x) for (_,c,x) in counts.f]))
   for there in counts.h:
-    if there != here:
-      out[there]= contrast([{c:set([x])} for c,x in all],
+    for here in counts.h:
+      if here != there:
+        out[there]= contrast([[[c,[x]]]  for c,x in all],
                            counts, here,there)
   return out
 
 def showRule(r):
   def show1(k,v):
-    return k + " = (" + ' or '.join(sorted(list(map(str,v))))  + ")"
+    return k + " = (" + ' or '.join(map(str,v)) + ")"
   s,rule=r
   out=""
-  return "{"+str(s) + '} '+' and '.join([show1(k,v) for k,v in sorted(rule.items())])
+  return "{"+str(round(s,2)) + '} '+' and '.join([show1(k,v) for k,v in rule])
 #-------------------------------------
 # tests
 #@eg
