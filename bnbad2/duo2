@@ -353,16 +353,6 @@ def aa():
   printm([['score']+ d.names]+[
           [r.score]+ r.cells for r in rows[:5]]+[
           [r.score]+ r.cells for r in rows[-5:]])
-  #print(d.cols)
-  #d = datacsv(csv(the.data+"auto93.csv"))
-  #rows = sorted(d.rows,key=lambda z:z.y)
-  #print([d.names[c] for c in d.also.y]+['y'])
-  #for r in rows[:10]: print([r.x[c] for c in d.also.y]+[r.y])
-  #print("#")
-  #for r in rows[-10:]: print([r.x[c] for c in d.also.y]+[r.y])
-  #for i in range(10): print([d.rows[i].cells[x] for x in d.ys.keys()])
-  #print("")
-  #for i in range(10): print([d.rows[-i].cells[x] for x in d.ys.keys()])
 
 def _contrast():
   r0()
