@@ -300,13 +300,13 @@ def contrast(rules0, COUNTS, HERE, THERE):
     return (val3,rule3)
 
   def prune(old):
-    tmp = [(s,r) for s,r in sorted(old, key=lambda z: -1 * z[0])
+    tmp = [(round(s,2),r) for s,r in sorted(old, key=lambda z: -1 * z[0])
            if s > 0][:the.beam]
-    all={}
-    for s,r in tmp: sum+= s; all[showRule((s,r))] = (s,r)
-    tmp = list(all.values())
-    n=sum(s for s,_ in tmp)
-    return [(s/n,r) for s,r in tmp]
+    d={}
+    for s,r in tmp: d[showRule((s,r))] = (s,r)
+    tmp = list(d.values())
+    n   = sum(s for s,_ in tmp)
+    return [(round(s/n,2),r) for s,r in tmp]
 
   def pick(rules):
     r = random.random()
