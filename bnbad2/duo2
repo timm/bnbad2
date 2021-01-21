@@ -178,7 +178,7 @@ def footer(DATA):
       if nump(name) and not goalp(name):
         b4=div(DATA.cols.x.nums[pos])
         after= merge(pos,DATA.rows,b4)
-        print(name, "\n\t",b4," ==> \n\t",after)
+        print(f"{name:15} :{b4} ==> {after}")
         DATA.cols.bins[pos] = after
   
   def counts(): 
@@ -325,7 +325,7 @@ def learn(counts):
   for there in counts.h:
     for here in counts.h:
       if here != there:
-        out[there]= contrast([[[c,[x]]]  for c,x in all],
+        out[here]= contrast([[[c,[x]]]  for c,x in all],
                            counts, here,there)
   return out
 
@@ -367,6 +367,13 @@ def aa():
 def _contrast():
   r0()
   d=ingest(csv(the.data+"auto93.csv"))
+  c0=None
+  all=sorted(list(set([(c,x) for (_,c,x) in d.counts.f if not nump(c)])))
+  for c,x in all:
+   if c!=c0: print(f"\n{c:15} :[",end="")
+   print(f" {x}",end="")
+   c0=c
+  print("]")
   return learn(d.counts)
 
 if __name__ == "__main__":
@@ -375,5 +382,5 @@ if __name__ == "__main__":
   r0()
   import pprint
   for k,rules in _contrast().items():
-    print(k)
+    print("\nhow to get to",k)
     [print("  ",showRule(rule)) for rule in rules]
