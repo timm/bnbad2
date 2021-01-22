@@ -354,9 +354,31 @@ def aa():
           [r.score]+ r.cells for r in rows[:5]]+[
           [r.score]+ r.cells for r in rows[-5:]])
 
+# [[name,ranges]...
+def relevant(data,rule):
+  def want(name,wants):
+    col=what[name]
+    x = row.cells[col]
+    found=True
+    if x != the.skip:
+      y= bin(data.cols.bins[col],x) if col in data.cols.bins else x
+      print(x,y,wants,y in wants)
+      if y in wants:
+    if not 
+
+  out = []
+  what= {}
+  for col,name in enumerate(data.names):
+     what[name]=col
+  for row in data.rows:
+    for name,wants in rule[1]:
+  
+    out += [row]
+  return out
+
 def _contrast():
   r0()
-  d=ingest(csv(the.data+"auto93.csv"))
+  d=ingest(csv(the.data+"weather.csv"))
   c0=None
   all=sorted(list(set([(c,x) for (_,c,x) in d.counts.f if not nump(c)])))
   for c,x in all:
@@ -364,13 +386,20 @@ def _contrast():
    print(f" {x}",end="")
    c0=c
   print("]")
-  return learn(d.counts)
+  return d,learn(d.counts)
 
 if __name__ == "__main__":
   the=args(*options)
   print(the.seed)
   r0()
   import pprint
-  for k,rules in _contrast().items():
+  d,cons = _contrast()
+  for k,rules in cons.items():
     print("\nhow to get to",k)
     [print("  ",showRule(rule)) for rule in rules]
+    for rule in rules:
+       relevant(d,rule)
+       #print(rule)
+       #for one in relevant(d,rule):
+        #  print("\t",one.cells)
+       sys.exit()
