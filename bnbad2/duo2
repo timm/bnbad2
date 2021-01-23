@@ -71,8 +71,11 @@ def tally():    return o(f={},h={},n=0)
 def r0()   : random.seed(the.seed)  
 
 # Stats from lists (`sd` and `norm` assume sorted data)
-def mu(a):     return sum(a)/ len(a)
-def sd(a):     return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56
+def mu(a):     
+  return sum(a)/ len(a) if a else 0
+def sd(a):     
+  return (a[int(.9*len(a))] - a[int(.1*len(a))]) /2.56 if a else 0
+
 def norm(x,a): return max(0, min(1, (x-a[0])/(a[-1]-a[0]+1E-32)))
 def dinc(d,k): x = d[k] = d.get(k,0) + 1; return x 
 
