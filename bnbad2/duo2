@@ -355,30 +355,22 @@ def aa():
           [r.score]+ r.cells for r in rows[-5:]])
 
 # [[name,ranges]...
-def relevant(data,rule):
-  def want(name,wants):
-    col=what[name]
-    x = row.cells[col]
-    found=True
-    if x != the.skip:
-      y= bin(data.cols.bins[col],x) if col in data.cols.bins else x
-      print(x,y,wants,y in wants)
-      if y in wants:
-    if not 
-
-  out = []
-  what= {}
-  for col,name in enumerate(data.names):
-     what[name]=col
-  for row in data.rows:
-    for name,wants in rule[1]:
-  
-    out += [row]
-  return out
+def relevants(data,rule):
+  what= {name:col for col,name in enumerate(data.names)}
+  def relevant(row,ands):
+    for name,ranges in ands: 
+      col = what[name]
+      x = row.cells[col]
+      if x != the.skip:
+        x = bin(data.cols.bins[col],x) if col in data.cols.bins else x
+        if x not in ranges: return False
+    return True
+  return sorted([row.score for row in data.rows 
+                if relevant(row,rule[1])])
 
 def _contrast():
   r0()
-  d=ingest(csv(the.data+"weather.csv"))
+  d=ingest(csv(the.data+"auto93.csv"))
   c0=None
   all=sorted(list(set([(c,x) for (_,c,x) in d.counts.f if not nump(c)])))
   for c,x in all:
@@ -394,12 +386,11 @@ if __name__ == "__main__":
   r0()
   import pprint
   d,cons = _contrast()
+  b4 = sorted(row.score for row in d.rows)
+  print("b4",round(mu(b4),2), round(sd(b4),2))
   for k,rules in cons.items():
     print("\nhow to get to",k)
     [print("  ",showRule(rule)) for rule in rules]
     for rule in rules:
-       relevant(d,rule)
-       #print(rule)
-       #for one in relevant(d,rule):
-        #  print("\t",one.cells)
-       sys.exit()
+       after =  relevants(d,rule)
+       print("after", round(mu(after),2), round(sd(after),2))
