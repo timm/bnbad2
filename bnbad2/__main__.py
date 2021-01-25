@@ -26,14 +26,10 @@ them. Repeat. Nearly all this processing takes log linear time.
           :------:
 """
 
-from .lib import *
 from .__init__ import *
 
-if it.w:
-  Eg.walk(it.w)
-if it.T:
-  Eg.runall()
-elif it.t:
-  Eg.run(it.t)
-elif it.V:
-  version()
+print(3)
+#if it.w: Eg.walk(it.w)
+#if it.T: Eg.runall()
+# elif it.t: Eg.run(it.t)
+# elif it.V: version()

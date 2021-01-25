@@ -11,8 +11,5 @@
 # <br><a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
 # <br><img src="https://img.shields.io/badge/license-mit-lightgrey"></p><hr>
 
-from .boot import *
-from .it import *
-from .table import *
-from .table import *
-from .contrast import *
+from .duo2 import *
+print(1)
