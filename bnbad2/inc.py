@@ -38,8 +38,10 @@ def inc(col, x):
   else:
     if len(has.all) < the.samples:
       has.all += [x]
+      has.sorted = False
     elif r() < the.samples / col.n:
       has.all[int(r() * len(has.all))] = x
+      has.sorted = False
 
 def mu(ord): return sum(ord.all) / len(ord.all)
 
@@ -74,15 +76,18 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
     for a in fp:
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
+def head(t, x):
+  t.cols = [col(txt, n)
+            for n, txt in enumerate(x) if not "?" in txt]
+
+def body(t, x):
+  [inc(c, x[c.pos]) for c in t.cols if x[c.pos] != "?"]
+  t.rows += [x]
+
 def table(src, t=None):
   t = t if t else tbl()
   for x in src:
-    if t.cols:
-      [inc(c, x[c.pos]) for c in t.cols if x[c.pos] != "?"]
-      t.rows += [x]
-    else:
-      t.cols = [col(txt, n)
-                for n, txt in enumerate(x) if not "?" in txt]
+    (body if t.cols else head)(t, x)
   return t
 
 
