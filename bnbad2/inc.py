@@ -25,10 +25,20 @@ def Col(txt='', pos=0, w=1):
 def Nums(): return o(all=[], sorted=False)
 def Span(lo=-math.inf, hi=math.inf): return o(lo=lo, hi=hi, has=Nums())
 
-def ordered(i):
-  i.all = i.all if i.sorted else sorted(i.all)
-  i.sorted = True
-  return i.all
+def ordered(nums):
+  nums.all = nums.all if nums.sorted else sorted(nums.all)
+  nums.sorted = True
+  return nums.all
+
+def mu(nums): return sum(nums.all) / len(nums.all)
+
+def norm(nums, x):
+  a = ordered(nums)
+  return (x - a[0]) / (a[-1] - a[0] + 1E-32)
+
+def sd(nums):
+  a = ordered(nums)
+  return (a[int(.9 * len(a))] - a[int(.1 * len(a))]) / 2.56
 
 
 def symsp(x): return isinstance(x, dict)
@@ -49,16 +59,6 @@ def inc(col, x):
     elif r() < the.colsamples / col.n:
       col.has.all[int(r() * len(col.has.all))] = x
       col.has.sorted = False
-
-def mu(ord): return sum(ord.all) / len(ord.all)
-
-def norm(ord, x):
-  a = ordered(ord)
-  return (x - a[0]) / (a[-1] - a[0] + 1E-32)
-
-def sd(i):
-  a = ordered(i)
-  return (a[int(.9 * len(a))] - a[int(.1 * len(a))]) / 2.56
 
 def better(tbl, row1, row2):
   s1, s2, n = 0, 0, len(tbl.y)
@@ -83,22 +83,21 @@ def div(tbl, x, y):
   n = x.n**the.xchop
   while n < 4 and n < len(lst) / 2:
     n *= 1.2
-  n, out, there, span = int(n), [], 0, Span()
+  n, out, b4, span = int(n), [], 0, Span()
   rows = sorted(tbl.rows, key=lambda z: z.cells[xcol.pos])
-  for here, row in enumerate(rows):
-    yval = row.cells[y.pos]
-    xval = row.cells[x.pos]
-    if xval != "?":
-      span.hi = xval
-      inc(span.has, yval)
-      if (here - there > n                    # enough left after this split
-                  and here < len(tbl.rows) - 2
-                  and xval != rows[here + 1].cells[x.pos]
-                  and span.hi - span.lo > xok
-              ):
+  for now, row in enumerate(rows):
+    cell = row.cells[x.pos]
+    if cell != "?":
+      span.hi = cell
+      inc(span.has, row.cells[y.pos])
+      if (now - b4 > n                    # enough left after this split
+          and now < len(tbl.rows) - 2
+          and cell != rows[now + 1].cells[x.pos]
+          and span.hi - span.lo > xok
+          ):
         out += [span]
-        span = Span(lo=xval)
-        there = here
+        span = Span(lo=cell)
+        b4 = now
   return merge(out, sd(y.has) * the.ysmall)
 
 def merge(lst, yok):
