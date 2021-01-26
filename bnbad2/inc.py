@@ -22,43 +22,35 @@ def Row(cells=[]): return o(cells=cells, score=0, klass=True)
 def Col(txt='', pos=0, w=1):
   return o(n=0, txt=txt, pos=pos, has=None,
            w=-1 if "<" in txt else 1)
-def Nums(all=[]): return o(all=all, sorted=False)
-def Span(lo=-math.inf, hi=math.inf): return o(lo=lo, hi=hi, has=Nums())
+def Span(lo=-math.inf, hi=math.inf, has=None):
+  return o(lo=lo, hi=hi, ys=ys if ys else [])
 
-def ordered(nums):
-  nums.all = nums.all if nums.sorted else sorted(nums.all)
-  nums.sorted = True
-  return nums.all
+def mu(lst): return sum(lst) / len(lst)
 
-def mu(nums): return sum(nums.all) / len(nums.all)
+def norm(lst, x):
+  return (x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
 
-def norm(nums, x):
-  a = ordered(nums)
-  return (x - a[0]) / (a[-1] - a[0] + 1E-32)
-
-def sd(nums):
-  a = ordered(nums)
-  return (a[int(.9 * len(a))] - a[int(.1 * len(a))]) / 2.56
+def sd(lst):
+  n = len(lst)
+  return (lst[int(.9 * n)] - a[int(.1 * n)]) / 2.56
 
 
-def symsp(x): return isinstance(x, dict)
-def numsp(x): return isinstance(x, list)
-def nump(x): return isinstance(x, (float, int))
+isa = isinstance
 
 def inc(col, x):
   if col.has is None:
-    col.has = Nums() if nump(x) else {}
+    col.has = [] if isa(x, (float, int)) else {}
     return inc(col, x)
   col.n += 1
-  if symsp(col.has):
-    col.has[x] = col.has.get(x, 0) + 1
+  if isa(col.has, dict):
+    dct = cols.has
+    dct[x] = dct.get(x, 0) + 1
   else:
-    if len(col.has.all) < the.colsamples:
-      col.has.all += [x]
-      col.has.sorted = False
+    lst = col.has
+    if len(lst) < the.some:
+      lst += [x]
     elif r() < the.colsamples / col.n:
-      col.has.all[int(r() * len(col.has.all))] = x
-      col.has.sorted = False
+      lst[int(r() * len(lst))] = x
 
 def better(tbl, row1, row2):
   s1, s2, n = 0, 0, len(tbl.y)
@@ -78,42 +70,51 @@ def classify(tbl):
     row.klass = n > len(tbl.rows) * the.best
   return tbl
 
-def div(tbl, xcol, ycol):
-  def X(row): return row.cells[xcol.pos]
-  def Y(row): return row.cells[ycol.pos]
-  xok = sd(xcol.has) * the.xsmall
-  yok = sd(ycol.has) * the.ysmall
-  lst = sorted([(X(r), Y(r)) for r in rows if X(r) != "?"])
-  n = x.n**the.xchop
-  while n < 4 and n < len(lst) / 2:
-    n *= 1.2
-  n, out, b4, span = int(n), [], 0, Span()
-  for now, (x, y) in enumerate(lst):
-    span.hi = x
-    inc(span.has, y)
-    if (now - b4 > n and now < len(tbl.rows) - 2
-            and x != lst[now + 1][0]
-            and span.hi - span.lo > sd * the.xsmall):
-      out += [span]
-      span = Span(lo=cell)
-      b4 = now
-  return merge(out, yok)
+def pairs(tbl, colx, coly):
+  def val(col, row): return row.cells[col.pos]
+  return (sd(sorted(colx.has)) * the.xsmall,
+          sd(sorted(colx.has)) * the.ysmall,
+          sorted([(val(colx, r), val(coly, r)) for r in rows
+                  if val(colx, r) != "?"]))
 
-def merge(lst, yok):
-  j, tmp = 0, []
-  while j < len(lst):
-    a = lst[j]
-    if j < len(lst) - 1:
-      b = lst[j + 1]
-      if abs(mu(b.has) - mu(a.has)) < yok:
-        merged = Span(lo=a.lo, hi=b.hi)
-        for x in a.has + b.has:
-          inc(merged.has, x)
-        tmp += [merged]
-        j += 2
-    tmp += [a]
-    j += 1
-  return merge(tmp, yok) if len(tmp) < len(lst) else tmp
+def div(xok, yok, xy):
+  def merge(b4, yok):
+    j, now = 0, []
+    while j < len(b4):
+      a = b4[j]
+      if j < len(b4) - 1:
+        b = b4[j + 1]
+        if abs(mu(b.has) - mu(a.has)) < yok:
+          merged = Span(lo=a.lo, hi=b.hi, has=a.has + b.has)
+          now += [merged]
+          j += 2
+      now += [a]
+      j += 1
+    return merge(now, yok) if len(now) < len(b4) else now
+  # -----------------------------
+  n = len(xy)**the.xchop
+  while n < 4 and n < len(xy) / 2:
+    n *= 1.2
+  n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
+  now = n
+  while now < len(xy) - n:
+    x = xy[now][0]
+    span.hi = x
+    now += 1
+    if (now - b4 > n and now < len(xy) - 2
+            and x != xy[now][0]
+            and span.hi - span.lo > xok):
+      span.has = [z[1] for z in xy[b4:now]]
+      tmp += [span]
+      span = Span(lo=xy[now])
+      b4 = now
+      now += n
+  tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
+               ys=[z[1] for z in xy[b4:]])]
+  out = merge(tmp, yok)
+  out[0].lo = -math.inf
+  out[-1].hi = math.inf
+  return out
 
   # a certain group of columns; ignore empty cells
 def cells(lst, cols):
