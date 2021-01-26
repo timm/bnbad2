@@ -22,7 +22,7 @@ def Row(cells=[]): return o(cells=cells, score=0, klass=True)
 def Col(txt='', pos=0, w=1):
   return o(n=0, txt=txt, pos=pos, has=None,
            w=-1 if "<" in txt else 1)
-def Nums(): return o(all=[], sorted=False)
+def Nums(all=[]): return o(all=all, sorted=False)
 def Span(lo=-math.inf, hi=math.inf): return o(lo=lo, hi=hi, has=Nums())
 
 def ordered(nums):
@@ -78,27 +78,26 @@ def classify(tbl):
     row.klass = n > len(tbl.rows) * the.best
   return tbl
 
-def div(tbl, x, y):
-  xok = sd(x.has) * the.xsmall
+def div(tbl, xcol, ycol):
+  def X(row): return row.cells[xcol.pos]
+  def Y(row): return row.cells[ycol.pos]
+  xok = sd(xcol.has) * the.xsmall
+  yok = sd(ycol.has) * the.ysmall
+  lst = sorted([(X(r), Y(r)) for r in rows if X(r) != "?"])
   n = x.n**the.xchop
   while n < 4 and n < len(lst) / 2:
     n *= 1.2
   n, out, b4, span = int(n), [], 0, Span()
-  rows = sorted(tbl.rows, key=lambda z: z.cells[xcol.pos])
-  for now, row in enumerate(rows):
-    cell = row.cells[x.pos]
-    if cell != "?":
-      span.hi = cell
-      inc(span.has, row.cells[y.pos])
-      if (now - b4 > n                    # enough left after this split
-          and now < len(tbl.rows) - 2
-          and cell != rows[now + 1].cells[x.pos]
-          and span.hi - span.lo > xok
-          ):
-        out += [span]
-        span = Span(lo=cell)
-        b4 = now
-  return merge(out, sd(y.has) * the.ysmall)
+  for now, (x, y) in enumerate(lst):
+    span.hi = x
+    inc(span.has, y)
+    if (now - b4 > n and now < len(tbl.rows) - 2
+            and x != lst[now + 1][0]
+            and span.hi - span.lo > sd * the.xsmall):
+      out += [span]
+      span = Span(lo=cell)
+      b4 = now
+  return merge(out, yok)
 
 def merge(lst, yok):
   j, tmp = 0, []
