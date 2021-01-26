@@ -27,7 +27,7 @@ def Span(lo=-math.inf, hi=math.inf, has=None):
 
 def mu(lst): return sum(lst) / len(lst)
 
-def norm(lst, x):
+def norm(lst, x): # assumes lst is sorted
   return (x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
 
 def sd(lst):
@@ -43,14 +43,9 @@ def inc(col, x):
     return inc(col, x)
   col.n += 1
   if isa(col.has, dict):
-    dct = cols.has
     dct[x] = dct.get(x, 0) + 1
   else:
-    lst = col.has
-    if len(lst) < the.some:
-      lst += [x]
-    elif r() < the.colsamples / col.n:
-      lst[int(r() * len(lst))] = x
+    lst += [x]
 
 def better(tbl, row1, row2):
   s1, s2, n = 0, 0, len(tbl.y)
@@ -77,20 +72,20 @@ def pairs(tbl, colx, coly):
           sorted([(val(colx, r), val(coly, r)) for r in rows
                   if val(colx, r) != "?"]))
 
-def div(xok, yok, xy):
-  def merge(b4, yok):
+def div(xsmall, ysmall, xy):
+  def merge(b4):
     j, now = 0, []
     while j < len(b4):
       a = b4[j]
       if j < len(b4) - 1:
         b = b4[j + 1]
-        if abs(mu(b.has) - mu(a.has)) < yok:
+        if abs(mu(b.has) - mu(a.has)) < ysmall:
           merged = Span(lo=a.lo, hi=b.hi, has=a.has + b.has)
           now += [merged]
           j += 2
       now += [a]
       j += 1
-    return merge(now, yok) if len(now) < len(b4) else now
+    return merge(now) if len(now) < len(b4) else now
   # -----------------------------
   n = len(xy)**the.xchop
   while n < 4 and n < len(xy) / 2:
@@ -103,7 +98,7 @@ def div(xok, yok, xy):
     now += 1
     if (now - b4 > n and now < len(xy) - 2
             and x != xy[now][0]
-            and span.hi - span.lo > xok):
+            and span.hi - span.lo > xsmall):
       span.has = [z[1] for z in xy[b4:now]]
       tmp += [span]
       span = Span(lo=xy[now])
@@ -111,7 +106,7 @@ def div(xok, yok, xy):
       now += n
   tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
                ys=[z[1] for z in xy[b4:]])]
-  out = merge(tmp, yok)
+  out = merge(tmp)
   out[0].lo = -math.inf
   out[-1].hi = math.inf
   return out
