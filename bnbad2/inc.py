@@ -32,25 +32,8 @@ def Counts(): return o(f={}, h={})
 
 
 def table(src, tbl=None):
-  def discretize(tbl):
-    def pairs(lst, fx, fy):
-      xs, ys, xy = [], [], []
-      for one in lst:
-        x = fx(one)
-        if x != "?":
-          y = fy(one)
-          xs += [x]
-          ys += [y]
-          xy += [(x, y)]
-      return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
-              sorted(xy))
-    for col in tbl.x.values():
-      if numsp(col.has):
-        col.spans = div(*pairs(tbl.rows,
-                               lambda z: z.cells[col.pos],
-                               lambda z: z.score))
+    def classify(tbl):
 
-  def classify(tbl):
     def better(tbl, row1, row2):
       s1, s2, n = 0, 0, len(tbl.y)
       for col in tbl.y.values():
@@ -102,8 +85,43 @@ def table(src, tbl=None):
   footer(tbl)
   return tbl
 
-def div(xsmall, ysmall, xy):
-  def merge(b4):
+def discretize(tbl):
+  def pairs(lst, fx, fy):
+      xs, ys, xy = [], [], []
+      for one in lst:
+        x = fx(one)
+        if x != "?":
+          y = fy(one)
+          xs += [x]
+          ys += [y]
+          xy += [(x, y)]
+      return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
+              sorted(xy))
+  def div(xsmall, ysmall, xy):
+    n = len(xy)**the.xchop
+    while n < 4 and n < len(xy) / 2:
+      n *= 1.2
+    n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
+    now = n
+    while now < len(xy) - n:
+      x = xy[now][0]
+      span.hi = x
+      now += 1
+      if (now - b4 > n and now < len(xy) - 2
+              and x != xy[now][0]
+              and span.hi - span.lo > xsmall):
+        span._has = [z[1] for z in xy[b4:now]]
+        tmp += [span]
+        span = Span(lo=xy[now][0])
+        b4 = now
+        now += n
+    tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
+                 has=[z[1] for z in xy[b4:]])]
+    out = merge(tmp, ysmall)
+    out[0].lo = -math.inf
+    out[-1].hi = math.inf
+    return out
+  def merge(b4. ymsall):
     j, now = 0, []
     while j < len(b4):
       a = b4[j]
@@ -115,32 +133,12 @@ def div(xsmall, ysmall, xy):
           j += 2
       now += [a]
       j += 1
-    return merge(now) if len(now) < len(b4) else now
-  # -----------------------------
-  n = len(xy)**the.xchop
-  while n < 4 and n < len(xy) / 2:
-    n *= 1.2
-  n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
-  now = n
-  while now < len(xy) - n:
-    x = xy[now][0]
-    span.hi = x
-    now += 1
-    if (now - b4 > n and now < len(xy) - 2
-            and x != xy[now][0]
-            and span.hi - span.lo > xsmall):
-      span._has = [z[1] for z in xy[b4:now]]
-      tmp += [span]
-      span = Span(lo=xy[now][0])
-      b4 = now
-      now += n
-  tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
-               has=[z[1] for z in xy[b4:]])]
-  out = merge(tmp)
-  out[0].lo = -math.inf
-  out[-1].hi = math.inf
-  return out
-
+    return merge(now,ysmall) if len(now) < len(b4) else now
+for col in tbl.x.values():
+    if numsp(col.has):
+      col.spans = div(*pairs(tbl.rows,
+                             lambda z: z.cells[col.pos],
+                             lambda z: z.score))
 
 def counts(tbl):
   out = Counts()
@@ -189,7 +187,6 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 
-print([r for r in csv("../data/weather.csv")])
 
-# for k, v in counts(table(csv("../data/auto93.csv"))).f.items():
-# print(k, v)
+for k, v in counts(discretize(table(csv("../data/auto93.csv"))).f.items():
+  print(k, v)
