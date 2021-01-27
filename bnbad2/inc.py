@@ -190,5 +190,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 
-for k, v in counts(table(csv("../data/auto93.csv"))).f.items():
-  print(k, v)
+print([r for r in csv("../data/weather.csv")])
+
+# for k, v in counts(table(csv("../data/auto93.csv"))).f.items():
+# print(k, v)
