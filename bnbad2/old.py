@@ -1,5 +1,25 @@
-import sys
 import random
+def pick(l, samples=100):
+  l = sorted(l, reverse=True)
+  n = sum(x[0] for x in l)
+  for _ in range(samples):
+    m = r()
+    for s, out in l:
+      m -= s / n
+      if m < 0:
+        yield out
+    yield out
+
+def test_pick():
+  seed(1)
+  d = {}
+  n = 0
+  for x in pick([(4, "a"), (2, "b"), (1, "c")]):
+    n += 1
+    d[x] = d.get(x, 0) + 1
+  print({k: v / n for k, v in d.items()})
+  print(1 / 7, 2 / 7, 4 / 7)import sys
+
 
 def mu(a): return sum(a) / len(a)
 

@@ -15,62 +15,93 @@ class o():
       {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != "_"})
 
 
-the = o(colsamples=32, rowsamples=64, best=0.75, xsmall=.35, xchop=.5)
+the = o(rowsamples=64,
+        best=0.67,
+        ysmall=.2,
+        xsmall=.2,
+        xchop=.5)
 
 def Tbl(rows=[]): return o(cols={}, x={}, y={}, rows=rows)
 def Row(cells=[]): return o(cells=cells, score=0, klass=True)
 def Col(txt='', pos=0, w=1):
-  return o(n=0, txt=txt, pos=pos, has=None,
+  return o(n=0, txt=txt, pos=pos, has=None, spans=[],
            w=-1 if "<" in txt else 1)
 def Span(lo=-math.inf, hi=math.inf, has=None):
-  return o(lo=lo, hi=hi, ys=ys if ys else [])
-
-def mu(lst): return sum(lst) / len(lst)
-
-def norm(lst, x): # assumes lst is sorted
-  return (x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
-
-def sd(lst):
-  n = len(lst)
-  return (lst[int(.9 * n)] - a[int(.1 * n)]) / 2.56
+  return o(lo=lo, hi=hi, _has=has if has else [])
+def Counts(): return o(f={}, h={})
 
 
-isa = isinstance
+def table(src, tbl=None):
+  def discretize(tbl):
+    def pairs(lst, fx, fy):
+      xs, ys, xy = [], [], []
+      for one in lst:
+        x = fx(one)
+        if x != "?":
+          y = fy(one)
+          xs += [x]
+          ys += [y]
+          xy += [(x, y)]
+      return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
+              sorted(xy))
+    for col in tbl.x.values():
+      if numsp(col.has):
+        col.spans = div(*pairs(tbl.rows,
+                               lambda z: z.cells[col.pos],
+                               lambda z: z.score))
 
-def inc(col, x):
-  if col.has is None:
-    col.has = [] if isa(x, (float, int)) else {}
-    return inc(col, x)
-  col.n += 1
-  if isa(col.has, dict):
-    dct[x] = dct.get(x, 0) + 1
-  else:
-    lst += [x]
+  def classify(tbl):
+    def better(tbl, row1, row2):
+      s1, s2, n = 0, 0, len(tbl.y)
+      for col in tbl.y.values():
+        pos, w = col.pos, col.w
+        a, b = row1.cells[pos], row2.cells[pos]
+        a, b = norm(col.has, a), norm(col.has, b)
+        s1 -= math.e**(w * (a - b) / n)
+        s2 -= math.e**(w * (b - a) / n)
+      return s1 / n < s2 / n
+    #######################
+    for row1 in tbl.rows:
+      row1.score = sum(better(tbl, row1, choice(tbl.rows))
+                       for _ in range(the.rowsamples))
+    for n, row in enumerate(sorted(tbl.rows,
+                                   key=lambda z: z.score)):
+      row.klass = n > len(tbl.rows) * the.best
 
-def better(tbl, row1, row2):
-  s1, s2, n = 0, 0, len(tbl.y)
-  for col in tbl.y.values():
-    pos, w = col.pos, col.w
-    a, b = row1.cells[pos], row2.cells[pos]
-    a, b = norm(col.has, a), norm(col.has, b)
-    s1 -= math.e**(w * (a - b) / n)
-    s2 -= math.e**(w * (b - a) / n)
-  return s1 / n < s2 / n
+  def head(tbl, x):
+    for pos, txt in enumerate(x):
+      if not "?" in txt:
+        tbl.cols[txt] = tmp = Col(txt, pos)
+        if "<" in txt or ">" in txt or "!" in txt:
+          tbl.y[txt] = tmp
+        else:
+          tbl.x[txt] = tmp
 
-def classify(tbl):
-  for row1 in tbl.rows:
-    row1.score = sum(better(tbl, row1, choice(tbl.rows))
-                     for _ in range(the.rowsamples))
-  for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
-    row.klass = n > len(tbl.rows) * the.best
+  def body(tbl, x):
+    def inc(col, x):
+      if col.has is None:
+        col.has = [] if isa(x, (float, int)) else {}
+        return inc(col, x)
+      col.n += 1
+      if symsp(col.has):
+        col.has[x] = col.has.get(x, 0) + 1
+      else:
+        col.has += [x]
+    [inc(c, x[c.pos]) for c in tbl.cols.values() if x[c.pos] != "?"]
+    tbl.rows += [Row(x)]
+
+  def footer(tbl):
+    for col in tbl.cols.values():
+      if numsp(col.has):
+        col.has.sort()
+    classify(tbl)
+    discretize(tbl)
+  ##########################
+  tbl = tbl if tbl else Tbl()
+  for x in src:
+    (body if len(tbl.cols) else head)(tbl, x)
+  footer(tbl)
   return tbl
-
-def pairs(tbl, colx, coly):
-  def val(col, row): return row.cells[col.pos]
-  return (sd(sorted(colx.has)) * the.xsmall,
-          sd(sorted(colx.has)) * the.ysmall,
-          sorted([(val(colx, r), val(coly, r)) for r in rows
-                  if val(colx, r) != "?"]))
 
 def div(xsmall, ysmall, xy):
   def merge(b4):
@@ -79,8 +110,8 @@ def div(xsmall, ysmall, xy):
       a = b4[j]
       if j < len(b4) - 1:
         b = b4[j + 1]
-        if abs(mu(b.has) - mu(a.has)) < ysmall:
-          merged = Span(lo=a.lo, hi=b.hi, has=a.has + b.has)
+        if abs(mu(b._has) - mu(a._has)) < ysmall:
+          merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
           now += [merged]
           j += 2
       now += [a]
@@ -99,25 +130,49 @@ def div(xsmall, ysmall, xy):
     if (now - b4 > n and now < len(xy) - 2
             and x != xy[now][0]
             and span.hi - span.lo > xsmall):
-      span.has = [z[1] for z in xy[b4:now]]
+      span._has = [z[1] for z in xy[b4:now]]
       tmp += [span]
-      span = Span(lo=xy[now])
+      span = Span(lo=xy[now][0])
       b4 = now
       now += n
   tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
-               ys=[z[1] for z in xy[b4:]])]
+               has=[z[1] for z in xy[b4:]])]
   out = merge(tmp)
   out[0].lo = -math.inf
   out[-1].hi = math.inf
   return out
 
-  # a certain group of columns; ignore empty cells
-def cells(lst, cols):
-  lst = lst if isinstance(lst, list) else lst.cells
-  for pos, col in cols.items():
-    val = lst[pos]
-    if val != the.skip:
-      yield pos, val, col
+
+def counts(tbl):
+  out = Counts()
+  for row in tbl.rows:
+    k = row.klass
+    out.h[k] = out.h.get(k, 0) + 1
+    for col in tbl.x.values():
+      x = row.cells[col.pos]
+      if x != "?":
+        x = bin(col.spans, x) if numsp(col.has) else x
+        v = (k, col.txt, col.pos, x)
+        out.f[v] = out.f.get(v, 0) + 1
+  return out
+
+# ## Misc utilties
+
+def mu(lst): return sum(lst) / len(lst)
+def norm(lst, x): return (x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
+def sd(lst): return (
+    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+
+def bin(spans, x):
+  for span in spans:
+    if span.lo <= x < span.hi:
+      return span.hi
+  return span.hi
+
+
+isa = isinstance
+def numsp(x): return isa(x, list)
+def symsp(x): return isa(x, dict)
 
 # Csv reader. Kill whitespace and comments. Convert
 # strings to numbers, it needed.
@@ -134,47 +189,6 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
     for a in fp:
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
-def head(t, x):
-  for pos, txt in enumerate(x):
-    if not "?" in txt:
-      t.cols[txt] = tmp = Col(txt, pos)
-      if "<" in txt or ">" in txt or "!" in txt:
-        t.y[txt] = tmp
-      else:
-        t.x[txt] = tmp
 
-def body(t, x):
-  [inc(c, x[c.pos]) for c in t.cols.values() if x[c.pos] != "?"]
-  t.rows += [Row(x)]
-
-def table(src, t=None):
-  t = t if t else Tbl()
-  for x in src:
-    (body if len(t.cols) else head)(t, x)
-  return t
-
-
-# cols["_cylinders"])
-classify(table(csv("../data/auto93.csv"))).rows
-
-
-def pick(l, samples=100):
-  l = sorted(l, reverse=True)
-  n = sum(x[0] for x in l)
-  for _ in range(samples):
-    m = r()
-    for s, out in l:
-      m -= s / n
-      if m < 0:
-        yield out
-    yield out
-
-def test_pick():
-  seed(1)
-  d = {}
-  n = 0
-  for x in pick([(4, "a"), (2, "b"), (1, "c")]):
-    n += 1
-    d[x] = d.get(x, 0) + 1
-  print({k: v / n for k, v in d.items()})
-  print(1 / 7, 2 / 7, 4 / 7)
+for k, v in counts(table(csv("../data/auto93.csv"))).f.items():
+  print(k, v)
