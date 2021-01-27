@@ -32,7 +32,9 @@ def Counts(): return o(f={}, h={})
 
 
 def table(src, tbl=None):
-    def classify(tbl):
+  def classify(tbl):
+    def norm(lst, x): return (
+        x - lst[0]) / (lst[1] - lst[0] + 1E-32)
 
     def better(tbl, row1, row2):
       s1, s2, n = 0, 0, len(tbl.y)
@@ -62,13 +64,17 @@ def table(src, tbl=None):
   def body(tbl, x):
     def inc(col, x):
       if col.has is None:
-        col.has = [] if isa(x, (float, int)) else {}
+        col.has = [math.inf, -
+                   math.inf] if isa(x, (float, int)) else {}
         return inc(col, x)
       col.n += 1
       if symsp(col.has):
         col.has[x] = col.has.get(x, 0) + 1
       else:
-        col.has += [x]
+        if x > col.has[1]:
+          col.has[1] = x
+        if x < col.has[0]:
+          col.has[0] = x
     [inc(c, x[c.pos]) for c in tbl.cols.values() if x[c.pos] != "?"]
     tbl.rows += [Row(x)]
 
@@ -86,17 +92,23 @@ def table(src, tbl=None):
   return tbl
 
 def discretize(tbl):
+  def mu(lst): return sum(lst) / len(lst)
+
+  def sd(lst): return (
+      lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+
   def pairs(lst, fx, fy):
-      xs, ys, xy = [], [], []
-      for one in lst:
-        x = fx(one)
-        if x != "?":
-          y = fy(one)
-          xs += [x]
-          ys += [y]
-          xy += [(x, y)]
-      return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
-              sorted(xy))
+    xs, ys, xy = [], [], []
+    for one in lst:
+      x = fx(one)
+      if x != "?":
+        y = fy(one)
+        xs += [x]
+        ys += [y]
+        xy += [(x, y)]
+    return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
+            sorted(xy))
+
   def div(xsmall, ysmall, xy):
     n = len(xy)**the.xchop
     while n < 4 and n < len(xy) / 2:
@@ -121,7 +133,8 @@ def discretize(tbl):
     out[0].lo = -math.inf
     out[-1].hi = math.inf
     return out
-  def merge(b4. ymsall):
+
+  def merge(b4, ysmall):
     j, now = 0, []
     while j < len(b4):
       a = b4[j]
@@ -133,12 +146,14 @@ def discretize(tbl):
           j += 2
       now += [a]
       j += 1
-    return merge(now,ysmall) if len(now) < len(b4) else now
-for col in tbl.x.values():
+    return merge(now, ysmall) if len(now) < len(b4) else now
+
+  for col in tbl.x.values():
     if numsp(col.has):
       col.spans = div(*pairs(tbl.rows,
                              lambda z: z.cells[col.pos],
                              lambda z: z.score))
+  return tbl
 
 def counts(tbl):
   out = Counts()
@@ -154,11 +169,6 @@ def counts(tbl):
   return out
 
 # ## Misc utilties
-
-def mu(lst): return sum(lst) / len(lst)
-def norm(lst, x): return (x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
-def sd(lst): return (
-    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
 
 def bin(spans, x):
   for span in spans:
@@ -187,6 +197,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 
+c = counts(discretize(table(csv("../data/auto93.csv"))))
 
-for k, v in counts(discretize(table(csv("../data/auto93.csv"))).f.items():
+for k, v in c.f.items():
   print(k, v)
