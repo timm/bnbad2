@@ -64,8 +64,7 @@ def table(src, tbl=None):
     for row1 in tbl.rows:
       row1.score = sum(better(tbl, row1, choice(tbl.rows))
                        for _ in range(the.rowsamples))
-    for n, row in enumerate(sorted(tbl.rows,
-                                   key=lambda z: z.score)):
+    for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
       row.klass = n > len(tbl.rows) * the.best
 
   def head(tbl, x):
