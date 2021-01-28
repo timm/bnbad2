@@ -36,16 +36,14 @@ class o():
       {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != "_"})
 
 
-the = o(rowsamples=64,
-        best=0.75,
-        happy=False,
-        path2data="../data",
-        data="auto93.csv",
-        ysmall=.35,
-        xsmall=.35,
-        Xchop=.5,
-        Ychop=.6)
-
+the = o(
+    best=0.5,
+    data="auto93.csv",
+    path2data="../data",
+    rowsamples=64,
+    xsmall=.35,
+    ysmall=.35,
+    Xchop=.5)
 
 def table(src):
   def Tbl(rows=[]): return o(cols={}, x={}, y={}, rows=rows)
@@ -133,7 +131,7 @@ def discretize(tbl):
         ys += [y]
         xy += [(x, y)]
     ys = sorted(ys)
-    ymin = ys[int(the.Ychop * len(ys))]
+    ymin = ys[int(the.best * len(ys))]
     return (ymin,
             sd(sorted(xs)) * the.xsmall,
             sd(ys) * the.ysmall,
@@ -231,7 +229,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
 
 def args(what, txt, d):
   def arg(txt, val):
-    eg = "[%s]" % val  # if val != "" else ""
+    eg = "[%s]" % val
     if val is False:
       return dict(help=eg, action='store_true')
     else:
@@ -254,6 +252,7 @@ def args(what, txt, d):
 
 if __name__ == "__main__":
   the = args("inc", __doc__, the)
-  c = counts(discretize(table(csv(the.path2data + "/" + the.data))))
+  c = counts(discretize(
+      table(csv(the.path2data + "/" + the.data))))
   for k, v in c.f.items():
     print(k, v)
