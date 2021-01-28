@@ -1,5 +1,26 @@
 # vim: filetype=python ts=2 sw=2 sts=2 et :
 
+"""
+Optimizer, written as a data miner.  Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+     :-------:                 explore  = better==bad
+     | Ba    | Bad <----.      planning = max(better - bad)
+     |    56 |          |      monitor  = max(bad - better)
+     :-------:------:   |      tabu     = min(bad + better)
+             | B    |   v
+             |    5 | Better
+             :------:
+
+(c) Tim Menzies, 2021
+MIT License, https://opensource.org/licenses/MIT. The source code
+does not need to be public when a distribution of the software is
+made. Modifications to the software can be release under any
+license. Changes made to the source code may not be documented.
+"""
+
 import argparse
 from random import random as r
 from random import seed as seed
@@ -16,22 +37,24 @@ class o():
 
 
 the = o(rowsamples=64,
-        best=0.67,
-        ysmall=.2,
-        xsmall=.2,
-        xchop=.5)
-
-def Tbl(rows=[]): return o(cols={}, x={}, y={}, rows=rows)
-def Row(cells=[]): return o(cells=cells, score=0, klass=True)
-def Col(txt='', pos=0, w=1):
-  return o(n=0, txt=txt, pos=pos, has=None, spans=[],
-           w=-1 if "<" in txt else 1)
-def Span(lo=-math.inf, hi=math.inf, has=None):
-  return o(lo=lo, hi=hi, _has=has if has else [])
-def Counts(): return o(f={}, h={})
+        best=0.75,
+        happy=False,
+        path2data="../data",
+        data="auto93.csv",
+        ysmall=.35,
+        xsmall=.35,
+        Xchop=.5,
+        Ychop=.6)
 
 
-def table(src, tbl=None):
+def table(src):
+  def Tbl(rows=[]): return o(cols={}, x={}, y={}, rows=rows)
+  def Row(cells=[]): return o(cells=cells, score=0, klass=True)
+
+  def Col(txt='', pos=0, w=1):
+    return o(n=0, txt=txt, pos=pos, has=None, spans=[],
+             w=-1 if "<" in txt else 1)
+
   def classify(tbl):
     def norm(lst, x): return (
         x - lst[0]) / (lst[1] - lst[0] + 1E-32)
@@ -85,13 +108,16 @@ def table(src, tbl=None):
     classify(tbl)
     discretize(tbl)
   ##########################
-  tbl = tbl if tbl else Tbl()
+  tbl = Tbl()
   for x in src:
     (body if len(tbl.cols) else head)(tbl, x)
   footer(tbl)
   return tbl
 
 def discretize(tbl):
+  def Span(lo=-math.inf, hi=math.inf, has=None):
+    return o(lo=lo, hi=hi, _has=has if has else [])
+
   def mu(lst): return sum(lst) / len(lst)
 
   def sd(lst): return (
@@ -106,11 +132,15 @@ def discretize(tbl):
         xs += [x]
         ys += [y]
         xy += [(x, y)]
-    return (sd(sorted(xs)) * the.xsmall, sd(sorted(ys)) * the.ysmall,
+    ys = sorted(ys)
+    ymin = ys[int(the.Ychop * len(ys))]
+    return (ymin,
+            sd(sorted(xs)) * the.xsmall,
+            sd(ys) * the.ysmall,
             sorted(xy))
 
-  def div(xsmall, ysmall, xy):
-    n = len(xy)**the.xchop
+  def div(ymin, xsmall, ysmall, xy):
+    n = len(xy)**the.Xchop
     while n < 4 and n < len(xy) / 2:
       n *= 1.2
     n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
@@ -129,24 +159,26 @@ def discretize(tbl):
         now += n
     tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
                  has=[z[1] for z in xy[b4:]])]
-    out = merge(tmp, ysmall)
+    out = merge(tmp, ymin, ysmall)
     out[0].lo = -math.inf
     out[-1].hi = math.inf
     return out
 
-  def merge(b4, ysmall):
+  def merge(b4, ymin, ysmall):
     j, now = 0, []
     while j < len(b4):
       a = b4[j]
       if j < len(b4) - 1:
         b = b4[j + 1]
-        if abs(mu(b._has) - mu(a._has)) < ysmall:
+        if (abs(mu(b._has) - mu(a._has)) < ysmall
+                or
+                (mu(b._has) < ymin and mu(a._has) < ymin)):
           merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
           now += [merged]
           j += 2
       now += [a]
       j += 1
-    return merge(now, ysmall) if len(now) < len(b4) else now
+    return merge(now, ymin, ysmall) if len(now) < len(b4) else now
 
   for col in tbl.x.values():
     if numsp(col.has):
@@ -156,6 +188,7 @@ def discretize(tbl):
   return tbl
 
 def counts(tbl):
+  def Counts(): return o(f={}, h={})
   out = Counts()
   for row in tbl.rows:
     k = row.klass
@@ -164,7 +197,7 @@ def counts(tbl):
       x = row.cells[col.pos]
       if x != "?":
         x = bin(col.spans, x) if numsp(col.has) else x
-        v = (k, col.txt, col.pos, x)
+        v = (k, col.txt, x, col.pos)
         out.f[v] = out.f.get(v, 0) + 1
   return out
 
@@ -196,8 +229,31 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
     for a in fp:
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
+def args(what, txt, d):
+  def arg(txt, val):
+    eg = "[%s]" % val  # if val != "" else ""
+    if val is False:
+      return dict(help=eg, action='store_true')
+    else:
+      m, t = "S", str
+      if isinstance(val, int):
+        m, t = "I", int
+      if isinstance(val, float):
+        m, t = "F", float
+      return dict(help=eg, default=val, metavar=m, type=t)
+  ###############
+  p = argparse
+  from argparse_color_formatter import ColorHelpFormatter
+  parser = p.ArgumentParser(
+      prog=what, description=txt,
+      formatter_class=p.RawDescriptionHelpFormatter)
+  for key, v in d.__dict__.items():
+    parser.add_argument("-" + key, **arg(key, v))
+  return o(**vars(parser.parse_args()))
 
-c = counts(discretize(table(csv("../data/auto93.csv"))))
 
-for k, v in c.f.items():
-  print(k, v)
+if __name__ == "__main__":
+  the = args("inc", __doc__, the)
+  c = counts(discretize(table(csv(the.path2data + "/" + the.data))))
+  for k, v in c.f.items():
+    print(k, v)
