@@ -54,10 +54,59 @@ the = Obj(
     Xchop=.5)
 
 def table(src):
-  """Converts a list of cells into rows, summarized in columns.
-  Columns have `weights' which are positive/negative for things
-  we want to minimize, maximize. Rows are scored according to how many
-  other rows they dominate."""
+  """Converts a list of cells into rows, summarized in columns. Row1
+  name describes each column. ':' and '_' and numbers and symbols (respectively) 
+  and '>' and '<' are goals to maximize or minimize (respectively). For example, in
+  the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
+  and miles per gallon (mpg).
+
+      _cylinders,:displ,:hp,<lbs,>acc,:model,_origin,>mpg
+
+  For example, after reading weather.csv,
+  then `.cols` would have entries like the following (and note that
+  the first is for a symbolic column and the second is for a numeric):
+
+      {'_outlook' :  {
+              'has': # 'has' for symbolic is a dictionary
+                     {'sunny': 5, 'overcast': 4, 'rainy': 5}, 
+              'n'  : 14, 
+              'pos': 0, 
+              'txt': '_outlook', 
+               'w' : 1}
+       '<temp'   :   {
+              'has': # 'has' for  numerics is a list
+                     [64, 85], # min and max value seen in this columnm
+              'n'  : 14, 
+              'pos': 1, 
+              'txt': '<temp'}
+      etc }
+
+  Tables also collect rows with a 'score' (how often that row
+  dominates 'rowsamples' other rows) and 'klass' which is often often
+  that score is better than 'best'. e.g. if 'best'=0.5 then 'klass' is
+  true if this row 'scores' better than half the others; e.g. from
+  ../data/auto93.csv, here are the first and last four rows sorted by
+  'score'. Observe that we want to minimize lbs and maximize acc and mpg.
+  Hence, in the last rows, lbs is lower and acc and mpg is larger:
+
+      score  klass  _cylin  :displ  :hp  <lbs  >acc  :model  _origin  >!mpg
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.0    False  8       400     175  5140  12    71      1        10
+      0.0    False  8       440     215  4735  11    73      1        10
+      0.0    False  8       454     220  4354  9     70      1        10
+      0.0    False  8       455     225  4425  10    70      1        10
+      0.0    False  8       455     225  4951  11    73      1        10
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.98   True   4       91      60   1800  16.4  78      3        40
+      0.98   True   4       97      46   1835  20.5  70      2        30
+      1.0    True   4       85      '?'  1835  17.3  80      2        40
+      1.0    True   4       86      65   2110  17.9  80      3        50
+      1.0    True   4       97      52   2130  24.6  82      2        40
+
+  Also note that the 'klass' is 'True' for the better half and 'False'
+  otherwise.
+
+  """
   def Tbl(rows=[]): return Obj(cols={}, x={}, y={}, rows=rows)
   def Row(cells=[]): return Obj(cells=cells, score=0, klass=True)
 
@@ -70,6 +119,7 @@ def table(src):
         x - lst[0]) / (lst[1] - lst[0] + 1E-32)
 
     def better(tbl, row1, row2):
+      "Zitler's continous domination predicate (from IBEA, 2005)."
       s1, s2, n = 0, 0, len(tbl.y)
       for col in tbl.y.values():
         pos, w = col.pos, col.w
@@ -128,7 +178,27 @@ def discretize(tbl):
   """Reports `bins` for each numeric columns. Initially,
   columns of `N` (x,y) values  into bins of size N^Xchop.
   Combines bins that are smaller than `sd(x)*xsmall`. Then combine
-  bins that are different by less than `sd(y)*ysmall`."""
+  bins that are different by less than `sd(y)*ysmall`. Also, if
+  two adjacent bins are not not 'best', then they are dull and
+  we fuse them.  For example, from ../data/auto93.csv, we
+  get  learn that '-cylinders' effectively divides into 3:
+
+    [{'hi': 4, 'lo': -inf}, 
+     {'hi': 8, 'lo': 5}, 
+     {'hi': inf, 'lo': 5}]
+
+  Note that the above used 'best=.5' i.e.  we were were dividing data
+  half:half into best:rest. But we ran the same code with 'best=.8' then
+  we find a different picture of what is interesting or not:
+
+
+    [{'hi': 4, 'lo': -inf}, 
+     {'hi': inf, 'lo': 3}]
+
+  That is, at 'best=.8' all we care about is whether or not 'cylinders'
+  is above or below 3.;
+
+  """
 
   def Span(lo=-math.inf, hi=math.inf, has=None):
     return Obj(lo=lo, hi=hi, _has=has if has else [])
@@ -202,7 +272,9 @@ def discretize(tbl):
   return tbl
 
 def counts(tbl):
-  "Counts (class column attribute)."
+  """Counts (class column attribute) inside `tbl`
+   (where attributes are the discretized attributes)."""
+
   def Counts(): return Obj(f={}, h={})
   out = Counts()
   for row in tbl.rows:
@@ -224,14 +296,32 @@ def bin(spans, x):
   return span.hi
 
 
-def isa(x, y): return isinstance(x, y)
-def numsp(x): return isa(x, list)
-def symsp(x): return isa(x, dict)
+def isa(x, y):
+  "Returns true if `x` is of type `y`."
+  return isinstance(x, y)
+
+def numsp(x):
+  "Returns true if `x` is a container for numbers."
+  return isa(x, list)
+
+def symsp(x):
+  "Returns true if `x` is a container for symbols."
+  return isa(x, dict)
 
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
   Kill whitespace and comments. 
-  Converts  strings to numbers, it needed."""
+  Converts  strings to numbers, it needed. For example,
+  the file ../data/weather.csv is turned into
+
+    ['_outlook', '<temp', ':humid', '?wind', '?!play']
+    ['sunny', 85, 85, 'FALSE', 'no']
+    ['sunny', 80, 90, 'TRUE', 'no']
+    ['overcast', 83, 86, 'FALSE', 'yes']
+    ['rainy', 70, 96, 'FALSE', 'yes']
+    etc 
+
+    """
   def atom(x):
     try:
       return int(x)
@@ -276,4 +366,6 @@ def main(f):
 
 if __name__ == "__main__":
   the = args("duo3", __doc__, the)
-  main(the.path2data + "/" + the.data)
+  #main(the.path2data + "/" + the.data)
+  print(counts(discretize(table(csv(the.path2data + "/" + the.data))
+                          )))
