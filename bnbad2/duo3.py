@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 # vim: filetype=python ts=2 sw=2 sts=2 et :
-
 """
 Optimizer, written as a data miner.  Break the data up into regions
 of 'bad' and 'better'. 'Interesting' things occur at very different
@@ -13,6 +13,12 @@ them. Repeat. Nearly all this processing takes log linear time.
              | B    |   v
              |    5 | Better
              :------:
+
+## Install
+
+Download file, `chmod +x file`, test using `./file.py -h`.
+
+## License
 
 (c) Tim Menzies, 2021
 MIT License, https://opensource.org/licenses/MIT. The source code
@@ -30,13 +36,15 @@ import math
 import sys
 import re
 
-class o():
+class Obj():
+  """Containers with set/get access, prints keys in sorted order
+  ignoring 'private' keys (those starting with '_')."""
   def __init__(i, **d): i.__dict__.update(**d)
   def __repr__(i): return str(
       {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != "_"})
 
 
-the = o(
+the = Obj(
     best=0.5,
     data="auto93.csv",
     path2data="../data",
@@ -46,12 +54,16 @@ the = o(
     Xchop=.5)
 
 def table(src):
-  def Tbl(rows=[]): return o(cols={}, x={}, y={}, rows=rows)
-  def Row(cells=[]): return o(cells=cells, score=0, klass=True)
+  """Converts a list of cells into rows, summarized in columns.
+  Columns have `weights' which are positive/negative for things
+  we want to minimize, maximize. Rows are scored according to how many
+  other rows they dominate."""
+  def Tbl(rows=[]): return Obj(cols={}, x={}, y={}, rows=rows)
+  def Row(cells=[]): return Obj(cells=cells, score=0, klass=True)
 
   def Col(txt='', pos=0, w=1):
-    return o(n=0, txt=txt, pos=pos, has=None, spans=[],
-             w=-1 if "<" in txt else 1)
+    return Obj(n=0, txt=txt, pos=pos, has=None, spans=[],
+               w=-1 if "<" in txt else 1)
 
   def classify(tbl):
     def norm(lst, x): return (
@@ -69,7 +81,7 @@ def table(src):
     #######################
     for row1 in tbl.rows:
       row1.score = sum(better(tbl, row1, choice(tbl.rows))
-                       for _ in range(the.rowsamples))
+                       for _ in range(the.rowsamples)) / the.rowsamples
     for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
       row.klass = n > len(tbl.rows) * the.best
 
@@ -113,8 +125,13 @@ def table(src):
   return tbl
 
 def discretize(tbl):
+  """Reports `bins` for each numeric columns. Initially,
+  columns of `N` (x,y) values  into bins of size N^Xchop.
+  Combines bins that are smaller than `sd(x)*xsmall`. Then combine
+  bins that are different by less than `sd(y)*ysmall`."""
+
   def Span(lo=-math.inf, hi=math.inf, has=None):
-    return o(lo=lo, hi=hi, _has=has if has else [])
+    return Obj(lo=lo, hi=hi, _has=has if has else [])
 
   def mu(lst): return sum(lst) / len(lst)
 
@@ -131,13 +148,12 @@ def discretize(tbl):
         ys += [y]
         xy += [(x, y)]
     ys = sorted(ys)
-    ymin = ys[int(the.best * len(ys))]
-    return (ymin,
-            sd(sorted(xs)) * the.xsmall,
+    return (sd(sorted(xs)) * the.xsmall,
             sd(ys) * the.ysmall,
+            ys[int(the.best * len(ys))],
             sorted(xy))
 
-  def div(ymin, xsmall, ysmall, xy):
+  def div(xsmall, ysmall, ymin, xy):
     n = len(xy)**the.Xchop
     while n < 4 and n < len(xy) / 2:
       n *= 1.2
@@ -186,7 +202,8 @@ def discretize(tbl):
   return tbl
 
 def counts(tbl):
-  def Counts(): return o(f={}, h={})
+  "Counts (class column attribute)."
+  def Counts(): return Obj(f={}, h={})
   out = Counts()
   for row in tbl.rows:
     k = row.klass
@@ -199,22 +216,22 @@ def counts(tbl):
         out.f[v] = out.f.get(v, 0) + 1
   return out
 
-# ## Misc utilties
-
 def bin(spans, x):
+  "Misc: Maps numbers into a small number of bins."
   for span in spans:
     if span.lo <= x < span.hi:
       return span.hi
   return span.hi
 
 
-isa = isinstance
+def isa(x, y): return isinstance(x, y)
 def numsp(x): return isa(x, list)
 def symsp(x): return isa(x, dict)
 
-# Csv reader. Kill whitespace and comments. Convert
-# strings to numbers, it needed.
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
+  """Misc: reads csv files into list of strings.
+  Kill whitespace and comments. 
+  Converts  strings to numbers, it needed."""
   def atom(x):
     try:
       return int(x)
@@ -228,17 +245,17 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 def args(what, txt, d):
+  """Misc: Converts a dictionary `d` of key=val 
+     into command line arguments."""
   def arg(txt, val):
     eg = "[%s]" % val
     if val is False:
       return dict(help=eg, action='store_true')
-    else:
-      m, t = "S", str
-      if isinstance(val, int):
-        m, t = "I", int
-      if isinstance(val, float):
-        m, t = "F", float
-      return dict(help=eg, default=val, metavar=m, type=t)
+    return dict(help=eg, default=val,
+                metavar=("I" if isa(val, int) else (
+                    "F" if isa(val, float) else "S")),
+                type=(int if isa(val, int) else (
+                    float if isa(val, float) else str)))
   ###############
   p = argparse
   from argparse_color_formatter import ColorHelpFormatter
@@ -247,12 +264,16 @@ def args(what, txt, d):
       formatter_class=p.RawDescriptionHelpFormatter)
   for key, v in d.__dict__.items():
     parser.add_argument("-" + key, **arg(key, v))
-  return o(**vars(parser.parse_args()))
+  return Obj(**vars(parser.parse_args()))
+
+def main(f):
+  "Misc: called when used at top-level."
+  tbl = discretize(table(csv(f)))
+  c = counts(tbl)
+  for k, v in c.f.items():
+    print(k, v)
 
 
 if __name__ == "__main__":
-  the = args("inc", __doc__, the)
-  c = counts(discretize(
-      table(csv(the.path2data + "/" + the.data))))
-  for k, v in c.f.items():
-    print(k, v)
+  the = args("duo3", __doc__, the)
+  main(the.path2data + "/" + the.data)
