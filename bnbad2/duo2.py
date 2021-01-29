@@ -227,7 +227,7 @@ def footer(DATA):
 # Split sorted list of numbers into bins
 
 def div(lst):
-  ok = sd(lst) * the.smallx
+  ok = sd(lst) * the.smallx # sd=10
   n = len(lst)**the.chop
   while n < 4 and n < len(lst) / 2:
     n *= 1.2
@@ -333,7 +333,7 @@ def contrast(rules0, COUNTS, HERE, THERE):
     pruned = [[s, r] for s, r in unique if s > 0][:the.beam]
     return sum(s for s, _ in pruned), pruned
 
-  def pick(rules, total):
+  def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
     r = random.random()
     for rule in rules:
       r -= rule[0] / total

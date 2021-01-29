@@ -148,7 +148,7 @@ def discretize(tbl):
       span.hi = x
       now += 1
       if (now - b4 > n and now < len(xy) - 2
-              and x != xy[now][0]
+          and x != xy[now][0]
               and span.hi - span.lo > xsmall):
         span._has = [z[1] for z in xy[b4:now]]
         tmp += [span]
@@ -169,7 +169,7 @@ def discretize(tbl):
       if j < len(b4) - 1:
         b = b4[j + 1]
         if (abs(mu(b._has) - mu(a._has)) < ysmall
-                or
+            or
                 (mu(b._has) < ymin and mu(a._has) < ymin)):
           merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
           now += [merged]
