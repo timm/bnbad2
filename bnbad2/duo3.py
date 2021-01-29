@@ -366,6 +366,5 @@ def main(f):
 
 if __name__ == "__main__":
   the = args("duo3", __doc__, the)
-  #main(the.path2data + "/" + the.data)
   print(counts(discretize(table(csv(the.path2data + "/" + the.data))
                           )))

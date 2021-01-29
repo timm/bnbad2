@@ -1,3 +1,0 @@
-#python >= 3.9
-rerun >= 1.0
-sparklines

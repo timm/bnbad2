@@ -2,11 +2,6 @@
 # then run:
 #             sh INSTALL.md
 
-sudo pip3 install -r requirements.txt
-sudo pip3 install -e .
-
-# test the system
-
-if read -p "Enter, to run tests; cntrl-c to about"; then
-  python3 -m bnbad2 -T
-fi
+chmod +x bnbad2/duo*.py
+cd bnbad2
+./duo3.py -h
