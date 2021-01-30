@@ -191,10 +191,9 @@ def discretize(TBL):
      {'hi': 8, 'lo': 5},
      {'hi': inf, 'lo': 5}]
 
-  Note that the above used 'best=.5' i.e.  we were were dividing data
+  Note that the above used 'best=.5' i.e. we were were dividing data
   half:half into best:rest. But we ran the same code with 'best=.8' then
   we find a different picture of what is interesting or not:
-
 
     [{'hi': 4, 'lo': -inf},
      {'hi': inf, 'lo': 3}]
