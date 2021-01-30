@@ -46,8 +46,13 @@ class Obj():
 
 the = Obj(
     best=0.5,
+    beam=10,
     data="auto93.csv",
     path2data="../data",
+    k=1,
+    m=2,
+    seed=13,
+    lives=128,
     rowsamples=64,
     xsmall=.35,
     ysmall=.35,
@@ -55,18 +60,18 @@ the = Obj(
 
 def table(src):
   """Converts a list of cells into rows, summarized in columns. Row1
-  name describes each column. ':' and '_' and numbers and symbols (respectively)
-  and '>' and '<' are goals to maximize or minimize (respectively). For example, in
+  name describes each column.
+  Names with '>' and '<' are goals to maximize or minimize (respectively). For example, in
   the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
   and miles per gallon (mpg).
 
-      _cylinders,:displ,:hp,<lbs,>acc,:model,_origin,>mpg
+      cylinders,displ,hp,<lbs,>acc,model,origin,>mpg
 
   For example, after reading weather.csv,
   then `.cols` would have entries like the following (and note that
   the first is for a symbolic column and the second is for a numeric):
 
-      {'_outlook' :  {
+      {'outlook' :  {
               'has': # 'has' for symbolic is a dictionary
                      {'sunny': 5, 'overcast': 4, 'rainy': 5},
               'n'  : 14,
@@ -89,7 +94,7 @@ def table(src):
   'score'. Observe that we want to minimize lbs and maximize acc and mpg.
   Hence, in the last rows, lbs is lower and acc and mpg is larger:
 
-      score  klass  _cylin  :displ  :hp  <lbs  >acc  :model  _origin  >!mpg
+      score  klass  cylin   displ   hp  <lbs  >acc   model   origin  >mpg
       -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
       0.0    False  8       400     175  5140  12    71      1        10
       0.0    False  8       440     215  4735  11    73      1        10
@@ -174,7 +179,7 @@ def table(src):
   footer(tbl)
   return tbl
 
-def discretize(tbl):
+def discretize(TBL):
   """Reports `bins` for each numeric columns. Initially,
   columns of `N` (x,y) values  into bins of size N^Xchop.
   Combines bins that are smaller than `sd(x)*xsmall`. Then combine
@@ -264,47 +269,138 @@ def discretize(tbl):
       j += 1
     return merge(now, ymin, ysmall) if len(now) < len(b4) else now
 
-  for col in tbl.x.values():
+  for col in TBL.x.values():
     if numsp(col.has):
-      col.spans = div(*pairs(tbl.rows,
+      col.spans = div(*pairs(TBL.rows,
                              lambda z: z.cells[col.pos],
                              lambda z: z.score))
-  return tbl
+      print(f"NUM {col.txt:20} :", [x.hi for x in col.spans])
+    else:
+      print(f"SYM {col.txt:20} :", sorted(col.has.keys()))
+  return TBL
 
-def counts(tbl):
-  """Counts (class column attribute) inside `tbl`
+def counts(TBL):
+  """Counts (class column attribute) inside `TBL`
    (where attributes are the discretized attributes).
-   THe counts take the form: (ckass,attribute,range,col), count.
+   THe counts take the form: (cKass,attribute,range,col), count.
    For example, with best=.9, the counts from ../data/auto93.csv
    are as follows. Note the simplicity of the decision space:
    all that matters is displacement and horsepower is above below
    141 and 74
 
-      (False, ':displacement', 141, 1) 154
-      (False, ':displacement', inf, 1) 205
-      (False, ':horsepower', 74, 2) 48
-      (False, ':horsepower', inf, 2) 307
+      (False, 'displacement', 141, 1) 154
+      (False, 'displacement', inf, 1) 205
+      (False, 'horsepower', 74, 2) 48
+      (False, 'horsepower', inf, 2) 307
       ....
-      (True, ':displacement', 141, 1) 38
-      (True, ':displacement', inf, 1) 1
-      (True, ':horsepower', 74, 2) 34
-      (True, ':horsepower', inf, 2) 3
+      (True, 'displacement', 141, 1) 38
+      (True, 'displacement', inf, 1) 1
+      (True, 'horsepower', 74, 2) 34
+      (True, 'horsepower', inf, 2) 3
       ....
 
    """
 
-  def Counts(): return Obj(f={}, h={})
+  def Counts(): return Obj(f={}, h={}, n=0)
   out = Counts()
-  for row in tbl.rows:
+  for row in TBL.rows:
     k = row.klass
+    out.n += 1
     out.h[k] = out.h.get(k, 0) + 1
-    for col in tbl.x.values():
+    for col in TBL.x.values():
       x = row.cells[col.pos]
       if x != "?":
         x = bin(col.spans, x) if numsp(col.has) else x
-        v = (k, col.txt, x, col.pos)
+        v = (k, (col.txt, col.pos), x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
+
+def learn(COUNTS):
+  def loop(rules, here, there):
+    lives = the.lives
+    while True:
+      lives -= 1
+      total, rules = prune(rules)
+      if lives < 1 or len(rules) < 2:
+        return rules
+      rules += [combine(pick(rules, total),
+                        pick(rules, total),
+                        here, there)]
+
+  def value(rule, here, there):
+    b = like(rule, here, 2)
+    r = like(rule, there, 2)
+    return b**2 / (b + r) if b > r else 0
+
+  def like(rule, h, hs=None):
+    hs = hs if hs else len(COUNTS.h)
+    like = prior = (COUNTS.h[h] + the.k) / (COUNTS.n + the.k * hs)
+    like = math.log(like)
+    for col, values in rule:
+      f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
+      inc = (f + the.m * prior) / (COUNTS.h[h] + the.m)
+      like += math.log(inc)
+    return math.e**like
+
+  def combine(rule1, rule2, here, there):
+    val1, rule1 = rule1
+    val2, rule2 = rule2
+    tmp = dict()
+    for rule in [rule1, rule2]:
+      for k, lst in rule:
+        tmp[k] = tmp.get(k, set())
+        for v in lst:
+          tmp[k].add(v)
+    rule3 = sorted([[k, sorted(list(vs))] for k, vs in tmp.items()])
+    val3 = value(rule3, here, there)
+    return [val3, rule3]
+
+  def same(rule1, rule2):
+    if rule1[0] != rule2[0]:
+      return False
+    for x, y in zip(rule1[1], rule2[1]):
+      if x != y:
+        return False
+    return True
+
+  def prune(old):
+    ordered = [[s, r] for s, r in sorted(old, reverse=True)]
+    one = ordered[0]
+    unique = [one]
+    for two in ordered[1:]:
+      if not same(one, two):
+        unique += [two]
+      one = two
+    pruned = [[s, r] for s, r in unique if s > 0][:the.beam]
+    return sum(s for s, _ in pruned), pruned
+
+  def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
+    n = r()
+    for rule in rules:
+      n -= rule[0] / total
+      if n <= 0:
+        return rule
+    return rule
+
+  def rule0(c, x, here, there):
+    rule = [[c, [x]]]
+    return [value(rule, here, there), rule]
+
+  out, all = {}, list(set([(c, x) for (_, c, x) in COUNTS.f]))
+  for there in COUNTS.h:
+    for here in COUNTS.h:
+      if here != there:
+        out[here] = loop([rule0(c, x, here, there) for c, x in all],
+                         here, there)
+  return out
+
+def showRule(r):
+  def show1(k, v):
+    return k + " = (" + ' or '.join(map(str, v)) + ")"
+  s, rule = r
+  out = ""
+  return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
+
 
 def bin(spans, x):
   "Misc: Maps numbers into a small number of bins."
@@ -332,7 +428,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   Converts  strings to numbers, it needed. For example,
   the file ../data/weather.csv is turned into
 
-    ['_outlook', '<temp', ':humid', '?wind', '?!play']
+    ['outlook', '<temp', 'humid', '?wind', '?!play']
     ['sunny', 85, 85, 'FALSE', 'no']
     ['sunny', 80, 90, 'TRUE', 'no']
     ['overcast', 83, 86, 'FALSE', 'yes']
@@ -374,15 +470,22 @@ def args(what, txt, d):
     parser.add_argument("-" + key, **arg(key, v))
   return Obj(**vars(parser.parse_args()))
 
-def main(f):
-  "Misc: called when used at top-level."
-  tbl = discretize(table(csv(f)))
-  c = counts(tbl)
-  for k, v in c.f.items():
-    print(k, v)
+def showRule(r):
+  def show1(k, v):
+    return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
+  s, rule = r
+  out = ""
+  return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
 
 
 if __name__ == "__main__":
   the = args("duo3", __doc__, the)
-  for k, v in counts(discretize(table(csv(the.path2data + "/" + the.data)))).f.items():
-    print(k, v)
+  seed(the.seed)
+  for k, rules in learn(
+      counts(
+          table(
+          csv(the.path2data + "/" + the.data)))).items():
+    print("")
+    print(k)
+    for rule in rules:
+      print("\t", showRule(rule))
