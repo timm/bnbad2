@@ -14,11 +14,11 @@ them. Repeat. Nearly all this processing takes log linear time.
              |    5 | Better
              :------:
 
-## Install
+# Install
 
 Download file, `chmod +x file`, test using `./file.py -h`.
 
-## License
+# License
 
 (c) Tim Menzies, 2021
 MIT License, https://opensource.org/licenses/MIT. The source code
@@ -55,7 +55,7 @@ the = Obj(
 
 def table(src):
   """Converts a list of cells into rows, summarized in columns. Row1
-  name describes each column. ':' and '_' and numbers and symbols (respectively) 
+  name describes each column. ':' and '_' and numbers and symbols (respectively)
   and '>' and '<' are goals to maximize or minimize (respectively). For example, in
   the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
   and miles per gallon (mpg).
@@ -68,16 +68,16 @@ def table(src):
 
       {'_outlook' :  {
               'has': # 'has' for symbolic is a dictionary
-                     {'sunny': 5, 'overcast': 4, 'rainy': 5}, 
-              'n'  : 14, 
-              'pos': 0, 
-              'txt': '_outlook', 
+                     {'sunny': 5, 'overcast': 4, 'rainy': 5},
+              'n'  : 14,
+              'pos': 0,
+              'txt': '_outlook',
                'w' : 1}
        '<temp'   :   {
               'has': # 'has' for  numerics is a list
                      [64, 85], # min and max value seen in this columnm
-              'n'  : 14, 
-              'pos': 1, 
+              'n'  : 14,
+              'pos': 1,
               'txt': '<temp'}
       etc }
 
@@ -183,8 +183,8 @@ def discretize(tbl):
   we fuse them.  For example, from ../data/auto93.csv, we
   get  learn that '-cylinders' effectively divides into 3:
 
-    [{'hi': 4, 'lo': -inf}, 
-     {'hi': 8, 'lo': 5}, 
+    [{'hi': 4, 'lo': -inf},
+     {'hi': 8, 'lo': 5},
      {'hi': inf, 'lo': 5}]
 
   Note that the above used 'best=.5' i.e.  we were were dividing data
@@ -192,7 +192,7 @@ def discretize(tbl):
   we find a different picture of what is interesting or not:
 
 
-    [{'hi': 4, 'lo': -inf}, 
+    [{'hi': 4, 'lo': -inf},
      {'hi': inf, 'lo': 3}]
 
   That is, at 'best=.8' all we care about is whether or not 'cylinders'
@@ -273,7 +273,25 @@ def discretize(tbl):
 
 def counts(tbl):
   """Counts (class column attribute) inside `tbl`
-   (where attributes are the discretized attributes)."""
+   (where attributes are the discretized attributes).
+   THe counts take the form: (ckass,attribute,range,col), count.
+   For example, with best=.9, the counts from ../data/auto93.csv
+   are as follows. Note the simplicity of the decision space:
+   all that matters is displacement and horsepower is above below
+   141 and 74
+
+      (False, ':displacement', 141, 1) 154
+      (False, ':displacement', inf, 1) 205
+      (False, ':horsepower', 74, 2) 48
+      (False, ':horsepower', inf, 2) 307
+      ....
+      (True, ':displacement', 141, 1) 38
+      (True, ':displacement', inf, 1) 1
+      (True, ':horsepower', 74, 2) 34
+      (True, ':horsepower', inf, 2) 3
+      ....
+
+   """
 
   def Counts(): return Obj(f={}, h={})
   out = Counts()
@@ -310,7 +328,7 @@ def symsp(x):
 
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
-  Kill whitespace and comments. 
+  Kill whitespace and comments.
   Converts  strings to numbers, it needed. For example,
   the file ../data/weather.csv is turned into
 
@@ -319,7 +337,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
     ['sunny', 80, 90, 'TRUE', 'no']
     ['overcast', 83, 86, 'FALSE', 'yes']
     ['rainy', 70, 96, 'FALSE', 'yes']
-    etc 
+    etc
 
     """
   def atom(x):
@@ -335,7 +353,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 def args(what, txt, d):
-  """Misc: Converts a dictionary `d` of key=val 
+  """Misc: Converts a dictionary `d` of key=val
      into command line arguments."""
   def arg(txt, val):
     eg = "[%s]" % val
@@ -366,5 +384,5 @@ def main(f):
 
 if __name__ == "__main__":
   the = args("duo3", __doc__, the)
-  print(counts(discretize(table(csv(the.path2data + "/" + the.data))
-                          )))
+  for k, v in counts(discretize(table(csv(the.path2data + "/" + the.data)))).f.items():
+    print(k, v)
