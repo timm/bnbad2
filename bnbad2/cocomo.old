@@ -37,7 +37,7 @@ class o(Pretty):
 # ```py
 
 
-def cocomo(lo=dict(acap=):
+def cocomo():
   _ = 0
   ne = [[_, _, _, 1, 2, _], # bad if lohi
         [_, _, _, _, 1, _],
@@ -103,29 +103,32 @@ def cocomo(lo=dict(acap=):
       tool=dict(acap=nw, pcap=nw, pmat=nw)) # 6
 
   # 10 20 [4 8 12 16 inf] [12 16]
-  def from(lo, hi, bins, values):
+  def ffff():  # lo, hi, bins, values):
     value = random.choice(values)
     for x in bins:
       if lo <= x <= value in bins:
         return lo, x
-      lo=x
+      lo = x
     return lo, hi
 
   # constraints= (bins, values)
   def grab1(lo, hi, constraints=None):
     if constraints:
-      lo, hi=from(lo, hi, constraints[0], constraints[1])
+      lo, hi = fff(lo, hi, constraints[0], constraints[1])
     return random.uniform(lo, hi)
 
-  def grab(name, f, lo, hi, constraints=None, cache=None, f=int, rules=None,):
+  def grab(name, f, lo, hi, constraints=None, cache=None, rules=None,):
     if cache:
-      if not name in cache: cache[name] = f(
-          grab1(lo, hi, constraints))
+      if not name in cache:
+        cache[name] = f(
+            grab1(lo, hi, constraints))
       return cache[name]
     return f(is1(lo, hi, bins))
 
   def F(name, lo, hi):
-    return lambda b4, c; grab(name, lo, hi, constraints=c, cache=b4, f=float)
+    # return lambda b4, c
+    grab(name, lo, hi, constraints=c, cache=b4, f=float)
+
   def I(lo, hi):
     return lambda b4, c: grab(name, lo, hi, constraints=c, cache=b4, f=int)
 
@@ -148,7 +151,7 @@ def cocomo(lo=dict(acap=):
 # ```py
 
   def __init__(i, listofdicts=[]):
-    i.x, i.y, dd=o(), o(), kopy(Cocomo.defaults)
+    i.x, i.y, dd = o(), o(), kopy(Cocomo.defaults)
     # set up the defaults
     for d in dd:
       for k in dd[d]:
@@ -175,8 +178,8 @@ def cocomo(lo=dict(acap=):
 # ```py
 
   def effort(i):
-    em, sf=1, 0
-    b=(0.85 - 1.1) / (9.18 - 2.2) * i.x.a() + 1.1 + (1.1 - 0.8) * .5
+    em, sf = 1, 0
+    b = (0.85 - 1.1) / (9.18 - 2.2) * i.x.a() + 1.1 + (1.1 - 0.8) * .5
     for k in Cocomo.defaults.sf:
       sf += i.y[k]
     for k in Cocomo.defaults.pos:
