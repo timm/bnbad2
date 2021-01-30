@@ -171,7 +171,6 @@ def table(src):
       if numsp(col.has):
         col.has.sort()
     classify(tbl)
-    discretize(tbl)
   ##########################
   tbl = Tbl()
   for x in src:
@@ -319,6 +318,7 @@ def learn(COUNTS):
   def loop(rules, here, there):
     lives = the.lives
     while True:
+      print(".", end="")
       lives -= 1
       total, rules = prune(rules)
       if lives < 1 or len(rules) < 2:
@@ -327,10 +327,10 @@ def learn(COUNTS):
                         pick(rules, total),
                         here, there)]
 
-  def value(rule, here, there):
+  def value(rule, here, there, e=2):
     b = like(rule, here, 2)
     r = like(rule, there, 2)
-    return b**2 / (b + r) if b > r else 0
+    return b**e / (b + r) if b > r else 0
 
   def like(rule, h, hs=None):
     hs = hs if hs else len(COUNTS.h)
@@ -390,8 +390,9 @@ def learn(COUNTS):
   for there in COUNTS.h:
     for here in COUNTS.h:
       if here != there:
-        out[here] = loop([rule0(c, x, here, there) for c, x in all],
-                         here, there)
+        rules = loop([rule0(c, x, here, there)
+                      for c, x in all], here, there)
+        out[here] = [[value(r, here, there, 1), r] for _, r in rules]
   return out
 
 def showRule(r):
@@ -477,15 +478,17 @@ def showRule(r):
   out = ""
   return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
 
-
-if __name__ == "__main__":
-  the = args("duo3", __doc__, the)
+def main():
   seed(the.seed)
   for k, rules in learn(
-      counts(
-          table(
-          csv(the.path2data + "/" + the.data)))).items():
+      counts(discretize(
+          table(csv(the.path2data + "/" + the.data))))).items():
     print("")
     print(k)
     for rule in rules:
       print("\t", showRule(rule))
+
+
+if __name__ == "__main__":
+  the = args("duo3", __doc__, the)
+  main()
