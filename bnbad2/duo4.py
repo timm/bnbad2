@@ -18,7 +18,7 @@ them. Repeat. Nearly all this processing takes log linear time.
 
 Download file, `chmod +x file`/
 
-Check it all installs correctly  using `./duo3.py -h`
+Check it all installs correctly  using `./duo4.py -h`
 (should print help text).
 
 Get a small sample of the output by running on 'weather.csv' 
@@ -79,6 +79,7 @@ def table(src):
   then `.cols` would have entries like the following (and note that
   the first is for a symbolic column and the second is for a numeric):
 
+  ```
       {'outlook' :  {
               'has': # 'has' for symbolic is a dictionary
                      {'sunny': 5, 'overcast': 4, 'rainy': 5},
@@ -93,6 +94,7 @@ def table(src):
               'pos': 1,
               'txt': '<temp'}
       etc }
+  ```
 
   Tables also collect rows with a 'score' (how often that row
   dominates 'rowsamples' other rows) and 'klass' which is often often
@@ -469,7 +471,6 @@ def args(what, txt, d):
                     float if isa(val, float) else str)))
   ###############
   p = argparse
-  from argparse_color_formatter import ColorHelpFormatter
   parser = p.ArgumentParser(
       prog=what, description=txt,
       formatter_class=p.RawDescriptionHelpFormatter)
@@ -518,5 +519,5 @@ def main():
 
 
 if __name__ == "__main__":
-  THE = args("duo3", __doc__, THE)
+  THE = args("duo4", __doc__, THE)
   main()
