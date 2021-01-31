@@ -44,7 +44,7 @@ class Obj():
       {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != "_"})
 
 
-the = Obj(
+THE = Obj(
     best=0.5,
     beam=10,
     data="auto93.csv",
@@ -136,9 +136,9 @@ def table(src):
     #######################
     for row1 in tbl.rows:
       row1.score = sum(better(tbl, row1, choice(tbl.rows))
-                       for _ in range(the.rowsamples)) / the.rowsamples
+                       for _ in range(THE.rowsamples)) / THE.rowsamples
     for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
-      row.klass = n > len(tbl.rows) * the.best
+      row.klass = n > len(tbl.rows) * THE.best
 
   def head(tbl, x):
     for pos, txt in enumerate(x):
@@ -206,11 +206,6 @@ def discretize(TBL):
   def Span(lo=-math.inf, hi=math.inf, has=None):
     return Obj(lo=lo, hi=hi, _has=has if has else [])
 
-  def mu(lst): return sum(lst) / len(lst)
-
-  def sd(lst): return (
-      lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
-
   def pairs(lst, fx, fy):
     xs, ys, xy = [], [], []
     for one in lst:
@@ -221,13 +216,13 @@ def discretize(TBL):
         ys += [y]
         xy += [(x, y)]
     ys = sorted(ys)
-    return (sd(sorted(xs)) * the.xsmall,
-            sd(ys) * the.ysmall,
-            ys[int(the.best * len(ys))],
+    return (sd(sorted(xs)) * THE.xsmall,
+            sd(ys) * THE.ysmall,
+            ys[int(THE.best * len(ys))],
             sorted(xy))
 
   def div(xsmall, ysmall, ymin, xy):
-    n = len(xy)**the.Xchop
+    n = len(xy)**THE.Xchop
     while n < 4 and n < len(xy) / 2:
       n *= 1.2
     n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
@@ -315,9 +310,8 @@ def counts(TBL):
 
 def learn(COUNTS):
   def loop(rules, here, there):
-    lives = the.lives
+    lives = THE.lives
     while True:
-      print(".", end="")
       lives -= 1
       total, rules = prune(rules)
       if lives < 1 or len(rules) < 2:
@@ -333,11 +327,11 @@ def learn(COUNTS):
 
   def like(rule, h, hs=None):
     hs = hs if hs else len(COUNTS.h)
-    like = prior = (COUNTS.h[h] + the.k) / (COUNTS.n + the.k * hs)
+    like = prior = (COUNTS.h[h] + THE.k) / (COUNTS.n + THE.k * hs)
     like = math.log(like)
     for col, values in rule:
       f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
-      inc = (f + the.m * prior) / (COUNTS.h[h] + the.m)
+      inc = (f + THE.m * prior) / (COUNTS.h[h] + THE.m)
       like += math.log(inc)
     return math.e**like
 
@@ -370,7 +364,7 @@ def learn(COUNTS):
       if not same(one, two):
         unique += [two]
       one = two
-    pruned = [[s, r] for s, r in unique if s > 0][:the.beam]
+    pruned = [[s, r] for s, r in unique if s > 0][:THE.beam]
     return sum(s for s, _ in pruned), pruned
 
   def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
@@ -422,6 +416,11 @@ def symsp(x):
   "Returns true if `x` is a container for symbols."
   return isa(x, dict)
 
+def mu(lst): return sum(lst) / len(lst)
+
+def sd(lst): return (
+    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
   Kill whitespace and comments.
@@ -470,24 +469,46 @@ def args(what, txt, d):
     parser.add_argument("-" + key, **arg(key, v))
   return Obj(**vars(parser.parse_args()))
 
-def showRule(r):
-  def show1(k, v):
-    return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
-  s, rule = r
-  out = ""
-  return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
-
 def main():
-  seed(the.seed)
-  for k, rules in learn(
-      counts(discretize(
-          table(csv(the.path2data + "/" + the.data))))).items():
+  def cell(col, row):
+    x = row.cells[col.pos]
+    if x != "?":
+      return bin(col.spans, x) if numsp(col.has) else x
+
+  def showRule(r):
+    def show1(k, v):
+      return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
+    s, rule = r
+    out = ""
+    return ' and '.join([show1(k, v) for k, v in rule])
+
+  def selects1(t, row, ands):
+    for (txt, pos), ors in ands:
+      if val := cell(t.cols[txt], row):
+        if val not in ors:
+          return False
+    return True
+
+  def selects(t, rule):
+    s, rule = rule
+    return [row for row in t.rows if selects1(t, row, rule)]
+  ############
+  seed(THE.seed)
+  t = discretize(table(csv(THE.path2data + "/" + THE.data)))
+  for k, rules in learn(counts(t)).items():
     print("")
     print(k)
+    print("  " + ', '.join([col.txt for col in t.y.values()]))
     for rule in rules:
-      print("\t", showRule(rule))
+      ys = {}
+      for row in selects(t, rule):
+        for col in t.y.values():
+          ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
+      print(
+          "  " + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
+      print(showRule(rule))
 
 
 if __name__ == "__main__":
-  the = args("duo3", __doc__, the)
+  THE = args("duo3", __doc__, THE)
   main()
