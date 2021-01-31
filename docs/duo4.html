@@ -1,0 +1,1346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>duo4 API documentation</title>
+<meta name="description" content="Optimizer, written as a data miner.
+Break the data up into regions
+of &#39;bad&#39; and &#39;better&#39;. &#39;Interesting&#39; things occur at very different
+frequencies in …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>duo4</code></h1>
+</header>
+<section id="section-intro">
+<p>Optimizer, written as a data miner.
+Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.</p>
+<pre><code> :-------:                 explore  = better==bad
+ | Ba    | Bad &lt;----.      planning = max(better - bad)
+ |    56 |          |      monitor  = max(bad - better)
+ :-------:------:   |      tabu     = min(bad + better)
+         | B    |   v
+         |    5 | Better
+         :------:
+</code></pre>
+<h1 id="install">Install</h1>
+<p>Download file, <code>chmod +x file</code>/</p>
+<p>Check it all installs correctly
+using <code>./duo4.py -h</code>
+(should print help text).</p>
+<p>Get a small sample of the output by running on 'weather.csv'</p>
+<h1 id="license">License</h1>
+<p>(c) Tim Menzies, 2021
+MIT License, <a href="https://opensource.org/licenses/MIT.">https://opensource.org/licenses/MIT.</a> The source code
+does not need to be public when a distribution of the software is
+made. Modifications to the software can be release under any
+license. Changes made to the source code may not be documented.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# vim: filetype=python ts=2 sw=2 sts=2 et :
+&#34;&#34;&#34;
+Optimizer, written as a data miner.  Break the data up into regions
+of &#39;bad&#39; and &#39;better&#39;. &#39;Interesting&#39; things occur at very different
+frequencies in &#39;bad&#39; and &#39;better&#39;. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+     :-------:                 explore  = better==bad
+     | Ba    | Bad &lt;----.      planning = max(better - bad)
+     |    56 |          |      monitor  = max(bad - better)
+     :-------:------:   |      tabu     = min(bad + better)
+             | B    |   v
+             |    5 | Better
+             :------:
+
+# Install
+
+Download file, `chmod +x file`/
+
+Check it all installs correctly  using `./duo4.py -h`
+(should print help text).
+
+Get a small sample of the output by running on &#39;weather.csv&#39;
+
+
+
+
+# License
+
+(c) Tim Menzies, 2021
+MIT License, https://opensource.org/licenses/MIT. The source code
+does not need to be public when a distribution of the software is
+made. Modifications to the software can be release under any
+license. Changes made to the source code may not be documented.
+&#34;&#34;&#34;
+
+import argparse
+from random import random as r
+from random import seed as seed
+from random import choice as choice
+import time
+import math
+import sys
+import re
+
+class Obj():
+  &#34;&#34;&#34;Containers with set/get access, prints keys in sorted order
+  ignoring &#39;private&#39; keys (those starting with &#39;_&#39;).&#34;&#34;&#34;
+  def __init__(i, **d): i.__dict__.update(**d)
+  def __repr__(i): return str(
+      {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != &#34;_&#34;})
+
+
+THE = Obj(
+    best=0.5,
+    beam=10,
+    data=&#34;auto93.csv&#34;,
+    path2data=&#34;../data&#34;,
+    k=1,
+    m=2,
+    seed=13,
+    lives=128,
+    rowsamples=64,
+    xsmall=.35,
+    ysmall=.35,
+    Xchop=.5)
+
+def table(src):
+  &#34;&#34;&#34;Converts a list of cells into rows, summarized in columns. Row1
+  name describes each column.
+  Names with &#39;&gt;&#39; and &#39;&lt;&#39; are goals to maximize or minimize (respectively). For example, in
+  the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
+  and miles per gallon (mpg).
+
+      cylinders,displ,hp,&lt;lbs,&gt;acc,model,origin,&gt;mpg
+
+  For example, after reading weather.csv,
+  then `.cols` would have entries like the following (and note that
+  the first is for a symbolic column and the second is for a numeric):
+
+  ```
+      {&#39;outlook&#39; :  {
+              &#39;has&#39;: # &#39;has&#39; for symbolic is a dictionary
+                     {&#39;sunny&#39;: 5, &#39;overcast&#39;: 4, &#39;rainy&#39;: 5},
+              &#39;n&#39;  : 14,
+              &#39;pos&#39;: 0,
+              &#39;txt&#39;: &#39;_outlook&#39;,
+               &#39;w&#39; : 1}
+       &#39;&lt;temp&#39;   :   {
+              &#39;has&#39;: # &#39;has&#39; for  numerics is a list
+                     [64, 85], # min and max value seen in this columnm
+              &#39;n&#39;  : 14,
+              &#39;pos&#39;: 1,
+              &#39;txt&#39;: &#39;&lt;temp&#39;}
+      etc }
+  ```
+
+  Tables also collect rows with a &#39;score&#39; (how often that row
+  dominates &#39;rowsamples&#39; other rows) and &#39;klass&#39; which is often often
+  that score is better than &#39;best&#39;. e.g. if &#39;best&#39;=0.5 then &#39;klass&#39; is
+  true if this row &#39;scores&#39; better than half the others; e.g. from
+  ../data/auto93.csv, here are the first and last four rows sorted by
+  &#39;score&#39;. Observe that we want to minimize lbs and maximize acc and mpg.
+  Hence, in the last rows, lbs is lower and acc and mpg is larger:
+
+      score  klass  cylin   displ   hp  &lt;lbs  &gt;acc   model   origin  &gt;mpg
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.0    False  8       400     175  5140  12    71      1        10
+      0.0    False  8       440     215  4735  11    73      1        10
+      0.0    False  8       454     220  4354  9     70      1        10
+      0.0    False  8       455     225  4425  10    70      1        10
+      0.0    False  8       455     225  4951  11    73      1        10
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.98   True   4       91      60   1800  16.4  78      3        40
+      0.98   True   4       97      46   1835  20.5  70      2        30
+      1.0    True   4       85      &#39;?&#39;  1835  17.3  80      2        40
+      1.0    True   4       86      65   2110  17.9  80      3        50
+      1.0    True   4       97      52   2130  24.6  82      2        40
+
+  Also note that the &#39;klass&#39; is &#39;True&#39; for the better half and &#39;False&#39;
+  otherwise.
+
+  &#34;&#34;&#34;
+  def Tbl(rows=[]): return Obj(cols={}, x={}, y={}, rows=rows)
+  def Row(cells=[]): return Obj(cells=cells, score=0, klass=True)
+
+  def Col(txt=&#39;&#39;, pos=0, w=1):
+    return Obj(n=0, txt=txt, pos=pos, has=None, spans=[],
+               w=-1 if &#34;&lt;&#34; in txt else 1)
+
+  def classify(tbl):
+    def norm(lst, x): return (
+        x - lst[0]) / (lst[1] - lst[0] + 1E-32)
+
+    def better(tbl, row1, row2):
+      &#34;Zitler&#39;s continous domination predicate (from IBEA, 2005).&#34;
+      s1, s2, n = 0, 0, len(tbl.y)
+      for col in tbl.y.values():
+        pos, w = col.pos, col.w
+        a, b = row1.cells[pos], row2.cells[pos]
+        a, b = norm(col.has, a), norm(col.has, b)
+        s1 -= math.e**(w * (a - b) / n)
+        s2 -= math.e**(w * (b - a) / n)
+      return s1 / n &lt; s2 / n
+    #######################
+    for row1 in tbl.rows:
+      row1.score = sum(better(tbl, row1, choice(tbl.rows))
+                       for _ in range(THE.rowsamples)) / THE.rowsamples
+    for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
+      row.klass = n &gt; len(tbl.rows) * THE.best
+
+  def head(tbl, x):
+    for pos, txt in enumerate(x):
+      if not &#34;?&#34; in txt:
+        tbl.cols[txt] = tmp = Col(txt, pos)
+        if &#34;&lt;&#34; in txt or &#34;&gt;&#34; in txt or &#34;!&#34; in txt:
+          tbl.y[txt] = tmp
+        else:
+          tbl.x[txt] = tmp
+
+  def body(tbl, x):
+    def inc(col, x):
+      if col.has is None:
+        col.has = [math.inf, -
+                   math.inf] if isa(x, (float, int)) else {}
+        return inc(col, x)
+      col.n += 1
+      if symsp(col.has):
+        col.has[x] = col.has.get(x, 0) + 1
+      else:
+        if x &gt; col.has[1]:
+          col.has[1] = x
+        if x &lt; col.has[0]:
+          col.has[0] = x
+    [inc(c, x[c.pos]) for c in tbl.cols.values() if x[c.pos] != &#34;?&#34;]
+    tbl.rows += [Row(x)]
+
+  def footer(tbl):
+    for col in tbl.cols.values():
+      if numsp(col.has):
+        col.has.sort()
+    classify(tbl)
+  ##########################
+  tbl = Tbl()
+  for x in src:
+    (body if len(tbl.cols) else head)(tbl, x)
+  footer(tbl)
+  return tbl
+
+def discretize(TBL):
+  &#34;&#34;&#34;Reports `bins` for each numeric columns. Initially,
+  columns of `N` (x,y) values  into bins of size N^Xchop.
+  Combines bins that are smaller than `sd(x)*xsmall`. Then combine
+  bins that are different by less than `sd(y)*ysmall`. Also, if
+  two adjacent bins are not not &#39;best&#39;, then they are dull and
+  we fuse them.  For example, from ../data/auto93.csv, we
+  get  learn that &#39;-cylinders&#39; effectively divides into 3:
+
+    [{&#39;hi&#39;: 4, &#39;lo&#39;: -inf},
+     {&#39;hi&#39;: 8, &#39;lo&#39;: 5},
+     {&#39;hi&#39;: inf, &#39;lo&#39;: 5}]
+
+  Note that the above used &#39;best=.5&#39; i.e. we were were dividing data
+  half:half into best:rest. But we ran the same code with &#39;best=.8&#39; then
+  we find a different picture of what is interesting or not:
+
+    [{&#39;hi&#39;: 4, &#39;lo&#39;: -inf},
+     {&#39;hi&#39;: inf, &#39;lo&#39;: 3}]
+
+  That is, at &#39;best=.8&#39; all we care about is whether or not &#39;cylinders&#39;
+  is above or below 3.;
+
+  &#34;&#34;&#34;
+
+  def Span(lo=-math.inf, hi=math.inf, has=None):
+    return Obj(lo=lo, hi=hi, _has=has if has else [])
+
+  def pairs(lst, fx, fy):
+    xs, ys, xy = [], [], []
+    for one in lst:
+      x = fx(one)
+      if x != &#34;?&#34;:
+        y = fy(one)
+        xs += [x]
+        ys += [y]
+        xy += [(x, y)]
+    ys = sorted(ys)
+    return (sd(sorted(xs)) * THE.xsmall,
+            sd(ys) * THE.ysmall,
+            ys[int(THE.best * len(ys))],
+            sorted(xy))
+
+  def div(xsmall, ysmall, ymin, xy):
+    n = len(xy)**THE.Xchop
+    while n &lt; 4 and n &lt; len(xy) / 2:
+      n *= 1.2
+    n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
+    now = n
+    while now &lt; len(xy) - n:
+      x = xy[now][0]
+      span.hi = x
+      now += 1
+      if (now - b4 &gt; n and now &lt; len(xy) - 2
+          and x != xy[now][0]
+              and span.hi - span.lo &gt; xsmall):
+        span._has = [z[1] for z in xy[b4:now]]
+        tmp += [span]
+        span = Span(lo=xy[now][0])
+        b4 = now
+        now += n
+    tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
+                 has=[z[1] for z in xy[b4:]])]
+    out = merge(tmp, ymin, ysmall)
+    out[0].lo = -math.inf
+    out[-1].hi = math.inf
+    return out
+
+  def merge(b4, ymin, ysmall):
+    j, now = 0, []
+    while j &lt; len(b4):
+      a = b4[j]
+      if j &lt; len(b4) - 1:
+        b = b4[j + 1]
+        if (abs(mu(b._has) - mu(a._has)) &lt; ysmall
+            or
+                (mu(b._has) &lt; ymin and mu(a._has) &lt; ymin)):
+          merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
+          now += [merged]
+          j += 2
+      now += [a]
+      j += 1
+    return merge(now, ymin, ysmall) if len(now) &lt; len(b4) else now
+
+  for col in TBL.x.values():
+    if numsp(col.has):
+      col.spans = div(*pairs(TBL.rows,
+                             lambda z: z.cells[col.pos],
+                             lambda z: z.score))
+      print(f&#34;NUM {col.txt:20} :&#34;, [x.hi for x in col.spans])
+    else:
+      print(f&#34;SYM {col.txt:20} :&#34;, sorted(col.has.keys()))
+  return TBL
+
+def counts(TBL):
+  &#34;&#34;&#34;Counts (class column attribute) inside `TBL`
+   (where attributes are the discretized attributes).
+   THe counts take the form: (cKass,attribute,range,col), count.
+   For example, with best=.9, the counts from ../data/auto93.csv
+   are as follows. Note the simplicity of the decision space:
+   all that matters is displacement and horsepower is above below
+   141 and 74
+
+      (False, &#39;displacement&#39;, 141, 1) 154
+      (False, &#39;displacement&#39;, inf, 1) 205
+      (False, &#39;horsepower&#39;, 74, 2) 48
+      (False, &#39;horsepower&#39;, inf, 2) 307
+      ....
+      (True, &#39;displacement&#39;, 141, 1) 38
+      (True, &#39;displacement&#39;, inf, 1) 1
+      (True, &#39;horsepower&#39;, 74, 2) 34
+      (True, &#39;horsepower&#39;, inf, 2) 3
+      ....
+
+   &#34;&#34;&#34;
+
+  def Counts(): return Obj(f={}, h={}, n=0)
+  out = Counts()
+  for row in TBL.rows:
+    k = row.klass
+    out.n += 1
+    out.h[k] = out.h.get(k, 0) + 1
+    for col in TBL.x.values():
+      if x := cell(col, row):
+        v = (k, (col.txt, col.pos), x)
+        out.f[v] = out.f.get(v, 0) + 1
+  return out
+
+
+def learn(COUNTS):
+  def loop(rules, here, there):
+    lives = THE.lives
+    while True:
+      lives -= 1
+      total, rules = prune(rules)
+      if lives &lt; 1 or len(rules) &lt; 2:
+        return rules
+      rules += [combine(pick(rules, total),
+                        pick(rules, total),
+                        here, there)]
+
+  def value(rule, here, there, e=2):
+    b = like(rule, here, 2)
+    r = like(rule, there, 2)
+    return b**e / (b + r) if b &gt; r else 0
+
+  def like(rule, h, hs=None):
+    hs = hs if hs else len(COUNTS.h)
+    like = prior = (COUNTS.h[h] + THE.k) / (COUNTS.n + THE.k * hs)
+    like = math.log(like)
+    for col, values in rule:
+      f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
+      inc = (f + THE.m * prior) / (COUNTS.h[h] + THE.m)
+      like += math.log(inc)
+    return math.e**like
+
+  def combine(rule1, rule2, here, there):
+    val1, rule1 = rule1
+    val2, rule2 = rule2
+    tmp = dict()
+    for rule in [rule1, rule2]:
+      for k, lst in rule:
+        tmp[k] = tmp.get(k, set())
+        for v in lst:
+          tmp[k].add(v)
+    rule3 = sorted([[k, sorted(list(vs))] for k, vs in tmp.items()])
+    val3 = value(rule3, here, there)
+    return [val3, rule3]
+
+  def same(rule1, rule2):
+    if rule1[0] != rule2[0]:
+      return False
+    for x, y in zip(rule1[1], rule2[1]):
+      if x != y:
+        return False
+    return True
+
+  def prune(old):
+    ordered = [[s, r] for s, r in sorted(old, reverse=True)]
+    one = ordered[0]
+    unique = [one]
+    for two in ordered[1:]:
+      if not same(one, two):
+        unique += [two]
+      one = two
+    pruned = [[s, r] for s, r in unique if s &gt; 0][:THE.beam]
+    return sum(s for s, _ in pruned), pruned
+
+  def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
+    n = r()
+    for rule in rules:
+      n -= rule[0] / total
+      if n &lt;= 0:
+        return rule
+    return rule
+
+  def rule0(c, x, here, there):
+    rule = [[c, [x]]]
+    return [value(rule, here, there), rule]
+
+  out, all = {}, list(set([(c, x) for (_, c, x) in COUNTS.f]))
+  for there in COUNTS.h:
+    for here in COUNTS.h:
+      if here != there:
+        rules = loop([rule0(c, x, here, there)
+                      for c, x in all], here, there)
+        out[here] = [[value(r, here, there, 1), r] for _, r in rules]
+  return out
+
+def showRule(r):
+  def show1(k, v):
+    return k + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
+  s, rule = r
+  out = &#34;&#34;
+  return &#34;{&#34; + str(round(s, 2)) + &#39;} &#39; + &#39; and &#39;.join([show1(k, v) for k, v in rule])
+
+
+def cell(col, row):
+  &#34;&#34;&#34;HELPER.  Returns a cell value if it is not missing.
+  Also, if appropriate, Discretize it first.&#34;&#34;&#34;
+  def bin(spans, x):
+    for span in spans:
+      if span.lo &lt;= x &lt; span.hi:
+        return span.hi
+    return span.hi
+  #########
+  x = row.cells[col.pos]
+  if x != &#34;?&#34;:
+    return bin(col.spans, x) if numsp(col.has) else x
+
+def isa(x, y):
+  &#34;Returns true if `x` is of type `y`.&#34;
+  return isinstance(x, y)
+
+def numsp(x):
+  &#34;Returns true if `x` is a container for numbers.&#34;
+  return isa(x, list)
+
+def symsp(x):
+  &#34;Returns true if `x` is a container for symbols.&#34;
+  return isa(x, dict)
+
+def mu(lst): return sum(lst) / len(lst)
+
+def sd(lst): return (
+    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+
+def csv(file, sep=&#34;,&#34;, ignore=r&#39;([\n\t\r ]|#.*)&#39;):
+  &#34;&#34;&#34;Misc: reads csv files into list of strings.
+  Kill whitespace and comments.
+  Converts  strings to numbers, it needed. For example,
+  the file .. / data / weather.csv is turned into
+
+    [&#39;outlook&#39;, &#39;&lt;temp&#39;, &#39;humid&#39;, &#39;?wind&#39;, &#39;?!play&#39;]
+    [&#39;sunny&#39;, 85, 85, &#39;FALSE&#39;, &#39;no&#39;]
+    [&#39;sunny&#39;, 80, 90, &#39;TRUE&#39;, &#39;no&#39;]
+    [&#39;overcast&#39;, 83, 86, &#39;FALSE&#39;, &#39;yes&#39;]
+    [&#39;rainy&#39;, 70, 96, &#39;FALSE&#39;, &#39;yes&#39;]
+    etc
+
+    &#34;&#34;&#34;
+  def atom(x):
+    try:
+      return int(x)
+    except Exception:
+      try:
+        return float(x)
+      except Exception:
+        return x
+  with open(file) as fp:
+    for a in fp:
+      yield [atom(x) for x in re.sub(ignore, &#39;&#39;, a).split(sep)]
+
+def args(what, txt, d):
+  &#34;&#34;&#34;Misc: Converts a dictionary `d` of key = val
+     into command line arguments.&#34;&#34;&#34;
+  def arg(txt, val):
+    eg = &#34;[%s]&#34; % val
+    if val is False:
+      return dict(help=eg, action=&#39;store_true&#39;)
+    return dict(help=eg, default=val,
+                metavar=(&#34;I&#34; if isa(val, int) else (
+                    &#34;F&#34; if isa(val, float) else &#34;S&#34;)),
+                type=(int if isa(val, int) else (
+                    float if isa(val, float) else str)))
+  ###############
+  p = argparse
+  parser = p.ArgumentParser(
+      prog=what, description=txt,
+      formatter_class=p.RawDescriptionHelpFormatter)
+  for key, v in d.__dict__.items():
+    parser.add_argument(&#34;-&#34; + key, **arg(key, v))
+  return Obj(**vars(parser.parse_args()))
+
+def main():
+  def showRule(r):
+    def show1(k, v):
+      return k[0] + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
+    s, rule = r
+    out = &#34;&#34;
+    return &#39; and &#39;.join([show1(k, v) for k, v in rule])
+
+  def selects1(t, row, ands):
+    for (txt, pos), ors in ands:
+      if val := cell(t.cols[txt], row):
+        if val not in ors:
+          return False
+    return True
+
+  def selects(t, rule):
+    s, rule = rule
+    return [row for row in t.rows if selects1(t, row, rule)]
+  ############
+  seed(THE.seed)
+  t = discretize(table(csv(THE.path2data + &#34;/&#34; + THE.data)))
+  for k, rules in learn(counts(t)).items():
+    print(&#34;&#34;)
+    print(k)
+    print(&#34;  &#34; + &#39;, &#39;.join([col.txt for col in t.y.values()]))
+    for rule in rules:
+      ys = {}
+      for row in selects(t, rule):
+        for col in t.y.values():
+          ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
+      print(
+          &#34;  &#34; + &#39;, &#39;.join([f&#34;{mu(ys[k]):.2f}&#34; for k in ys]), end=&#34;\t&#34;)
+      print(showRule(rule))
+
+
+if __name__ == &#34;__main__&#34;:
+  THE = args(&#34;duo4&#34;, __doc__, THE)
+  main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="duo4.r"><code class="name flex">
+<span>def <span class="ident">r</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>random() -&gt; x in the interval [0, 1).</p></div>
+</dd>
+<dt id="duo4.table"><code class="name flex">
+<span>def <span class="ident">table</span></span>(<span>src)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Converts a list of cells into rows, summarized in columns. Row1
+name describes each column.
+Names with '&gt;' and '&lt;' are goals to maximize or minimize (respectively). For example, in
+the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
+and miles per gallon (mpg).</p>
+<pre><code>cylinders,displ,hp,&lt;lbs,&gt;acc,model,origin,&gt;mpg
+</code></pre>
+<p>For example, after reading weather.csv,
+then <code>.cols</code> would have entries like the following (and note that
+the first is for a symbolic column and the second is for a numeric):</p>
+<pre><code>    {'outlook' :  {
+            'has': # 'has' for symbolic is a dictionary
+                   {'sunny': 5, 'overcast': 4, 'rainy': 5},
+            'n'  : 14,
+            'pos': 0,
+            'txt': '_outlook',
+             'w' : 1}
+     '&lt;temp'   :   {
+            'has': # 'has' for  numerics is a list
+                   [64, 85], # min and max value seen in this columnm
+            'n'  : 14,
+            'pos': 1,
+            'txt': '&lt;temp'}
+    etc }
+</code></pre>
+<p>Tables also collect rows with a 'score' (how often that row
+dominates 'rowsamples' other rows) and 'klass' which is often often
+that score is better than 'best'. e.g. if 'best'=0.5 then 'klass' is
+true if this row 'scores' better than half the others; e.g. from
+../data/auto93.csv, here are the first and last four rows sorted by
+'score'. Observe that we want to minimize lbs and maximize acc and mpg.
+Hence, in the last rows, lbs is lower and acc and mpg is larger:</p>
+<pre><code>score  klass  cylin   displ   hp  &lt;lbs  &gt;acc   model   origin  &gt;mpg
+-----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+0.0    False  8       400     175  5140  12    71      1        10
+0.0    False  8       440     215  4735  11    73      1        10
+0.0    False  8       454     220  4354  9     70      1        10
+0.0    False  8       455     225  4425  10    70      1        10
+0.0    False  8       455     225  4951  11    73      1        10
+-----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+0.98   True   4       91      60   1800  16.4  78      3        40
+0.98   True   4       97      46   1835  20.5  70      2        30
+1.0    True   4       85      '?'  1835  17.3  80      2        40
+1.0    True   4       86      65   2110  17.9  80      3        50
+1.0    True   4       97      52   2130  24.6  82      2        40
+</code></pre>
+<p>Also note that the 'klass' is 'True' for the better half and 'False'
+otherwise.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def table(src):
+  &#34;&#34;&#34;Converts a list of cells into rows, summarized in columns. Row1
+  name describes each column.
+  Names with &#39;&gt;&#39; and &#39;&lt;&#39; are goals to maximize or minimize (respectively). For example, in
+  the following, we want to minimize weight (lbs) while maximizing acceleration (acc)
+  and miles per gallon (mpg).
+
+      cylinders,displ,hp,&lt;lbs,&gt;acc,model,origin,&gt;mpg
+
+  For example, after reading weather.csv,
+  then `.cols` would have entries like the following (and note that
+  the first is for a symbolic column and the second is for a numeric):
+
+  ```
+      {&#39;outlook&#39; :  {
+              &#39;has&#39;: # &#39;has&#39; for symbolic is a dictionary
+                     {&#39;sunny&#39;: 5, &#39;overcast&#39;: 4, &#39;rainy&#39;: 5},
+              &#39;n&#39;  : 14,
+              &#39;pos&#39;: 0,
+              &#39;txt&#39;: &#39;_outlook&#39;,
+               &#39;w&#39; : 1}
+       &#39;&lt;temp&#39;   :   {
+              &#39;has&#39;: # &#39;has&#39; for  numerics is a list
+                     [64, 85], # min and max value seen in this columnm
+              &#39;n&#39;  : 14,
+              &#39;pos&#39;: 1,
+              &#39;txt&#39;: &#39;&lt;temp&#39;}
+      etc }
+  ```
+
+  Tables also collect rows with a &#39;score&#39; (how often that row
+  dominates &#39;rowsamples&#39; other rows) and &#39;klass&#39; which is often often
+  that score is better than &#39;best&#39;. e.g. if &#39;best&#39;=0.5 then &#39;klass&#39; is
+  true if this row &#39;scores&#39; better than half the others; e.g. from
+  ../data/auto93.csv, here are the first and last four rows sorted by
+  &#39;score&#39;. Observe that we want to minimize lbs and maximize acc and mpg.
+  Hence, in the last rows, lbs is lower and acc and mpg is larger:
+
+      score  klass  cylin   displ   hp  &lt;lbs  &gt;acc   model   origin  &gt;mpg
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.0    False  8       400     175  5140  12    71      1        10
+      0.0    False  8       440     215  4735  11    73      1        10
+      0.0    False  8       454     220  4354  9     70      1        10
+      0.0    False  8       455     225  4425  10    70      1        10
+      0.0    False  8       455     225  4951  11    73      1        10
+      -----  ------ ------- ------- ---  ----  ----  ------  -------  -----
+      0.98   True   4       91      60   1800  16.4  78      3        40
+      0.98   True   4       97      46   1835  20.5  70      2        30
+      1.0    True   4       85      &#39;?&#39;  1835  17.3  80      2        40
+      1.0    True   4       86      65   2110  17.9  80      3        50
+      1.0    True   4       97      52   2130  24.6  82      2        40
+
+  Also note that the &#39;klass&#39; is &#39;True&#39; for the better half and &#39;False&#39;
+  otherwise.
+
+  &#34;&#34;&#34;
+  def Tbl(rows=[]): return Obj(cols={}, x={}, y={}, rows=rows)
+  def Row(cells=[]): return Obj(cells=cells, score=0, klass=True)
+
+  def Col(txt=&#39;&#39;, pos=0, w=1):
+    return Obj(n=0, txt=txt, pos=pos, has=None, spans=[],
+               w=-1 if &#34;&lt;&#34; in txt else 1)
+
+  def classify(tbl):
+    def norm(lst, x): return (
+        x - lst[0]) / (lst[1] - lst[0] + 1E-32)
+
+    def better(tbl, row1, row2):
+      &#34;Zitler&#39;s continous domination predicate (from IBEA, 2005).&#34;
+      s1, s2, n = 0, 0, len(tbl.y)
+      for col in tbl.y.values():
+        pos, w = col.pos, col.w
+        a, b = row1.cells[pos], row2.cells[pos]
+        a, b = norm(col.has, a), norm(col.has, b)
+        s1 -= math.e**(w * (a - b) / n)
+        s2 -= math.e**(w * (b - a) / n)
+      return s1 / n &lt; s2 / n
+    #######################
+    for row1 in tbl.rows:
+      row1.score = sum(better(tbl, row1, choice(tbl.rows))
+                       for _ in range(THE.rowsamples)) / THE.rowsamples
+    for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
+      row.klass = n &gt; len(tbl.rows) * THE.best
+
+  def head(tbl, x):
+    for pos, txt in enumerate(x):
+      if not &#34;?&#34; in txt:
+        tbl.cols[txt] = tmp = Col(txt, pos)
+        if &#34;&lt;&#34; in txt or &#34;&gt;&#34; in txt or &#34;!&#34; in txt:
+          tbl.y[txt] = tmp
+        else:
+          tbl.x[txt] = tmp
+
+  def body(tbl, x):
+    def inc(col, x):
+      if col.has is None:
+        col.has = [math.inf, -
+                   math.inf] if isa(x, (float, int)) else {}
+        return inc(col, x)
+      col.n += 1
+      if symsp(col.has):
+        col.has[x] = col.has.get(x, 0) + 1
+      else:
+        if x &gt; col.has[1]:
+          col.has[1] = x
+        if x &lt; col.has[0]:
+          col.has[0] = x
+    [inc(c, x[c.pos]) for c in tbl.cols.values() if x[c.pos] != &#34;?&#34;]
+    tbl.rows += [Row(x)]
+
+  def footer(tbl):
+    for col in tbl.cols.values():
+      if numsp(col.has):
+        col.has.sort()
+    classify(tbl)
+  ##########################
+  tbl = Tbl()
+  for x in src:
+    (body if len(tbl.cols) else head)(tbl, x)
+  footer(tbl)
+  return tbl</code></pre>
+</details>
+</dd>
+<dt id="duo4.discretize"><code class="name flex">
+<span>def <span class="ident">discretize</span></span>(<span>TBL)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reports <code>bins</code> for each numeric columns. Initially,
+columns of <code>N</code> (x,y) values
+into bins of size N^Xchop.
+Combines bins that are smaller than <code>sd(x)*xsmall</code>. Then combine
+bins that are different by less than <code>sd(y)*ysmall</code>. Also, if
+two adjacent bins are not not 'best', then they are dull and
+we fuse them.
+For example, from ../data/auto93.csv, we
+get
+learn that '-cylinders' effectively divides into 3:</p>
+<p>[{'hi': 4, 'lo': -inf},
+{'hi': 8, 'lo': 5},
+{'hi': inf, 'lo': 5}]</p>
+<p>Note that the above used 'best=.5' i.e. we were were dividing data
+half:half into best:rest. But we ran the same code with 'best=.8' then
+we find a different picture of what is interesting or not:</p>
+<p>[{'hi': 4, 'lo': -inf},
+{'hi': inf, 'lo': 3}]</p>
+<p>That is, at 'best=.8' all we care about is whether or not 'cylinders'
+is above or below 3.;</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def discretize(TBL):
+  &#34;&#34;&#34;Reports `bins` for each numeric columns. Initially,
+  columns of `N` (x,y) values  into bins of size N^Xchop.
+  Combines bins that are smaller than `sd(x)*xsmall`. Then combine
+  bins that are different by less than `sd(y)*ysmall`. Also, if
+  two adjacent bins are not not &#39;best&#39;, then they are dull and
+  we fuse them.  For example, from ../data/auto93.csv, we
+  get  learn that &#39;-cylinders&#39; effectively divides into 3:
+
+    [{&#39;hi&#39;: 4, &#39;lo&#39;: -inf},
+     {&#39;hi&#39;: 8, &#39;lo&#39;: 5},
+     {&#39;hi&#39;: inf, &#39;lo&#39;: 5}]
+
+  Note that the above used &#39;best=.5&#39; i.e. we were were dividing data
+  half:half into best:rest. But we ran the same code with &#39;best=.8&#39; then
+  we find a different picture of what is interesting or not:
+
+    [{&#39;hi&#39;: 4, &#39;lo&#39;: -inf},
+     {&#39;hi&#39;: inf, &#39;lo&#39;: 3}]
+
+  That is, at &#39;best=.8&#39; all we care about is whether or not &#39;cylinders&#39;
+  is above or below 3.;
+
+  &#34;&#34;&#34;
+
+  def Span(lo=-math.inf, hi=math.inf, has=None):
+    return Obj(lo=lo, hi=hi, _has=has if has else [])
+
+  def pairs(lst, fx, fy):
+    xs, ys, xy = [], [], []
+    for one in lst:
+      x = fx(one)
+      if x != &#34;?&#34;:
+        y = fy(one)
+        xs += [x]
+        ys += [y]
+        xy += [(x, y)]
+    ys = sorted(ys)
+    return (sd(sorted(xs)) * THE.xsmall,
+            sd(ys) * THE.ysmall,
+            ys[int(THE.best * len(ys))],
+            sorted(xy))
+
+  def div(xsmall, ysmall, ymin, xy):
+    n = len(xy)**THE.Xchop
+    while n &lt; 4 and n &lt; len(xy) / 2:
+      n *= 1.2
+    n, tmp, b4, span = int(n), [], 0, Span(lo=xy[0][0])
+    now = n
+    while now &lt; len(xy) - n:
+      x = xy[now][0]
+      span.hi = x
+      now += 1
+      if (now - b4 &gt; n and now &lt; len(xy) - 2
+          and x != xy[now][0]
+              and span.hi - span.lo &gt; xsmall):
+        span._has = [z[1] for z in xy[b4:now]]
+        tmp += [span]
+        span = Span(lo=xy[now][0])
+        b4 = now
+        now += n
+    tmp += [Span(lo=xy[b4][0], hi=xy[-1][0],
+                 has=[z[1] for z in xy[b4:]])]
+    out = merge(tmp, ymin, ysmall)
+    out[0].lo = -math.inf
+    out[-1].hi = math.inf
+    return out
+
+  def merge(b4, ymin, ysmall):
+    j, now = 0, []
+    while j &lt; len(b4):
+      a = b4[j]
+      if j &lt; len(b4) - 1:
+        b = b4[j + 1]
+        if (abs(mu(b._has) - mu(a._has)) &lt; ysmall
+            or
+                (mu(b._has) &lt; ymin and mu(a._has) &lt; ymin)):
+          merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
+          now += [merged]
+          j += 2
+      now += [a]
+      j += 1
+    return merge(now, ymin, ysmall) if len(now) &lt; len(b4) else now
+
+  for col in TBL.x.values():
+    if numsp(col.has):
+      col.spans = div(*pairs(TBL.rows,
+                             lambda z: z.cells[col.pos],
+                             lambda z: z.score))
+      print(f&#34;NUM {col.txt:20} :&#34;, [x.hi for x in col.spans])
+    else:
+      print(f&#34;SYM {col.txt:20} :&#34;, sorted(col.has.keys()))
+  return TBL</code></pre>
+</details>
+</dd>
+<dt id="duo4.counts"><code class="name flex">
+<span>def <span class="ident">counts</span></span>(<span>TBL)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Counts (class column attribute) inside <code>TBL</code>
+(where attributes are the discretized attributes).
+THe counts take the form: (cKass,attribute,range,col), count.
+For example, with best=.9, the counts from ../data/auto93.csv
+are as follows. Note the simplicity of the decision space:
+all that matters is displacement and horsepower is above below
+141 and 74</p>
+<p>(False, 'displacement', 141, 1) 154
+(False, 'displacement', inf, 1) 205
+(False, 'horsepower', 74, 2) 48
+(False, 'horsepower', inf, 2) 307
+....
+(True, 'displacement', 141, 1) 38
+(True, 'displacement', inf, 1) 1
+(True, 'horsepower', 74, 2) 34
+(True, 'horsepower', inf, 2) 3
+....</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def counts(TBL):
+  &#34;&#34;&#34;Counts (class column attribute) inside `TBL`
+   (where attributes are the discretized attributes).
+   THe counts take the form: (cKass,attribute,range,col), count.
+   For example, with best=.9, the counts from ../data/auto93.csv
+   are as follows. Note the simplicity of the decision space:
+   all that matters is displacement and horsepower is above below
+   141 and 74
+
+      (False, &#39;displacement&#39;, 141, 1) 154
+      (False, &#39;displacement&#39;, inf, 1) 205
+      (False, &#39;horsepower&#39;, 74, 2) 48
+      (False, &#39;horsepower&#39;, inf, 2) 307
+      ....
+      (True, &#39;displacement&#39;, 141, 1) 38
+      (True, &#39;displacement&#39;, inf, 1) 1
+      (True, &#39;horsepower&#39;, 74, 2) 34
+      (True, &#39;horsepower&#39;, inf, 2) 3
+      ....
+
+   &#34;&#34;&#34;
+
+  def Counts(): return Obj(f={}, h={}, n=0)
+  out = Counts()
+  for row in TBL.rows:
+    k = row.klass
+    out.n += 1
+    out.h[k] = out.h.get(k, 0) + 1
+    for col in TBL.x.values():
+      if x := cell(col, row):
+        v = (k, (col.txt, col.pos), x)
+        out.f[v] = out.f.get(v, 0) + 1
+  return out</code></pre>
+</details>
+</dd>
+<dt id="duo4.learn"><code class="name flex">
+<span>def <span class="ident">learn</span></span>(<span>COUNTS)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def learn(COUNTS):
+  def loop(rules, here, there):
+    lives = THE.lives
+    while True:
+      lives -= 1
+      total, rules = prune(rules)
+      if lives &lt; 1 or len(rules) &lt; 2:
+        return rules
+      rules += [combine(pick(rules, total),
+                        pick(rules, total),
+                        here, there)]
+
+  def value(rule, here, there, e=2):
+    b = like(rule, here, 2)
+    r = like(rule, there, 2)
+    return b**e / (b + r) if b &gt; r else 0
+
+  def like(rule, h, hs=None):
+    hs = hs if hs else len(COUNTS.h)
+    like = prior = (COUNTS.h[h] + THE.k) / (COUNTS.n + THE.k * hs)
+    like = math.log(like)
+    for col, values in rule:
+      f = sum(COUNTS.f.get((h, col, v), 0) for v in values)
+      inc = (f + THE.m * prior) / (COUNTS.h[h] + THE.m)
+      like += math.log(inc)
+    return math.e**like
+
+  def combine(rule1, rule2, here, there):
+    val1, rule1 = rule1
+    val2, rule2 = rule2
+    tmp = dict()
+    for rule in [rule1, rule2]:
+      for k, lst in rule:
+        tmp[k] = tmp.get(k, set())
+        for v in lst:
+          tmp[k].add(v)
+    rule3 = sorted([[k, sorted(list(vs))] for k, vs in tmp.items()])
+    val3 = value(rule3, here, there)
+    return [val3, rule3]
+
+  def same(rule1, rule2):
+    if rule1[0] != rule2[0]:
+      return False
+    for x, y in zip(rule1[1], rule2[1]):
+      if x != y:
+        return False
+    return True
+
+  def prune(old):
+    ordered = [[s, r] for s, r in sorted(old, reverse=True)]
+    one = ordered[0]
+    unique = [one]
+    for two in ordered[1:]:
+      if not same(one, two):
+        unique += [two]
+      one = two
+    pruned = [[s, r] for s, r in unique if s &gt; 0][:THE.beam]
+    return sum(s for s, _ in pruned), pruned
+
+  def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
+    n = r()
+    for rule in rules:
+      n -= rule[0] / total
+      if n &lt;= 0:
+        return rule
+    return rule
+
+  def rule0(c, x, here, there):
+    rule = [[c, [x]]]
+    return [value(rule, here, there), rule]
+
+  out, all = {}, list(set([(c, x) for (_, c, x) in COUNTS.f]))
+  for there in COUNTS.h:
+    for here in COUNTS.h:
+      if here != there:
+        rules = loop([rule0(c, x, here, there)
+                      for c, x in all], here, there)
+        out[here] = [[value(r, here, there, 1), r] for _, r in rules]
+  return out</code></pre>
+</details>
+</dd>
+<dt id="duo4.showRule"><code class="name flex">
+<span>def <span class="ident">showRule</span></span>(<span>r)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def showRule(r):
+  def show1(k, v):
+    return k + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
+  s, rule = r
+  out = &#34;&#34;
+  return &#34;{&#34; + str(round(s, 2)) + &#39;} &#39; + &#39; and &#39;.join([show1(k, v) for k, v in rule])</code></pre>
+</details>
+</dd>
+<dt id="duo4.cell"><code class="name flex">
+<span>def <span class="ident">cell</span></span>(<span>col, row)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>HELPER.
+Returns a cell value if it is not missing.
+Also, if appropriate, Discretize it first.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cell(col, row):
+  &#34;&#34;&#34;HELPER.  Returns a cell value if it is not missing.
+  Also, if appropriate, Discretize it first.&#34;&#34;&#34;
+  def bin(spans, x):
+    for span in spans:
+      if span.lo &lt;= x &lt; span.hi:
+        return span.hi
+    return span.hi
+  #########
+  x = row.cells[col.pos]
+  if x != &#34;?&#34;:
+    return bin(col.spans, x) if numsp(col.has) else x</code></pre>
+</details>
+</dd>
+<dt id="duo4.isa"><code class="name flex">
+<span>def <span class="ident">isa</span></span>(<span>x, y)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns true if <code>x</code> is of type <code>y</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isa(x, y):
+  &#34;Returns true if `x` is of type `y`.&#34;
+  return isinstance(x, y)</code></pre>
+</details>
+</dd>
+<dt id="duo4.numsp"><code class="name flex">
+<span>def <span class="ident">numsp</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns true if <code>x</code> is a container for numbers.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def numsp(x):
+  &#34;Returns true if `x` is a container for numbers.&#34;
+  return isa(x, list)</code></pre>
+</details>
+</dd>
+<dt id="duo4.symsp"><code class="name flex">
+<span>def <span class="ident">symsp</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns true if <code>x</code> is a container for symbols.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def symsp(x):
+  &#34;Returns true if `x` is a container for symbols.&#34;
+  return isa(x, dict)</code></pre>
+</details>
+</dd>
+<dt id="duo4.mu"><code class="name flex">
+<span>def <span class="ident">mu</span></span>(<span>lst)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mu(lst): return sum(lst) / len(lst)</code></pre>
+</details>
+</dd>
+<dt id="duo4.sd"><code class="name flex">
+<span>def <span class="ident">sd</span></span>(<span>lst)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sd(lst): return (
+    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56</code></pre>
+</details>
+</dd>
+<dt id="duo4.csv"><code class="name flex">
+<span>def <span class="ident">csv</span></span>(<span>file, sep=',', ignore='([\\n\\t\\r ]|#.*)')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Misc: reads csv files into list of strings.
+Kill whitespace and comments.
+Converts
+strings to numbers, it needed. For example,
+the file .. / data / weather.csv is turned into</p>
+<p>['outlook', '&lt;temp', 'humid', '?wind', '?!play']
+['sunny', 85, 85, 'FALSE', 'no']
+['sunny', 80, 90, 'TRUE', 'no']
+['overcast', 83, 86, 'FALSE', 'yes']
+['rainy', 70, 96, 'FALSE', 'yes']
+etc</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def csv(file, sep=&#34;,&#34;, ignore=r&#39;([\n\t\r ]|#.*)&#39;):
+  &#34;&#34;&#34;Misc: reads csv files into list of strings.
+  Kill whitespace and comments.
+  Converts  strings to numbers, it needed. For example,
+  the file .. / data / weather.csv is turned into
+
+    [&#39;outlook&#39;, &#39;&lt;temp&#39;, &#39;humid&#39;, &#39;?wind&#39;, &#39;?!play&#39;]
+    [&#39;sunny&#39;, 85, 85, &#39;FALSE&#39;, &#39;no&#39;]
+    [&#39;sunny&#39;, 80, 90, &#39;TRUE&#39;, &#39;no&#39;]
+    [&#39;overcast&#39;, 83, 86, &#39;FALSE&#39;, &#39;yes&#39;]
+    [&#39;rainy&#39;, 70, 96, &#39;FALSE&#39;, &#39;yes&#39;]
+    etc
+
+    &#34;&#34;&#34;
+  def atom(x):
+    try:
+      return int(x)
+    except Exception:
+      try:
+        return float(x)
+      except Exception:
+        return x
+  with open(file) as fp:
+    for a in fp:
+      yield [atom(x) for x in re.sub(ignore, &#39;&#39;, a).split(sep)]</code></pre>
+</details>
+</dd>
+<dt id="duo4.args"><code class="name flex">
+<span>def <span class="ident">args</span></span>(<span>what, txt, d)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Misc: Converts a dictionary <code>d</code> of key = val
+into command line arguments.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def args(what, txt, d):
+  &#34;&#34;&#34;Misc: Converts a dictionary `d` of key = val
+     into command line arguments.&#34;&#34;&#34;
+  def arg(txt, val):
+    eg = &#34;[%s]&#34; % val
+    if val is False:
+      return dict(help=eg, action=&#39;store_true&#39;)
+    return dict(help=eg, default=val,
+                metavar=(&#34;I&#34; if isa(val, int) else (
+                    &#34;F&#34; if isa(val, float) else &#34;S&#34;)),
+                type=(int if isa(val, int) else (
+                    float if isa(val, float) else str)))
+  ###############
+  p = argparse
+  parser = p.ArgumentParser(
+      prog=what, description=txt,
+      formatter_class=p.RawDescriptionHelpFormatter)
+  for key, v in d.__dict__.items():
+    parser.add_argument(&#34;-&#34; + key, **arg(key, v))
+  return Obj(**vars(parser.parse_args()))</code></pre>
+</details>
+</dd>
+<dt id="duo4.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main():
+  def showRule(r):
+    def show1(k, v):
+      return k[0] + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
+    s, rule = r
+    out = &#34;&#34;
+    return &#39; and &#39;.join([show1(k, v) for k, v in rule])
+
+  def selects1(t, row, ands):
+    for (txt, pos), ors in ands:
+      if val := cell(t.cols[txt], row):
+        if val not in ors:
+          return False
+    return True
+
+  def selects(t, rule):
+    s, rule = rule
+    return [row for row in t.rows if selects1(t, row, rule)]
+  ############
+  seed(THE.seed)
+  t = discretize(table(csv(THE.path2data + &#34;/&#34; + THE.data)))
+  for k, rules in learn(counts(t)).items():
+    print(&#34;&#34;)
+    print(k)
+    print(&#34;  &#34; + &#39;, &#39;.join([col.txt for col in t.y.values()]))
+    for rule in rules:
+      ys = {}
+      for row in selects(t, rule):
+        for col in t.y.values():
+          ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
+      print(
+          &#34;  &#34; + &#39;, &#39;.join([f&#34;{mu(ys[k]):.2f}&#34; for k in ys]), end=&#34;\t&#34;)
+      print(showRule(rule))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="duo4.Obj"><code class="flex name class">
+<span>class <span class="ident">Obj</span></span>
+<span>(</span><span>**d)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Containers with set/get access, prints keys in sorted order
+ignoring 'private' keys (those starting with '_').</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Obj():
+  &#34;&#34;&#34;Containers with set/get access, prints keys in sorted order
+  ignoring &#39;private&#39; keys (those starting with &#39;_&#39;).&#34;&#34;&#34;
+  def __init__(i, **d): i.__dict__.update(**d)
+  def __repr__(i): return str(
+      {k: v for k, v in sorted(i.__dict__.items()) if str(k)[0] != &#34;_&#34;})</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#install">Install</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="duo4.r" href="#duo4.r">r</a></code></li>
+<li><code><a title="duo4.table" href="#duo4.table">table</a></code></li>
+<li><code><a title="duo4.discretize" href="#duo4.discretize">discretize</a></code></li>
+<li><code><a title="duo4.counts" href="#duo4.counts">counts</a></code></li>
+<li><code><a title="duo4.learn" href="#duo4.learn">learn</a></code></li>
+<li><code><a title="duo4.showRule" href="#duo4.showRule">showRule</a></code></li>
+<li><code><a title="duo4.cell" href="#duo4.cell">cell</a></code></li>
+<li><code><a title="duo4.isa" href="#duo4.isa">isa</a></code></li>
+<li><code><a title="duo4.numsp" href="#duo4.numsp">numsp</a></code></li>
+<li><code><a title="duo4.symsp" href="#duo4.symsp">symsp</a></code></li>
+<li><code><a title="duo4.mu" href="#duo4.mu">mu</a></code></li>
+<li><code><a title="duo4.sd" href="#duo4.sd">sd</a></code></li>
+<li><code><a title="duo4.csv" href="#duo4.csv">csv</a></code></li>
+<li><code><a title="duo4.args" href="#duo4.args">args</a></code></li>
+<li><code><a title="duo4.main" href="#duo4.main">main</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="duo4.Obj" href="#duo4.Obj">Obj</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>
