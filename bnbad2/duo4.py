@@ -21,9 +21,9 @@ Download file, `chmod +x file`/
 Check it all installs correctly  using `./duo4.py -h`
 (should print help text).
 
-Get a small sample of the output by running on 'weather.csv' 
+Get a small sample of the output by running on 'weather.csv'
 
-    
+
 
 
 # License
@@ -311,12 +311,11 @@ def counts(TBL):
     out.n += 1
     out.h[k] = out.h.get(k, 0) + 1
     for col in TBL.x.values():
-      x = row.cells[col.pos]
-      if x != "?":
-        x = bin(col.spans, x) if numsp(col.has) else x
+      if x := cell(col, row):
         v = (k, (col.txt, col.pos), x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
+
 
 def learn(COUNTS):
   def loop(rules, here, there):
@@ -406,13 +405,18 @@ def showRule(r):
   return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
 
 
-def bin(spans, x):
-  "Misc: Maps numbers into a small number of bins."
-  for span in spans:
-    if span.lo <= x < span.hi:
-      return span.hi
-  return span.hi
-
+def cell(col, row):
+  """HELPER.  Returns a cell value if it is not missing.
+  Also, if appropriate, Discretize it first."""
+  def bin(spans, x):
+    for span in spans:
+      if span.lo <= x < span.hi:
+        return span.hi
+    return span.hi
+  #########
+  x = row.cells[col.pos]
+  if x != "?":
+    return bin(col.spans, x) if numsp(col.has) else x
 
 def isa(x, y):
   "Returns true if `x` is of type `y`."
@@ -435,7 +439,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
   Kill whitespace and comments.
   Converts  strings to numbers, it needed. For example,
-  the file ../data/weather.csv is turned into
+  the file .. / data / weather.csv is turned into
 
     ['outlook', '<temp', 'humid', '?wind', '?!play']
     ['sunny', 85, 85, 'FALSE', 'no']
@@ -458,7 +462,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 def args(what, txt, d):
-  """Misc: Converts a dictionary `d` of key=val
+  """Misc: Converts a dictionary `d` of key = val
      into command line arguments."""
   def arg(txt, val):
     eg = "[%s]" % val
@@ -479,11 +483,6 @@ def args(what, txt, d):
   return Obj(**vars(parser.parse_args()))
 
 def main():
-  def cell(col, row):
-    x = row.cells[col.pos]
-    if x != "?":
-      return bin(col.spans, x) if numsp(col.has) else x
-
   def showRule(r):
     def show1(k, v):
       return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
