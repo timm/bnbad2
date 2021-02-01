@@ -38,18 +38,23 @@ them. Repeat. Nearly all this processing takes log linear time.</p>
          |    5 | Better
          :------:
 </code></pre>
-<h1 id="install">Install</h1>
+<h2 id="install">Install</h2>
 <p>Download file, <code>chmod +x file</code>/</p>
 <p>Check it all installs correctly
 using <code>./duo4.py -h</code>
 (should print help text).</p>
 <p>Get a small sample of the output by running on 'weather.csv'</p>
-<h1 id="license">License</h1>
+<h2 id="license">License</h2>
 <p>(c) Tim Menzies, 2021
 MIT License, <a href="https://opensource.org/licenses/MIT.">https://opensource.org/licenses/MIT.</a> The source code
 does not need to be public when a distribution of the software is
 made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.</p>
+<h2 id="code-overview">Code Overview</h2>
+<ul>
+<li><a href="#duo4.table">table</a></li>
+<li><a href="#duo4.discretize">discretize</a></li>
+</ul>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -70,7 +75,7 @@ them. Repeat. Nearly all this processing takes log linear time.
              |    5 | Better
              :------:
 
-# Install
+## Install
 
 Download file, `chmod +x file`/
 
@@ -80,15 +85,19 @@ Check it all installs correctly  using `./duo4.py -h`
 Get a small sample of the output by running on &#39;weather.csv&#39;
 
 
-
-
-# License
+## License
 
 (c) Tim Menzies, 2021
 MIT License, https://opensource.org/licenses/MIT. The source code
 does not need to be public when a distribution of the software is
 made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.
+
+## Code Overview
+
+- [table](#duo4.table)
+- [discretize](#duo4.discretize)
+
 &#34;&#34;&#34;
 
 import argparse
@@ -458,15 +467,6 @@ def learn(COUNTS):
         out[here] = [[value(r, here, there, 1), r] for _, r in rules]
   return out
 
-
-def showRule(r):
-  def show1(k, v):
-    return k + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
-  s, rule = r
-  out = &#34;&#34;
-  return &#34;{&#34; + str(round(s, 2)) + &#39;} &#39; + &#39; and &#39;.join([show1(k, v) for k, v in rule])
-
-
 def cell(col, row):
   &#34;&#34;&#34;HELPER.  Returns a cell value if it is not missing.
   Also, if appropriate, Discretize it first.&#34;&#34;&#34;
@@ -480,28 +480,23 @@ def cell(col, row):
   if x != &#34;?&#34;:
     return bin(col.spans, x) if numsp(col.has) else x
 
-
 def isa(x, y):
   &#34;Returns true if `x` is of type `y`.&#34;
   return isinstance(x, y)
-
 
 def numsp(x):
   &#34;Returns true if `x` is a container for numbers.&#34;
   return isa(x, list)
 
-
 def symsp(x):
   &#34;Returns true if `x` is a container for symbols.&#34;
   return isa(x, dict)
 
-
+def Mu(lst): return sum(lst) / len(lst)
 def mu(lst): return sum(lst) / len(lst)
-
 
 def sd(lst): return (
     lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
-
 
 def csv(file, sep=&#34;,&#34;, ignore=r&#39;([\n\t\r ]|#.*)&#39;):
   &#34;&#34;&#34;Misc: reads csv files into list of strings.
@@ -530,7 +525,7 @@ def csv(file, sep=&#34;,&#34;, ignore=r&#39;([\n\t\r ]|#.*)&#39;):
       yield [atom(x) for x in re.sub(ignore, &#39;&#39;, a).split(sep)]
 
 
-def args(what, txt, d):
+def _args(what, txt, d):
   &#34;&#34;&#34;Misc: Converts a dictionary `d` of key = val
      into command line arguments.&#34;&#34;&#34;
   def arg(txt, val):
@@ -552,7 +547,7 @@ def args(what, txt, d):
   return Obj(**vars(parser.parse_args()))
 
 
-def main():
+def _main():
   def showRule(r):
     def show1(k, v):
       return k[0] + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
@@ -589,8 +584,8 @@ def main():
 
 
 if __name__ == &#34;__main__&#34;:
-  THE = args(&#34;duo4&#34;, __doc__, split(&#34;\n\n&#34;)[0], THE)
-  main()</code></pre>
+  THE = _args(&#34;duo4&#34;, __doc__.split(&#34;\n\n&#34;)[0], THE)
+  _main()</code></pre>
 </details>
 </section>
 <section>
@@ -1059,23 +1054,6 @@ all that matters is displacement and horsepower is above below
   return out</code></pre>
 </details>
 </dd>
-<dt id="duo4.showRule"><code class="name flex">
-<span>def <span class="ident">showRule</span></span>(<span>r)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def showRule(r):
-  def show1(k, v):
-    return k + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
-  s, rule = r
-  out = &#34;&#34;
-  return &#34;{&#34; + str(round(s, 2)) + &#39;} &#39; + &#39; and &#39;.join([show1(k, v) for k, v in rule])</code></pre>
-</details>
-</dd>
 <dt id="duo4.cell"><code class="name flex">
 <span>def <span class="ident">cell</span></span>(<span>col, row)</span>
 </code></dt>
@@ -1141,6 +1119,18 @@ Also, if appropriate, Discretize it first.</p></div>
 <pre><code class="python">def symsp(x):
   &#34;Returns true if `x` is a container for symbols.&#34;
   return isa(x, dict)</code></pre>
+</details>
+</dd>
+<dt id="duo4.Mu"><code class="name flex">
+<span>def <span class="ident">Mu</span></span>(<span>lst)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def Mu(lst): return sum(lst) / len(lst)</code></pre>
 </details>
 </dd>
 <dt id="duo4.mu"><code class="name flex">
@@ -1214,83 +1204,6 @@ etc</p></div>
       yield [atom(x) for x in re.sub(ignore, &#39;&#39;, a).split(sep)]</code></pre>
 </details>
 </dd>
-<dt id="duo4.args"><code class="name flex">
-<span>def <span class="ident">args</span></span>(<span>what, txt, d)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Misc: Converts a dictionary <code>d</code> of key = val
-into command line arguments.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def args(what, txt, d):
-  &#34;&#34;&#34;Misc: Converts a dictionary `d` of key = val
-     into command line arguments.&#34;&#34;&#34;
-  def arg(txt, val):
-    eg = &#34;[%s]&#34; % val
-    if val is False:
-      return dict(help=eg, action=&#39;store_true&#39;)
-    return dict(help=eg, default=val,
-                metavar=(&#34;I&#34; if isa(val, int) else (
-                    &#34;F&#34; if isa(val, float) else &#34;S&#34;)),
-                type=(int if isa(val, int) else (
-                    float if isa(val, float) else str)))
-  ###############
-  p = argparse
-  parser = p.ArgumentParser(
-      prog=what, description=txt,
-      formatter_class=p.RawDescriptionHelpFormatter)
-  for key, v in d.__dict__.items():
-    parser.add_argument(&#34;-&#34; + key, **arg(key, v))
-  return Obj(**vars(parser.parse_args()))</code></pre>
-</details>
-</dd>
-<dt id="duo4.main"><code class="name flex">
-<span>def <span class="ident">main</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def main():
-  def showRule(r):
-    def show1(k, v):
-      return k[0] + &#34; = (&#34; + &#39; or &#39;.join(map(str, v)) + &#34;)&#34;
-    s, rule = r
-    out = &#34;&#34;
-    return &#39; and &#39;.join([show1(k, v) for k, v in rule])
-
-  def selects1(t, row, ands):
-    for (txt, pos), ors in ands:
-      val = cell(t.cols[txt], row)
-      if val:
-        if val not in ors:
-          return False
-    return True
-
-  def selects(t, rule):
-    s, rule = rule
-    return [row for row in t.rows if selects1(t, row, rule)]
-  ############
-  seed(THE.seed)
-  t = discretize(table(csv(THE.path2data + &#34;/&#34; + THE.data)))
-  for k, rules in learn(counts(t)).items():
-    print(&#34;&#34;)
-    print(k)
-    print(&#34;  &#34; + &#39;, &#39;.join([col.txt for col in t.y.values()]))
-    for rule in rules:
-      ys = {}
-      for row in selects(t, rule):
-        for col in t.y.values():
-          ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
-      print(
-          &#34;  &#34; + &#39;, &#39;.join([f&#34;{mu(ys[k]):.2f}&#34; for k in ys]), end=&#34;\t&#34;)
-      print(showRule(rule))</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -1324,6 +1237,7 @@ ignoring 'private' keys (those starting with '_').</p></div>
 <ul>
 <li><a href="#install">Install</a></li>
 <li><a href="#license">License</a></li>
+<li><a href="#code-overview">Code Overview</a></li>
 </ul>
 </div>
 <ul id="index">
@@ -1334,16 +1248,14 @@ ignoring 'private' keys (those starting with '_').</p></div>
 <li><code><a title="duo4.discretize" href="#duo4.discretize">discretize</a></code></li>
 <li><code><a title="duo4.counts" href="#duo4.counts">counts</a></code></li>
 <li><code><a title="duo4.learn" href="#duo4.learn">learn</a></code></li>
-<li><code><a title="duo4.showRule" href="#duo4.showRule">showRule</a></code></li>
 <li><code><a title="duo4.cell" href="#duo4.cell">cell</a></code></li>
 <li><code><a title="duo4.isa" href="#duo4.isa">isa</a></code></li>
 <li><code><a title="duo4.numsp" href="#duo4.numsp">numsp</a></code></li>
 <li><code><a title="duo4.symsp" href="#duo4.symsp">symsp</a></code></li>
+<li><code><a title="duo4.Mu" href="#duo4.Mu">Mu</a></code></li>
 <li><code><a title="duo4.mu" href="#duo4.mu">mu</a></code></li>
 <li><code><a title="duo4.sd" href="#duo4.sd">sd</a></code></li>
 <li><code><a title="duo4.csv" href="#duo4.csv">csv</a></code></li>
-<li><code><a title="duo4.args" href="#duo4.args">args</a></code></li>
-<li><code><a title="duo4.main" href="#duo4.main">main</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

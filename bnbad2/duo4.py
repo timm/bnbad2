@@ -14,7 +14,7 @@ them. Repeat. Nearly all this processing takes log linear time.
              |    5 | Better
              :------:
 
-# Install
+## Install
 
 Download file, `chmod +x file`/
 
@@ -24,15 +24,27 @@ Check it all installs correctly  using `./duo4.py -h`
 Get a small sample of the output by running on 'weather.csv'
 
 
-
-
-# License
+## License
 
 (c) Tim Menzies, 2021
 MIT License, https://opensource.org/licenses/MIT. The source code
 does not need to be public when a distribution of the software is
 made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.
+
+## Code Overview
+
+- [table](#duo4.table):
+  - Reads data from disk;
+  - Scores each row via _domination_ (how many other rows is this
+    row "better");
+  - Classifies the "best" rows as _klass.True_
+- [discretize](#duo4.discretize)
+  - Divided numerics, then combines divisions that are 
+    too small, or which don't select from _klass.True_
+- [counts](#duo4.counts)
+  - 
+
 """
 
 import argparse
@@ -317,7 +329,7 @@ def counts(TBL):
     for col in TBL.x.values():
       x = cell(col, row)
       if x:
-        v = (k, (col.txt, col.pos), x)
+        v = (k, col.txt, x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
 
@@ -402,15 +414,6 @@ def learn(COUNTS):
         out[here] = [[value(r, here, there, 1), r] for _, r in rules]
   return out
 
-
-def showRule(r):
-  def show1(k, v):
-    return k + " = (" + ' or '.join(map(str, v)) + ")"
-  s, rule = r
-  out = ""
-  return "{" + str(round(s, 2)) + '} ' + ' and '.join([show1(k, v) for k, v in rule])
-
-
 def cell(col, row):
   """HELPER.  Returns a cell value if it is not missing.
   Also, if appropriate, Discretize it first."""
@@ -424,28 +427,23 @@ def cell(col, row):
   if x != "?":
     return bin(col.spans, x) if numsp(col.has) else x
 
-
 def isa(x, y):
   "Returns true if `x` is of type `y`."
   return isinstance(x, y)
-
 
 def numsp(x):
   "Returns true if `x` is a container for numbers."
   return isa(x, list)
 
-
 def symsp(x):
   "Returns true if `x` is a container for symbols."
   return isa(x, dict)
 
-
+def Mu(lst): return sum(lst) / len(lst)
 def mu(lst): return sum(lst) / len(lst)
-
 
 def sd(lst): return (
     lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
-
 
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
@@ -474,7 +472,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 
-def args(what, txt, d):
+def _args(what, txt, d):
   """Misc: Converts a dictionary `d` of key = val
      into command line arguments."""
   def arg(txt, val):
@@ -496,7 +494,7 @@ def args(what, txt, d):
   return Obj(**vars(parser.parse_args()))
 
 
-def main():
+def _main():
   def showRule(r):
     def show1(k, v):
       return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
@@ -505,7 +503,7 @@ def main():
     return ' and '.join([show1(k, v) for k, v in rule])
 
   def selects1(t, row, ands):
-    for (txt, pos), ors in ands:
+    for txt, ors in ands:
       val = cell(t.cols[txt], row)
       if val:
         if val not in ors:
@@ -533,5 +531,5 @@ def main():
 
 
 if __name__ == "__main__":
-  THE = args("duo4", __doc__.split("\n\n")[0], THE)
-  main()
+  THE = _args("duo4", __doc__.split("\n\n")[0], THE)
+  _main()
