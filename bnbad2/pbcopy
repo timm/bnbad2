@@ -1,0 +1,50 @@
+usage: duo3 [-h] [-best F] [-beam I] [-data S] [-path2data S] [-k I] [-m I]
+            [-seed I] [-lives I] [-rowsamples I] [-xsmall F] [-ysmall F]
+            [-Xchop F]
+
+Optimizer, written as a data miner.  Break the data up into regions
+of 'bad' and 'better'. 'Interesting' things occur at very different
+frequencies in 'bad' and 'better'. Find interesting bits. Combine
+them. Repeat. Nearly all this processing takes log linear time.
+
+     :-------:                 explore  = better==bad
+     | Ba    | Bad <----.      planning = max(better - bad)
+     |    56 |          |      monitor  = max(bad - better)
+     :-------:------:   |      tabu     = min(bad + better)
+             | B    |   v
+             |    5 | Better
+             :------:
+
+# Install
+
+Download file, `chmod +x file`/
+
+Check it all installs correctly  using `./duo3.py -h`
+(should print help text).
+
+Get a small sample of the output by running on 'weather.csv' 
+
+    
+
+# License
+
+(c) Tim Menzies, 2021
+MIT License, https://opensource.org/licenses/MIT. The source code
+does not need to be public when a distribution of the software is
+made. Modifications to the software can be release under any
+license. Changes made to the source code may not be documented.
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -best F        [0.5]
+  -beam I        [10]
+  -data S        [auto93.csv]
+  -path2data S   [../data]
+  -k I           [1]
+  -m I           [2]
+  -seed I        [13]
+  -lives I       [128]
+  -rowsamples I  [64]
+  -xsmall F      [0.35]
+  -ysmall F      [0.35]
+  -Xchop F       [0.5]
