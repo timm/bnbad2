@@ -497,7 +497,7 @@ def _args(what, txt, d):
 def _main():
   def showRule(r):
     def show1(k, v):
-      return k[0] + " = (" + ' or '.join(map(str, v)) + ")"
+      return k + " = (" + ' or '.join(map(str, v)) + ")"
     s, rule = r
     out = ""
     return ' and '.join([show1(k, v) for k, v in rule])
@@ -519,14 +519,15 @@ def _main():
   for k, rules in learn(counts(t)).items():
     print("")
     print(k)
-    print("  " + ', '.join([col.txt for col in t.y.values()]))
+    print("  N," + ', '.join([col.txt for col in t.y.values()]))
     for rule in rules:
       ys = {}
-      for row in selects(t, rule):
+      some = selects(t, rule)
+      for row in some:
         for col in t.y.values():
           ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
       print(
-          "  " + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
+          "  " + str(len(some)) + ', ' + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
       print(showRule(rule))
 
 

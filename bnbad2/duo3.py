@@ -469,7 +469,6 @@ def args(what, txt, d):
                     float if isa(val, float) else str)))
   ###############
   p = argparse
-  from argparse_color_formatter import ColorHelpFormatter
   parser = p.ArgumentParser(
       prog=what, description=txt,
       formatter_class=p.RawDescriptionHelpFormatter)
@@ -492,7 +491,8 @@ def main():
 
   def selects1(t, row, ands):
     for (txt, pos), ors in ands:
-      if val := cell(t.cols[txt], row):
+      val = cell(t.cols[txt], row)
+      if val:
         if val not in ors:
           return False
     return True
@@ -506,14 +506,15 @@ def main():
   for k, rules in learn(counts(t)).items():
     print("")
     print(k)
-    print("  " + ', '.join([col.txt for col in t.y.values()]))
+    print("  N, " + ', '.join([col.txt for col in t.y.values()]))
     for rule in rules:
       ys = {}
-      for row in selects(t, rule):
+      some = selects(t, rule)
+      for row in some:
         for col in t.y.values():
           ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
       print(
-          "  " + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
+          "  " + str(len(some)) + ", " + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
       print(showRule(rule))
 
 
