@@ -3,11 +3,11 @@
 ###### curl -s https://raw.githubusercontent.com/timm/bnbad2/main/INSTALL.md > INSTALL.md)
 ###### run sh INSTALL.md
 
-V=duo3
-git clone http://github.com/timm/bnbad2 bnbad2
-cd bndad2/bnbad2
-chmod +x $V.py
-./$V.py -h
+V=duo3  
+git clone http://github.com/timm/bnbad2 bnbad2  
+cd bndad2/bnbad2  
+chmod +x $V.py  
+./$V.py -h  
 
 
 ###### usage: duo3 [-h] [-best F] [-beam I] [-data S] [-path2data S] [-k I] [-m I]
