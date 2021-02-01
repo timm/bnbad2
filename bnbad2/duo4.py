@@ -35,22 +35,22 @@ license. Changes made to the source code may not be documented.
 ## Code Overview
 
 - [table](#duo4.table):
-  - Reads data from disk;
-  - Scores each row via _domination_ (how many other rows is this
-    row "better");
-  - Classifies the "best" rows as _klass.True_
+    - Reads data from disk;
+    - Scores each row via _domination_ (how many other rows is this
+      row "better");
+    - Classifies the "best" rows as _klass.True_
 - [discretize](#duo4.discretize)
-  - Divided numerics, then combines divisions that are 
-    too small, or which don't select from _klass.True_
+    - Divided numerics, then combines divisions that are 
+      too small, or which don't select from _klass.True_
 - [counts](#duo4.counts)
-  - 
+    - x
 
 """
 
 import argparse
-from random import random as r
 from random import seed as seed
 from random import choice as choice
+from random import random as r
 import time
 import math
 import sys

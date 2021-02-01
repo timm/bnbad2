@@ -52,8 +52,22 @@ made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.</p>
 <h2 id="code-overview">Code Overview</h2>
 <ul>
-<li><a href="#duo4.table">table</a></li>
-<li><a href="#duo4.discretize">discretize</a></li>
+<li><a href="#duo4.table">table</a>:<ul>
+<li>Reads data from disk;</li>
+<li>Scores each row via <em>domination</em> (how many other rows is this
+row "better");</li>
+<li>Classifies the "best" rows as <em>klass.True</em></li>
+</ul>
+</li>
+<li><a href="#duo4.discretize">discretize</a><ul>
+<li>Divided numerics, then combines divisions that are
+too small, or which don't select from <em>klass.True</em></li>
+</ul>
+</li>
+<li><a href="#duo4.counts">counts</a><ul>
+<li>x</li>
+</ul>
+</li>
 </ul>
 <details class="source">
 <summary>
@@ -95,15 +109,23 @@ license. Changes made to the source code may not be documented.
 
 ## Code Overview
 
-- [table](#duo4.table)
+- [table](#duo4.table):
+    - Reads data from disk;
+    - Scores each row via _domination_ (how many other rows is this
+      row &#34;better&#34;);
+    - Classifies the &#34;best&#34; rows as _klass.True_
 - [discretize](#duo4.discretize)
+    - Divided numerics, then combines divisions that are 
+      too small, or which don&#39;t select from _klass.True_
+- [counts](#duo4.counts)
+    - x
 
 &#34;&#34;&#34;
 
 import argparse
-from random import random as r
 from random import seed as seed
 from random import choice as choice
+from random import random as r
 import time
 import math
 import sys
@@ -382,7 +404,7 @@ def counts(TBL):
     for col in TBL.x.values():
       x = cell(col, row)
       if x:
-        v = (k, (col.txt, col.pos), x)
+        v = (k, col.txt, x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
 
@@ -556,7 +578,7 @@ def _main():
     return &#39; and &#39;.join([show1(k, v) for k, v in rule])
 
   def selects1(t, row, ands):
-    for (txt, pos), ors in ands:
+    for txt, ors in ands:
       val = cell(t.cols[txt], row)
       if val:
         if val not in ors:
@@ -959,7 +981,7 @@ all that matters is displacement and horsepower is above below
     for col in TBL.x.values():
       x = cell(col, row)
       if x:
-        v = (k, (col.txt, col.pos), x)
+        v = (k, col.txt, x)
         out.f[v] = out.f.get(v, 0) + 1
   return out</code></pre>
 </details>
