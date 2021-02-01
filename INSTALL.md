@@ -1,10 +1,14 @@
 # INSTALL
 
-Setup
+First, install python3 and pip3.
+
+
 
 ```
 git clone http://github.com/timm/bnbad2 bnbad2  
-cd bndad2/bnbad2  
+cd bndad2
+sudo pip3 install -r requirements.txt
+cd bndad2
 chmod +x duo3.py  
 ./duo3.py -h  
 ```
