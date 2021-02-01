@@ -315,7 +315,8 @@ def counts(TBL):
     out.n += 1
     out.h[k] = out.h.get(k, 0) + 1
     for col in TBL.x.values():
-      if (x: = cell(col, row)):
+      x = cell(col, row)
+      if x:
         v = (k, (col.txt, col.pos), x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
@@ -505,7 +506,8 @@ def main():
 
   def selects1(t, row, ands):
     for (txt, pos), ors in ands:
-      if (val: =  cell(t.cols[txt], row)):
+      val = cell(t.cols[txt], row)
+      if val:
         if val not in ors:
           return False
     return True
@@ -531,5 +533,5 @@ def main():
 
 
 if __name__ == "__main__":
-  THE = args("duo4", __doc__, split("\n\n")[0], THE)
+  THE = args("duo4", __doc__.split("\n\n")[0], THE)
   main()
