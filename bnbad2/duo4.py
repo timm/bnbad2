@@ -44,6 +44,7 @@ import math
 import sys
 import re
 
+
 class Obj():
   """Containers with set/get access, prints keys in sorted order
   ignoring 'private' keys (those starting with '_')."""
@@ -65,6 +66,7 @@ THE = Obj(
     xsmall=.35,
     ysmall=.35,
     Xchop=.5)
+
 
 def table(src):
   """Converts a list of cells into rows, summarized in columns. Row1
@@ -188,6 +190,7 @@ def table(src):
   footer(tbl)
   return tbl
 
+
 def discretize(TBL):
   """Reports `bins` for each numeric columns. Initially,
   columns of `N` (x,y) values  into bins of size N^Xchop.
@@ -282,6 +285,7 @@ def discretize(TBL):
       print(f"SYM {col.txt:20} :", sorted(col.has.keys()))
   return TBL
 
+
 def counts(TBL):
   """Counts (class column attribute) inside `TBL`
    (where attributes are the discretized attributes).
@@ -311,7 +315,7 @@ def counts(TBL):
     out.n += 1
     out.h[k] = out.h.get(k, 0) + 1
     for col in TBL.x.values():
-      if x := cell(col, row):
+      if (x: = cell(col, row)):
         v = (k, (col.txt, col.pos), x)
         out.f[v] = out.f.get(v, 0) + 1
   return out
@@ -397,6 +401,7 @@ def learn(COUNTS):
         out[here] = [[value(r, here, there, 1), r] for _, r in rules]
   return out
 
+
 def showRule(r):
   def show1(k, v):
     return k + " = (" + ' or '.join(map(str, v)) + ")"
@@ -418,22 +423,28 @@ def cell(col, row):
   if x != "?":
     return bin(col.spans, x) if numsp(col.has) else x
 
+
 def isa(x, y):
   "Returns true if `x` is of type `y`."
   return isinstance(x, y)
+
 
 def numsp(x):
   "Returns true if `x` is a container for numbers."
   return isa(x, list)
 
+
 def symsp(x):
   "Returns true if `x` is a container for symbols."
   return isa(x, dict)
 
+
 def mu(lst): return sum(lst) / len(lst)
+
 
 def sd(lst): return (
     lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+
 
 def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
   """Misc: reads csv files into list of strings.
@@ -461,6 +472,7 @@ def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
     for a in fp:
       yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
+
 def args(what, txt, d):
   """Misc: Converts a dictionary `d` of key = val
      into command line arguments."""
@@ -482,6 +494,7 @@ def args(what, txt, d):
     parser.add_argument("-" + key, **arg(key, v))
   return Obj(**vars(parser.parse_args()))
 
+
 def main():
   def showRule(r):
     def show1(k, v):
@@ -492,7 +505,7 @@ def main():
 
   def selects1(t, row, ands):
     for (txt, pos), ors in ands:
-      if val := cell(t.cols[txt], row):
+      if (val: =  cell(t.cols[txt], row)):
         if val not in ors:
           return False
     return True
@@ -518,5 +531,5 @@ def main():
 
 
 if __name__ == "__main__":
-  THE = args("duo4", __doc__, THE)
+  THE = args("duo4", __doc__, split("\n\n")[0], THE)
   main()
