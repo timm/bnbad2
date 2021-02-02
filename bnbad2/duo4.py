@@ -169,7 +169,7 @@ def classify(tbl):
   """Count how often each row dominates some others.
      Classify a row as True if it scores in the top _best_ range."""
   def norm(lst, x): return (
-      x - lst[0]) / (lst[1] - lst[0] + 1E-32)
+      x - lst[0]) / (lst[-1] - lst[0] + 1E-32)
 
   def better(tbl, row1, row2):
     "Zitler's continous domination predicate (from IBEA, 2005)."
