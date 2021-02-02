@@ -4,7 +4,7 @@
 <img width=400 src="docs/moea.png">
 </p>
 <p align=center>
-<a href="http://menzies.us/bnbad2/duo4.html"><img xxxalign=middle width=150  
+<a href="http://menzies.us/bnbad2/duo4.html"><img xxxalign=middle width=250  
 src=docs/readdocs.png></a>
 </p>
 <p align=center>
