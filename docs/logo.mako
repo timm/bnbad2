@@ -1,6 +1,6 @@
 <center>
 <a href="http://menzies.us/bnbad2"><img src="letscook.png" width=500></a>
-<p><a href="#license">&copy; 2020</a>, Tim Menzies<br>
+<p><a href="#license">&copy; 2021</a>, Tim Menzies<br>
 <a href="mailto:timm@ieee.org">timm@ieee.org</a><br> 
 <a href="http://menzies.us">http://menzies.us</a>
 </p>
