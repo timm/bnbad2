@@ -1,4 +1,4 @@
-<h1 align=center> BnBAD2 (break 'n bad):<br>fast, explicable, multi-objective reasoning</h1>
+<h1 align=center> BnBAD2 (break 'n bad):<br>fast, explicable, multi-objective reasoner</h1>
 
 <p align=center>
 <img width=400 src="docs/moea.png">
