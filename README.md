@@ -4,7 +4,7 @@
 <img width=400 src="docs/moea.png">
 </p>
 <p align=center>
-<a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg" alt="DOI"></a>
+<a href="https://doi.org/10.5281/zenodo.4491207"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4491207.svg" alt="DOI"></a>
 <img src="https://img.shields.io/badge/language-python3,bash-blue">
 <img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
 <a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>

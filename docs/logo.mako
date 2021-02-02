@@ -11,7 +11,7 @@ corrections. You can keep your sterile
 truth for yourself."
 -&nbsp;Vilfredo&nbsp;Pareto</p>
 <p>
-<a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg" alt="DOI"></a>
+<a href="https://doi.org/10.5281/zenodo.4491207"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4491207.svg" alt="DOI"></a>
 <br><img src="https://img.shields.io/badge/language-python3,bash-blue">
 <br><img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
 <br><a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
