@@ -14,7 +14,7 @@ them. Repeat. Nearly all this processing takes log linear time.
              |    5 | Better
              :------:
 
-## Install
+# Install
 
 Download file, `chmod +x file`/
 
@@ -24,7 +24,7 @@ Check it all installs correctly  using `./duo4.py -h`
 Get a small sample of the output by running on 'weather.csv'
 
 
-## License
+# License
 
 (c) Tim Menzies, 2021
 MIT License, https://opensource.org/licenses/MIT. The source code
@@ -32,25 +32,10 @@ does not need to be public when a distribution of the software is
 made. Modifications to the software can be release under any
 license. Changes made to the source code may not be documented.
 
-## Code Overview
-
-- [table](#duo4.table):
-    - Reads data from disk;
-    - Scores each row via _domination_ (how many other rows is this
-      row "better");
-    - Classifies the "best" rows as _klass.True_
-- [discretize](#duo4.discretize)
-    - Divided numerics, then combines divisions that are 
-      too small, or which don't select from _klass.True_
-- [counts](#duo4.counts)
-    - x
-
 """
 
 import argparse
-from random import seed as seed
-from random import choice as choice
-from random import random as r
+import random
 import time
 import math
 import sys
@@ -143,27 +128,6 @@ def table(src):
     return Obj(n=0, txt=txt, pos=pos, has=None, spans=[],
                w=-1 if "<" in txt else 1)
 
-  def classify(tbl):
-    def norm(lst, x): return (
-        x - lst[0]) / (lst[1] - lst[0] + 1E-32)
-
-    def better(tbl, row1, row2):
-      "Zitler's continous domination predicate (from IBEA, 2005)."
-      s1, s2, n = 0, 0, len(tbl.y)
-      for col in tbl.y.values():
-        pos, w = col.pos, col.w
-        a, b = row1.cells[pos], row2.cells[pos]
-        a, b = norm(col.has, a), norm(col.has, b)
-        s1 -= math.e**(w * (a - b) / n)
-        s2 -= math.e**(w * (b - a) / n)
-      return s1 / n < s2 / n
-    #######################
-    for row1 in tbl.rows:
-      row1.score = sum(better(tbl, row1, choice(tbl.rows))
-                       for _ in range(THE.rowsamples)) / THE.rowsamples
-    for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
-      row.klass = n > len(tbl.rows) * THE.best
-
   def head(tbl, x):
     for pos, txt in enumerate(x):
       if not "?" in txt:
@@ -177,10 +141,10 @@ def table(src):
     def inc(col, x):
       if col.has is None:
         col.has = [math.inf, -
-                   math.inf] if isa(x, (float, int)) else {}
+                   math.inf] if u.isa(x, (float, int)) else {}
         return inc(col, x)
       col.n += 1
-      if symsp(col.has):
+      if u.symsp(col.has):
         col.has[x] = col.has.get(x, 0) + 1
       else:
         if x > col.has[1]:
@@ -192,14 +156,37 @@ def table(src):
 
   def footer(tbl):
     for col in tbl.cols.values():
-      if numsp(col.has):
+      if u.numsp(col.has):
         col.has.sort()
-    classify(tbl)
   ##########################
   tbl = Tbl()
   for x in src:
     (body if len(tbl.cols) else head)(tbl, x)
   footer(tbl)
+  return tbl
+
+def classify(tbl):
+  """Count how often each row dominates some others.
+     Classify a row as True if it scores in the top _best_ range."""
+  def norm(lst, x): return (
+      x - lst[0]) / (lst[1] - lst[0] + 1E-32)
+
+  def better(tbl, row1, row2):
+    "Zitler's continous domination predicate (from IBEA, 2005)."
+    s1, s2, n = 0, 0, len(tbl.y)
+    for col in tbl.y.values():
+      pos, w = col.pos, col.w
+      a, b = row1.cells[pos], row2.cells[pos]
+      a, b = norm(col.has, a), norm(col.has, b)
+      s1 -= math.e**(w * (a - b) / n)
+      s2 -= math.e**(w * (b - a) / n)
+    return s1 / n < s2 / n
+  #######################
+  for row1 in tbl.rows:
+    row1.score = sum(better(tbl, row1, u.any(tbl.rows))
+                     for _ in range(THE.rowsamples)) / THE.rowsamples
+  for n, row in enumerate(sorted(tbl.rows, key=lambda z: z.score)):
+    row.klass = n > len(tbl.rows) * THE.best
   return tbl
 
 
@@ -241,8 +228,8 @@ def discretize(TBL):
         ys += [y]
         xy += [(x, y)]
     ys = sorted(ys)
-    return (sd(sorted(xs)) * THE.xsmall,
-            sd(ys) * THE.ysmall,
+    return (u.sd(sorted(xs)) * THE.xsmall,
+            u.sd(ys) * THE.ysmall,
             ys[int(THE.best * len(ys))],
             sorted(xy))
 
@@ -277,9 +264,9 @@ def discretize(TBL):
       a = b4[j]
       if j < len(b4) - 1:
         b = b4[j + 1]
-        if (abs(mu(b._has) - mu(a._has)) < ysmall
+        if (abs(u.mu(b._has) - u.mu(a._has)) < ysmall
             or
-                (mu(b._has) < ymin and mu(a._has) < ymin)):
+                (u.mu(b._has) < ymin and u.mu(a._has) < ymin)):
           merged = Span(lo=a.lo, hi=b.hi, has=a._has + b._has)
           now += [merged]
           j += 2
@@ -288,7 +275,7 @@ def discretize(TBL):
     return merge(now, ymin, ysmall) if len(now) < len(b4) else now
 
   for col in TBL.x.values():
-    if numsp(col.has):
+    if u.numsp(col.has):
       col.spans = div(*pairs(TBL.rows,
                              lambda z: z.cells[col.pos],
                              lambda z: z.score))
@@ -327,7 +314,7 @@ def counts(TBL):
     out.n += 1
     out.h[k] = out.h.get(k, 0) + 1
     for col in TBL.x.values():
-      x = cell(col, row)
+      x = u.cell(col, row)
       if x:
         v = (k, col.txt, x)
         out.f[v] = out.f.get(v, 0) + 1
@@ -394,7 +381,7 @@ def learn(COUNTS):
     return sum(s for s, _ in pruned), pruned
 
   def pick(rules, total):  # (s1, r1) (s2,r2) (s3,r3) total=s1+s2+s3
-    n = r()
+    n = u.r()
     for rule in rules:
       n -= rule[0] / total
       if n <= 0:
@@ -414,62 +401,67 @@ def learn(COUNTS):
         out[here] = [[value(r, here, there, 1), r] for _, r in rules]
   return out
 
-def cell(col, row):
-  """HELPER.  Returns a cell value if it is not missing.
-  Also, if appropriate, Discretize it first."""
-  def bin(spans, x):
-    for span in spans:
-      if span.lo <= x < span.hi:
-        return span.hi
-    return span.hi
-  #########
-  x = row.cells[col.pos]
-  if x != "?":
-    return bin(col.spans, x) if numsp(col.has) else x
+class u:
+  "misc utilities"
+  def r(): return random.random()
+  def seed(x): return random.seed(x)
+  def any(x): return random.choice(x)
 
-def isa(x, y):
-  "Returns true if `x` is of type `y`."
-  return isinstance(x, y)
+  def cell(col, row):
+    """HELPER.  Returns a cell value if it is not missing.
+    Also, if appropriate, Discretize it first."""
+    def bin(spans, x):
+      for span in spans:
+        if span.lo <= x < span.hi:
+          return span.hi
+      return span.hi
+    #########
+    x = row.cells[col.pos]
+    if x != "?":
+      return bin(col.spans, x) if u.numsp(col.has) else x
 
-def numsp(x):
-  "Returns true if `x` is a container for numbers."
-  return isa(x, list)
+  def isa(x, y):
+    "Returns true if `x` is of type `y`."
+    return isinstance(x, y)
 
-def symsp(x):
-  "Returns true if `x` is a container for symbols."
-  return isa(x, dict)
+  def numsp(x):
+    "Returns true if `x` is a container for numbers."
+    return u.isa(x, list)
 
-def Mu(lst): return sum(lst) / len(lst)
-def mu(lst): return sum(lst) / len(lst)
+  def symsp(x):
+    "Returns true if `x` is a container for symbols."
+    return u.isa(x, dict)
 
-def sd(lst): return (
-    lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
+  def mu(lst): return sum(lst) / len(lst)
 
-def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
-  """Misc: reads csv files into list of strings.
-  Kill whitespace and comments.
-  Converts  strings to numbers, it needed. For example,
-  the file .. / data / weather.csv is turned into
+  def sd(lst): return (
+      lst[int(.9 * len(lst))] - lst[int(.1 * len(lst))]) / 2.56
 
-    ['outlook', '<temp', 'humid', '?wind', '?!play']
-    ['sunny', 85, 85, 'FALSE', 'no']
-    ['sunny', 80, 90, 'TRUE', 'no']
-    ['overcast', 83, 86, 'FALSE', 'yes']
-    ['rainy', 70, 96, 'FALSE', 'yes']
-    etc
+  def csv(file, sep=",", ignore=r'([\n\t\r ]|#.*)'):
+    """Misc: reads csv files into list of strings.
+    Kill whitespace and comments.
+    Converts  strings to numbers, it needed. For example,
+    the file .. / data / weather.csv is turned into
 
-    """
-  def atom(x):
-    try:
-      return int(x)
-    except Exception:
+      ['outlook', '<temp', 'humid', '?wind', '?!play']
+      ['sunny', 85, 85, 'FALSE', 'no']
+      ['sunny', 80, 90, 'TRUE', 'no']
+      ['overcast', 83, 86, 'FALSE', 'yes']
+      ['rainy', 70, 96, 'FALSE', 'yes']
+      etc
+
+      """
+    def atom(x):
       try:
-        return float(x)
+        return int(x)
       except Exception:
-        return x
-  with open(file) as fp:
-    for a in fp:
-      yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
+        try:
+          return float(x)
+        except Exception:
+          return x
+    with open(file) as fp:
+      for a in fp:
+        yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
 
 def _args(what, txt, d):
@@ -480,10 +472,10 @@ def _args(what, txt, d):
     if val is False:
       return dict(help=eg, action='store_true')
     return dict(help=eg, default=val,
-                metavar=("I" if isa(val, int) else (
-                    "F" if isa(val, float) else "S")),
-                type=(int if isa(val, int) else (
-                    float if isa(val, float) else str)))
+                metavar=("I" if u.isa(val, int) else (
+                    "F" if u.isa(val, float) else "S")),
+                type=(int if u.isa(val, int) else (
+                    float if u.isa(val, float) else str)))
   ###############
   p = argparse
   parser = p.ArgumentParser(
@@ -504,7 +496,7 @@ def _main():
 
   def selects1(t, row, ands):
     for txt, ors in ands:
-      val = cell(t.cols[txt], row)
+      val = u.cell(t.cols[txt], row)
       if val:
         if val not in ors:
           return False
@@ -514,8 +506,9 @@ def _main():
     s, rule = rule
     return [row for row in t.rows if selects1(t, row, rule)]
   ############
-  seed(THE.seed)
-  t = discretize(table(csv(THE.path2data + "/" + THE.data)))
+  u.seed(THE.seed)
+  t = discretize(
+      classify(table(u.csv(THE.path2data + "/" + THE.data))))
   for k, rules in learn(counts(t)).items():
     print("")
     print(k)
@@ -527,7 +520,7 @@ def _main():
         for col in t.y.values():
           ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
       print(
-          "  " + str(len(some)) + ', ' + ', '.join([f"{mu(ys[k]):.2f}" for k in ys]), end="\t")
+          "  " + str(len(some)) + ', ' + ', '.join([f"{u.mu(ys[k]):.2f}" for k in ys]), end="\t")
       print(showRule(rule))
 
 

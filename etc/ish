@@ -37,8 +37,8 @@ PROMPT_COMMAND='echo -ne "🎢 $(git branch 2>/dev/null | grep '^*' | colrm 1 2)
 # }
 docs() {
   (cd $Ish/bnbad2; #for i in *.py; do
-    pdoc3 -o $Ish/docs --force --html --config show_inherited_members=False --config sort_identifiers=False index 
-    pdoc3 -o $Ish/docs --force --html --config show_inherited_members=False --config sort_identifiers=False duo4 
+    pdoc3 -o $Ish/docs --force --html --template-dir $Ish/docs index 
+    pdoc3 -o $Ish/docs --force --html --template-dir $Ish/docs duo4 
   )
   cp $Ish/README.md $Ish/docs/index.md
   cp $Ish/etc/pycco.css $Ish/docs
