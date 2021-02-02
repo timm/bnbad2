@@ -8,8 +8,7 @@
 src=docs/readdocs.png></a>
 </p>
 <p align=center>
-<a href="https://zenodo.org/badge/latestdoi/326061406"><img 
-src="https://zenodo.org/badge/326061406.svg"></a>
+<a href="https://zenodo.org/badge/latestdoi/326061406"><img src="https://zenodo.org/badge/326061406.svg" alt="DOI"></a>
 <img src="https://img.shields.io/badge/language-python3,bash-blue">
 <img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet">
 <a href="https://travis-ci.com/timm/bnbad2"><img src="https://travis-ci.com/timm/bnbad2.svg?branch=main"></a>
