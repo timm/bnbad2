@@ -340,7 +340,7 @@ def learn(COUNTS):
   def value(rule, here, there):
     b = like(rule, here, 2)
     r = like(rule, there, 2)
-    return b**2 / (b + r) if b > r else 0
+    return b / (b + r) if b > r else 0
 
   def like(rule, h, hs=None):
     hs = hs if hs else len(COUNTS.h)
