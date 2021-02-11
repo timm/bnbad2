@@ -468,6 +468,23 @@ class u:
       for a in fp:
         yield [atom(x) for x in re.sub(ignore, '', a).split(sep)]
 
+  def showRule(r):
+    def show1(k, v): return k + " = (" + ' | '.join(map(str, v)) + ")"
+    s, rule = r
+    out = ""
+    return ' & '.join([show1(k, v) for k, v in rule])
+
+  def selects(t, rule):
+    def selects1(t, row, ands):
+      for txt, ors in ands:
+        val = u.cell(t.cols[txt], row)
+        if val:
+          if val not in ors:
+            return False
+      return True
+    s, rule = rule
+    return [row for row in t.rows if selects1(t, row, rule)]
+
 #######################################################
 def _args(what, txt, d):
   """Misc: Converts a dictionary `d` of key = val
@@ -490,31 +507,16 @@ def _args(what, txt, d):
     parser.add_argument("-" + key, **arg(key, v))
   return Obj(**vars(parser.parse_args()))
 
+def main():
+  return discretize(
+      classify(
+          table(
+              u.csv(THE.path2data + "/" + THE.data))))
 
-#######################################################
+#####################################################
 def _main():
-  def showRule(r):
-    def show1(k, v):
-      return k + " = (" + ' | '.join(map(str, v)) + ")"
-    s, rule = r
-    out = ""
-    return ' & '.join([show1(k, v) for k, v in rule])
-
-  def selects1(t, row, ands):
-    for txt, ors in ands:
-      val = u.cell(t.cols[txt], row)
-      if val:
-        if val not in ors:
-          return False
-    return True
-
-  def selects(t, rule):
-    s, rule = rule
-    return [row for row in t.rows if selects1(t, row, rule)]
-  ############
   u.seed(THE.seed)
-  t = discretize(
-      classify(table(u.csv(THE.path2data + "/" + THE.data))))
+  t = main()
   for k, rules in learn(counts(t)).items():
     print("")
     print(k, "if")
@@ -522,14 +524,14 @@ def _main():
                                 for col in t.y.values()]))
     for rule in rules:
       ys = {}
-      some = selects(t, rule)
+      some = u.selects(t, rule)
       for row in some:
         for col in t.y.values():
           ys[col.txt] = ys.get(col.txt, []) + [row.cells[col.pos]]
       print(
           f"{len(some):5}  " + ' '.join([f"{u.mu(ys[k]):7.2f}"
                                          for k in ys]), end="   ")
-      print(showRule(rule))
+      print(u.showRule(rule))
 
 
 #######################################################
