@@ -1,4 +1,4 @@
-from copy import deepcopy as cp
+def _method(f): return lambda *l, **d: f(i, *l, **d)
 
 class o:
   def __init__(i, **d): i.__dict__.update(**d)
@@ -7,9 +7,8 @@ class o:
        for k, v in sorted(i.__dict__.items()) if k[0] != "_"})
 
 def of(i, **methods):
-  def method(f): return lambda *l, **d: f(i, *l, **d)
   for k, f in methods.items():
-    i.__dict__[k] = method(f)
+    i.__dict__[k] = _method(f)
   return i
 
 def Fred(a=2):
